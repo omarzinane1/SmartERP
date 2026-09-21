@@ -1,21 +1,122 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
-html,
-body,
-#root {
-  min-height: 100%;
+@theme {
+  --font-sans: 'Inter', 'Segoe UI', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --color-navy-950: #102747;
 }
 
-body {
-  margin: 0;
-  background: #f8fafc;
-  color: #0f172a;
-  font-family:
-    Inter,
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
+html {
+  min-width: 320px;
+  min-height: 100%;
+  background: #fff;
+  color: #182942;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body { margin: 0; }
+button, input { font: inherit; }
+button:not(:disabled), input[type='checkbox']:not(:disabled) { cursor: pointer; }
+::selection { background: #dce6f7; color: #102747; }
+
+.brand-panel {
+  background: radial-gradient(ellipse at 90% 60%, #233e61 0%, transparent 58%), #102747;
+}
+
+.brand-grid {
+  background-image: linear-gradient(#ffffff04 1px, transparent 1px), linear-gradient(90deg, #ffffff04 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: linear-gradient(transparent, #000 40%, transparent);
+}
+
+/* Champs compacts du parcours ERP ; les styles de connexion restent indépendants. */
+.onboarding-page button { font-size: 12px; }
+.onboarding-fields label {
+  display: block;
+  margin-bottom: 6px;
+  color: #425575;
+  font-size: 11px;
+  font-weight: 600;
+}
+.onboarding-fields label > span { color: #dc5965; }
+.onboarding-fields input:not([type='checkbox']):not([type='file']),
+.onboarding-fields select,
+.onboarding-fields textarea {
+  width: 100%;
+  min-width: 0;
+  height: 36px;
+  border: 1px solid #dfe5ef;
+  border-radius: 4px;
+  background: white;
+  padding: 7px 10px;
+  color: #34435d;
+  font-family: inherit;
+  font-size: 11px;
+  line-height: 20px;
+  outline: none;
+  box-shadow: 0 1px 2px #172c5003;
+}
+.onboarding-fields input::placeholder,
+.onboarding-fields textarea::placeholder { color: #8a98ac; }
+.onboarding-fields textarea { height: auto; resize: vertical; }
+.onboarding-fields select { padding-right: 24px; }
+.onboarding-fields input:focus,
+.onboarding-fields select:focus,
+.onboarding-fields textarea:focus { border-color: #6b92ee; box-shadow: 0 0 0 3px #2563eb12; }
+.onboarding-fields [aria-invalid='true'] { border-color: #ef8290 !important; }
+.onboarding-fields .field-hint { margin-top: 5px; font-size: 10px; line-height: 16px; color: #8290a5; }
+.onboarding-fields .field-error { margin-top: 5px; font-size: 11px; line-height: 17px; color: #dc2626; }
+.onboarding-switch {
+  position: relative;
+  width: 30px;
+  height: 17px;
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  background: #cbd5e1;
+}
+.onboarding-switch:checked { background: #2563eb; }
+.onboarding-switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 11px; height: 11px; border-radius: 50%; background: white; }
+.onboarding-switch:checked::after { left: 16px; }
+
+/* Le shell interne garde une densité ERP sans modifier Login ou Onboarding. */
+.erp-shell { font-size: 12px; }
+.erp-shell button, .erp-shell input, .erp-shell select { font-size: 11px; }
+.erp-shell .topbar-icon { display: grid; width: 28px; height: 28px; place-items: center; border-radius: 5px; color: #8390a6; }
+.erp-shell .topbar-icon:hover { background: #f1f5fb; color: #2563eb; }
+.erp-shell button:focus-visible, .erp-shell summary:focus-visible { outline: 2px solid #60a5fa; outline-offset: 2px; }
+.sidebar-section-title { margin-bottom: 7px; padding: 0 10px; color: #8a97ac; font-size: 9px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.sidebar-link { display: flex; min-height: 34px; cursor: pointer; align-items: center; gap: 9px; border-radius: 4px; padding: 7px 10px; color: #6d7c93; font-size: 11px; }
+.sidebar-link:hover { background: #edf2fc; }
+.sidebar-link-active { background: #e2ecff; color: #244b83; font-weight: 600; }
+.sidebar-link::-webkit-details-marker { display: none; }
+.dashboard-page { margin: 0 auto; width: 100%; max-width: 1600px; padding: 25px 24px 24px; }
+.dashboard-card { border: 1px solid #e1e6f0; border-radius: 7px; background: #fff; box-shadow: 0 1px 2px #14284903; }
+.dashboard-title { color: #213b61; font-size: 12px; font-weight: 600; line-height: 18px; }
+.dashboard-caption { margin-top: 2px; color: #8995a9; font-size: 9px; line-height: 15px; }
+.erp-shell .dashboard-text-link { flex-shrink: 0; color: #2563eb; font-size: 9px; line-height: 18px; }
+.dashboard-text-link:hover { text-decoration: underline; }
+.dashboard-table-scroll { margin-top: 17px; width: 100%; overflow-x: auto; border-radius: 3px; }
+.dashboard-table-scroll:focus-visible { outline: 2px solid #93c5fd; outline-offset: 2px; }
+.dashboard-table { width: 100%; border-collapse: collapse; white-space: nowrap; font-size: 9px; }
+.dashboard-table th { border-bottom: 1px solid #e7ebf3; padding: 0 5px 9px; text-align: left; color: #8d98ac; font-size: 8px; font-weight: 600; text-transform: uppercase; }
+.dashboard-table td { border-bottom: 1px solid #eff2f7; padding: 10px 5px; }
+.dashboard-table th:first-child, .dashboard-table td:first-child { padding-left: 0; }
+.dashboard-table th:last-child, .dashboard-table td:last-child { padding-right: 0; }
+.dashboard-table tr:last-child td { border-bottom: 0; }
+.dashboard-table tbody tr:hover { background: #fafbff; }
+.erp-shell .recharts-wrapper:focus-visible { outline: 2px solid #93c5fd; outline-offset: 2px; }
+@media (max-width: 639px) {
+  .dashboard-page { padding: 20px 16px; }
+  .erp-shell .topbar-icon.hidden { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
