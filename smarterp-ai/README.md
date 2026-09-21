@@ -1,6 +1,6 @@
 # SmartERP AI
 
-Frontend React + TypeScript + Vite, préparé pour **Django + Django REST Framework**. Les pages de connexion, d’onboarding société et de tableau de bord exécutif sont développées.
+Frontend React + TypeScript + Vite, préparé pour **Django + Django REST Framework**. Les pages de connexion, d’onboarding société, de tableau de bord exécutif et d’AI Control Center sont développées.
 
 ## Installation
 
@@ -19,6 +19,7 @@ Ouvrir **http://localhost:5173/login**. Sans backend lancé, un envoi valide aff
 ```dotenv
 VITE_API_BASE_URL=http://localhost:8000/api
 VITE_DASHBOARD_USE_MOCK=true
+VITE_AI_CONTROL_CENTER_USE_MOCK=true
 ```
 
 Modifier cette variable dans `.env`, puis redémarrer Vite. Elle désigne la racine de l’API, sans le suffixe `/auth/login/`. Elle est lue dans `src/config/env.ts` puis utilisée uniquement par le client `src/lib/axios.ts`. Les variables préfixées `VITE_` sont publiques : ne jamais y mettre de secret.
@@ -41,6 +42,7 @@ src/
     types/                   Contrats d’authentification
   features/onboarding/       Configuration de la société en sept étapes
   features/dashboard/        Vue exécutive, graphiques, API et données temporaires
+  features/ai-control-center/ Surveillance, alertes, prévisions et recommandations
   lib/                       Axios centralisé et utilitaire cn()
   store/                     État global Zustand, conservé en mémoire
 tests/                       Tests navigateur, réponses isolées de la production
@@ -57,7 +59,7 @@ Stack : React, React Router DOM, Tailwind CSS via le plugin Vite, Axios, TanStac
 | `/login` | Page de connexion |
 | `/onboarding` | Configuration de la société en 7 étapes |
 | `/dashboard` | Tableau de bord exécutif dans AppShell |
-| `/ai/control-center` | Placeholder existant dans AppShell |
+| `/ai/control-center` | Centre de surveillance et d’intelligence dans AppShell |
 
 La racine et les URLs inconnues renvoient vers `/login`. L’onboarding et les pages internes requièrent un état d’authentification en mémoire. Cette garde facilite la navigation ; les permissions et la protection des données restent à la charge de Django.
 
@@ -114,7 +116,7 @@ React Router → RequireAuth → AppShell → Outlet → DashboardPage
                                       dashboard.mock   Axios → Django
 ```
 
-`AppShell.tsx` compose la sidebar, la topbar et un `Outlet`. React Router remplace cet `Outlet` par la page interne active. Login et Onboarding restent à l’extérieur de ce shell. La sidebar contient les groupes de navigation repliables ; seuls Tableau de bord et le placeholder AI Control Center sont navigables. Les autres entrées sont marquées « À venir ». Aucune autre page métier n’est créée.
+`AppShell.tsx` compose la sidebar, la topbar et un `Outlet`. React Router remplace cet `Outlet` par la page interne active. Login et Onboarding restent à l’extérieur de ce shell. La sidebar contient les groupes de navigation repliables ; Tableau de bord et AI Control Center sont navigables. Les autres entrées sont marquées « À venir ».
 
 ### Fichiers du dashboard
 
@@ -144,7 +146,7 @@ Dans ce tableau, les chemins `components/`, `api/`, `hooks/`, `data/` et `types/
 
 Par défaut, `VITE_DASHBOARD_USE_MOCK=true`. Les chiffres fournis dans la référence sont regroupés dans `dashboard.mock.ts`, pour un exemple daté de septembre 2026. La page indique clairement « Données de démonstration ». Ce mode concerne uniquement le dashboard : il ne simule ni une connexion ni l’enregistrement de l’onboarding. La garde d’authentification existante reste active.
 
-Les onglets du graphique changent réellement la série affichée (CA, commandes, marge), le filtre d’alertes fonctionne et l’export CSV télécharge les huit indicateurs avec leur période et leur source. Ctrl+K place le focus dans la recherche. La recherche, les filtres de période/dépôt et les créations métier sont encore des interfaces préparatoires ; les actions non développées l’indiquent sans créer de données. Les liens IA ouvrent uniquement le placeholder existant.
+Les onglets du graphique changent réellement la série affichée (CA, commandes, marge), le filtre d’alertes fonctionne et l’export CSV télécharge les huit indicateurs avec leur période et leur source. Ctrl+K place le focus dans la recherche. La recherche, les filtres de période/dépôt du Dashboard et les créations métier sont encore des interfaces préparatoires ; les actions non développées l’indiquent sans créer de données. Les liens IA ouvrent l’AI Control Center.
 
 Les chiffres constatés, l’analyse IA, les prévisions et les recommandations portent des libellés distincts. La courbe de trésorerie utilise un trait plein pour l’historique et des pointillés pour la prévision. Le résumé de démonstration n’est pas généré par une IA en direct.
 
@@ -157,6 +159,37 @@ Les chiffres constatés, l’analyse IA, les prévisions et les recommandations 
 5. Appliquer les permissions et limiter les données retournées côté Django selon le rôle. Aucun système RBAC frontend supplémentaire n’est introduit ici.
 
 En mode API, une erreur affiche « Impossible de charger le tableau de bord. » et « Réessayer ». Elle ne déclenche jamais un retour silencieux aux données fictives. Les détails techniques restent hors de l’interface. `AppShell`, Sidebar, Topbar, les composants UI et les fonctions de formatage pourront servir aux prochaines pages.
+
+## AI Control Center
+
+La page réutilise `AppShell`, `Sidebar`, `Topbar`, `Button`, `Badge`, `Input`, `Alert`, `Spinner` et le client Axios existants. Aucune dépendance supplémentaire n’est installée.
+
+`src/features/ai-control-center/pages/AIControlCenterPage.tsx` compose les sections : santé globale et six départements, statistiques, synthèse IA, tableau et détail d’alerte, matrice de risques, quatre prévisions, opportunités, recommandations et historique des anomalies. Chaque section possède son composant dans `components/`. Les styles sont isolés dans `ai-control-center.css`.
+
+La sélection tient dans `selectedAlertId`. L’alerte de marge est sélectionnée au départ. Cliquer sur une ligne ou un point de la matrice affiche ses faits, son analyse, ses estimations, ses recommandations et ses preuves. Le panneau est à droite sur desktop et plein écran sous 1024 px ; il se ferme avec sa croix ou Échap. Sur mobile, le focus reste dans le panneau et revient à son point de départ à la fermeture.
+
+Les filtres recherche, département, sévérité, statut, type et période se combinent côté frontend. Ils concernent le flux d’alertes ; les cartes globales conservent leur période d’analyse. Le regroupement par département et le tri par date sont disponibles. Une vue peut être enregistrée pour la session. L’export CSV reprend les alertes filtrées avec leur source.
+
+Toutes les données de démonstration se trouvent dans `data/aiControlCenter.mock.ts`. Les faits simulés sont explicitement identifiés. `FACT`, `AI ANALYSIS`, `FORECAST / ESTIMATE` et `RECOMMENDATION` distinguent observations et hypothèses. Les compteurs globaux couvrent le portefeuille ; le tableau montre six alertes prioritaires.
+
+Assigner ou résoudre une alerte modifie uniquement l’état de la page en mode démo. Les recommandations ouvrent une proposition détaillée. « Enregistrer le brouillon » conserve cette proposition pendant la session ; aucune commande, relance, règle ou opération ERP n’est exécutée. Les actions sensibles portent `Approval Required`. Ces états locaux sont réinitialisés en quittant la page. En mode API, les mutations sont désactivées tant que leurs endpoints ne sont pas définis.
+
+Pour connecter Django :
+
+1. Implémenter `GET /api/ai/control-center/` avec le contrat `AIControlCenterData` dans `types/aiControlCenter.types.ts`.
+2. Définir `VITE_AI_CONTROL_CENTER_USE_MOCK=false` et `VITE_API_BASE_URL` dans `.env`, puis redémarrer Vite.
+3. Si nécessaire, adapter la réponse dans `api/aiControlCenter.api.ts`. `getAIControlCenter()` appelle déjà le client Axios partagé, via le hook TanStack Query `useAIControlCenter()` ; le cache inclut l’utilisateur et la société.
+4. Définir séparément les endpoints d’assignation, résolution et brouillon, ainsi que la validation côté serveur, avant d’activer les actions réelles.
+
+Une erreur API affiche un message lisible et un bouton Réessayer, sans retour silencieux aux mocks. L’actualisation recharge l’instantané ; elle ne prétend pas exécuter un modèle local dans le navigateur.
+
+`tests/ai-control-center.spec.ts` couvre les sections, filtres combinés, export, sélection, preuves, assignation, résolution, brouillons, navigation, mobile et états API. Pour ces derniers, arrêter le serveur Vite de test précédent puis lancer :
+
+```powershell
+$env:VITE_AI_CONTROL_CENTER_USE_MOCK = 'false'
+npm.cmd run test:e2e -- tests/ai-control-center.spec.ts --grep 'AI Control Center API'
+Remove-Item Env:VITE_AI_CONTROL_CENTER_USE_MOCK
+```
 
 ## Authentification
 

@@ -1,0 +1,66 @@
+import { ArrowUpRight, Rocket } from 'lucide-react'
+import type {
+  AIControlCenterData,
+  SuggestedAction,
+} from '../types/aiControlCenter.types'
+
+export function Opportunities({
+  opportunities,
+  onReview,
+}: {
+  opportunities: AIControlCenterData['opportunities']
+  onReview: (action: SuggestedAction) => void
+}) {
+  return (
+    <section
+      className="dashboard-card p-4"
+      aria-labelledby="opportunities-title"
+    >
+      <h2
+        id="opportunities-title"
+        className="dashboard-title flex items-center gap-2"
+      >
+        <Rocket className="size-3.5 text-emerald-600" />
+        Opportunités de croissance
+      </h2>
+      <p className="dashboard-caption">
+        Génération de valeur et optimisation de la marge.
+      </p>
+      <div className="mt-4 space-y-2">
+        {opportunities.map((opportunity) => (
+          <article
+            key={opportunity.id}
+            className="rounded border border-emerald-100 bg-emerald-50/20 p-3"
+          >
+            <div className="flex justify-between gap-2">
+              <h3 className="text-[11px] font-semibold text-teal-700">
+                {opportunity.company}
+              </h3>
+              <span className="text-[8px] text-slate-400">
+                {opportunity.confidence} %
+              </span>
+            </div>
+            <p className="mt-1 text-[9px] text-slate-500">
+              {opportunity.title} · {opportunity.detail}
+            </p>
+            <p className="mt-2 text-[10px] font-semibold text-emerald-600">
+              {opportunity.potential}
+              <span className="ml-1 text-[7px] font-normal">ESTIMATE</span>
+            </p>
+            <button
+              type="button"
+              onClick={() => onReview(opportunity.action)}
+              className="mt-2 flex items-center gap-1 text-[9px] font-medium text-teal-700"
+            >
+              Examiner la recommandation
+              <ArrowUpRight className="size-3" />
+            </button>
+          </article>
+        ))}
+      </div>
+      <p className="mt-3 text-[8px] text-emerald-600">
+        RECOMMENDATION · À valider avec votre équipe.
+      </p>
+    </section>
+  )
+}

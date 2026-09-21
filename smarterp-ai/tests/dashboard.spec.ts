@@ -138,7 +138,7 @@ test.describe('Dashboard démo', () => {
       page.getByRole('heading', { name: 'AI Control Center' }),
     ).toBeVisible()
     await expect(
-      page.getByText('Cette page sera développée', { exact: false }),
+      page.getByRole('heading', { name: 'Business Health Score' }),
     ).toBeVisible()
     await navigation.getByRole('link', { name: 'Tableau de bord' }).click()
     await expect(

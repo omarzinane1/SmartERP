@@ -1,5 +1,4 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom'
-import { FeaturePlaceholder } from '../components/layout/FeaturePlaceholder'
 import { RouteLoading } from '../components/layout/RouteLoading'
 import { RequireAuth } from '../features/auth/components/RequireAuth'
 import { AppShell } from '../components/layout/AppShell'
@@ -36,7 +35,14 @@ export const router = createBrowserRouter([
               return { Component: DashboardPage }
             },
           },
-          { path: '/ai/control-center', element: <FeaturePlaceholder title="AI Control Center" /> },
+          {
+            path: '/ai/control-center',
+            HydrateFallback: RouteLoading,
+            lazy: async () => {
+              const { AIControlCenterPage } = await import('../features/ai-control-center/pages/AIControlCenterPage')
+              return { Component: AIControlCenterPage }
+            },
+          },
         ],
       },
     ],

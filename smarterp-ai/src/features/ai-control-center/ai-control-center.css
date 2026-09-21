@@ -1,0 +1,156 @@
+/* Styles limités au Control Center ; le shell et le Dashboard restent partagés. */
+.acc-page {
+  max-width: 1800px;
+}
+.acc-page .acc-button {
+  min-height: 30px;
+  border-radius: 4px;
+  padding: 5px 9px;
+  font-size: 10px;
+  font-weight: 500;
+}
+.acc-select {
+  min-width: 0;
+  height: 32px;
+  border: 1px solid #e1e6f0;
+  border-radius: 4px;
+  padding: 4px 7px;
+  background: #fafbff;
+  color: #536680;
+  font-family: inherit;
+  font-size: 10px !important;
+}
+.acc-select:focus-visible {
+  outline: 2px solid #93c5fd;
+  outline-offset: 2px;
+}
+.acc-health-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.acc-health-grid > :first-child {
+  grid-column: 1 / -1;
+}
+.acc-alert-layout {
+  display: grid;
+  min-width: 0;
+  gap: 16px;
+  align-items: start;
+}
+.acc-section-label {
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 16px;
+  text-transform: uppercase;
+}
+.acc-drawer {
+  scroll-margin-top: 78px;
+  box-shadow: 0 2px 4px #2447820a;
+}
+.acc-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #c5d1e4 #f6f8fd;
+}
+.acc-table-scroll:focus-visible {
+  outline: 2px solid #93c5fd;
+  outline-offset: -2px;
+}
+.acc-table {
+  width: 100%;
+  min-width: 1040px;
+  border-collapse: collapse;
+  font-size: 9px;
+}
+.acc-table th {
+  padding: 9px 8px;
+  background: #f3f6fc;
+  color: #8391a8;
+  text-align: left;
+  font-size: 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.035em;
+}
+.acc-table td {
+  padding: 11px 8px;
+  border-bottom: 1px solid #edf0f7;
+  line-height: 1.45;
+}
+.acc-table th:nth-child(3) {
+  width: 190px;
+}
+.acc-table th:nth-child(5) {
+  width: 110px;
+}
+.acc-table td:first-child {
+  border-left: 2px solid transparent;
+}
+.acc-table tr[data-selected='true'] {
+  background: #edf3ff;
+}
+.acc-table tr[data-selected='true'] td {
+  border-bottom-color: #d8e4fe;
+}
+.acc-table tbody tr:hover {
+  background: #f3f6fe;
+}
+.acc-table tr[data-selected='true'] td:first-child {
+  border-left-color: #3b73ed;
+}
+.acc-table td button {
+  font-size: 10px;
+}
+.acc-risk-dot {
+  position: absolute;
+  display: grid;
+  width: 27px;
+  height: 27px;
+  transform: translate(-50%, 50%);
+  place-items: center;
+  border-width: 1.5px;
+  border-radius: 50%;
+  font-size: 8px !important;
+  font-weight: 600;
+}
+.acc-risk-dot:hover {
+  outline: 3px solid #ffffffcc;
+}
+.acc-review {
+  max-height: calc(100svh - 32px);
+  overflow-y: auto;
+}
+@media (min-width: 1024px) {
+  .acc-alert-layout {
+    grid-template-columns: minmax(0, 1fr) 310px;
+  }
+}
+@media (min-width: 1280px) {
+  .acc-health-grid {
+    grid-template-columns: minmax(265px, 2.8fr) repeat(6, minmax(0, 1fr));
+  }
+  .acc-health-grid > :first-child {
+    grid-column: auto;
+  }
+  .acc-alert-layout {
+    grid-template-columns: minmax(0, 1fr) 330px;
+  }
+}
+@media (max-width: 1023px) {
+  .acc-drawer {
+    position: fixed;
+    inset: 0;
+    z-index: 45;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-radius: 0;
+    padding: 24px;
+  }
+}
+@media (max-width: 479px) {
+  .acc-health-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
