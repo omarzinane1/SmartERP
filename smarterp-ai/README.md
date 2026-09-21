@@ -1,6 +1,6 @@
 # SmartERP AI
 
-Frontend React + TypeScript + Vite, préparé pour **Django + Django REST Framework**. Seule la page de connexion est développée.
+Frontend React + TypeScript + Vite, préparé pour **Django + Django REST Framework**. Les pages de connexion, d’onboarding société et de tableau de bord exécutif sont développées.
 
 ## Installation
 
@@ -18,6 +18,7 @@ Ouvrir **http://localhost:5173/login**. Sans backend lancé, un envoi valide aff
 
 ```dotenv
 VITE_API_BASE_URL=http://localhost:8000/api
+VITE_DASHBOARD_USE_MOCK=true
 ```
 
 Modifier cette variable dans `.env`, puis redémarrer Vite. Elle désigne la racine de l’API, sans le suffixe `/auth/login/`. Elle est lue dans `src/config/env.ts` puis utilisée uniquement par le client `src/lib/axios.ts`. Les variables préfixées `VITE_` sont publiques : ne jamais y mettre de secret.
@@ -28,8 +29,8 @@ Modifier cette variable dans `.env`, puis redémarrer Vite. Elle désigne la rac
 src/
   app/                       Router, providers, client TanStack Query
   components/
-    ui/                      Button, Input, Checkbox, Spinner, Alert
-    layout/                  Logo partagé et placeholder minimal
+    ui/                      Button, Input, Checkbox, Spinner, Alert, Badge
+    layout/                  AppShell, Sidebar, Topbar, logo partagé et placeholder
   config/                    Configuration d’environnement
   features/auth/
     api/                     Appel login, adaptation de réponse, erreurs
@@ -38,6 +39,8 @@ src/
     pages/                   Composition de LoginPage
     schemas/                 Validation du formulaire avec Zod
     types/                   Contrats d’authentification
+  features/onboarding/       Configuration de la société en sept étapes
+  features/dashboard/        Vue exécutive, graphiques, API et données temporaires
   lib/                       Axios centralisé et utilitaire cn()
   store/                     État global Zustand, conservé en mémoire
 tests/                       Tests navigateur, réponses isolées de la production
@@ -45,18 +48,115 @@ tests/                       Tests navigateur, réponses isolées de la producti
 
 Les prochaines fonctionnalités pourront avoir leur propre dossier sous `features/` et réutiliser les composants UI. `App.tsx` compose les providers et le routeur ; aucun appel API n’est placé dans un composant visuel. TypeScript strict est activé.
 
-Stack : React, React Router DOM, Tailwind CSS via le plugin Vite, Axios, TanStack Query, Zustand, React Hook Form, Zod, `@hookform/resolvers`, Lucide React, Sonner, clsx et tailwind-merge.
+Stack : React, React Router DOM, Tailwind CSS via le plugin Vite, Axios, TanStack Query, Zustand, React Hook Form, Zod, `@hookform/resolvers`, Recharts, Lucide React, Sonner, clsx et tailwind-merge.
 
 ## Routes
 
 | Route | État |
 | --- | --- |
 | `/login` | Page de connexion |
-| `/onboarding` | Placeholder minimal |
-| `/dashboard` | Placeholder minimal |
-| `/ai/control-center` | Placeholder minimal |
+| `/onboarding` | Configuration de la société en 7 étapes |
+| `/dashboard` | Tableau de bord exécutif dans AppShell |
+| `/ai/control-center` | Placeholder existant dans AppShell |
 
-La racine et les URLs inconnues renvoient vers `/login`. Les placeholders requièrent un état d’authentification en mémoire. Cette garde facilite la navigation ; les permissions et la protection des données restent à la charge de Django.
+La racine et les URLs inconnues renvoient vers `/login`. L’onboarding et les pages internes requièrent un état d’authentification en mémoire. Cette garde facilite la navigation ; les permissions et la protection des données restent à la charge de Django.
+
+## Onboarding société
+
+```text
+Login → /onboarding → Société → Activité → Finance → Stock
+                   → Facturation → Modules → Vérification → /dashboard
+```
+
+Le dossier `src/features/onboarding/` suit la même organisation simple que l’authentification :
+
+| Fichier | Responsabilité |
+| --- | --- |
+| `pages/OnboardingPage.tsx` | Mise en page, formulaire unique, `currentStep` et navigation |
+| `components/OnboardingStepper.tsx` | Les 7 étapes, étape active bleue et étapes validées vertes |
+| `components/CompanyStep.tsx` | Identité, logo et coordonnées |
+| `components/BusinessStep.tsx` | Secteur, type d’activité et effectif |
+| `components/FinanceStep.tsx` | Devise, fiscalité, dates et paiement |
+| `components/InventoryStep.tsx` | Activation du stock et paramètres du dépôt |
+| `components/InvoicingStep.tsx` | Préfixes, numéros, aperçus et mentions |
+| `components/ModulesStep.tsx` | Les 16 modules activables |
+| `components/ReviewStep.tsx` | Récapitulatif et boutons Modifier |
+| `schemas/onboarding.schema.ts` | Validations Zod, sections à valider et valeurs initiales |
+| `types/onboarding.types.ts` | Interface `OnboardingData`, noms des étapes et des modules |
+| `api/onboarding.api.ts` | Transformation du payload et `saveOnboarding()` |
+| `hooks/useOnboarding.ts` | Mutation TanStack Query, erreur lisible, notification et redirection |
+
+**Navigation.** `currentStep` contient un nombre de 1 à 7. « Enregistrer et continuer » valide la section visible avec React Hook Form et Zod avant d’incrémenter ce nombre. Les liens latéraux vérifient aussi les sections précédentes : ils ne permettent pas de contourner les champs obligatoires. « Retour » et « Modifier » conservent les valeurs grâce à un seul `FormProvider`. La validation finale porte sur l’ensemble du formulaire.
+
+**Sauvegarde.** Les valeurs sont conservées uniquement en mémoire pendant ce parcours. Les étapes intermédiaires ne font pas de requête API et un rechargement les efface. L’interface indique « Brouillon en mémoire · Envoi à la dernière étape ». Il n’y a pas d’autosave ni de faux backend. Sans Django, l’envoi final affiche une erreur et permet de réessayer ; aucun succès n’est simulé dans l’application.
+
+**Stock et modules.** Désactiver le stock masque ses paramètres, retire Stock et Dépôts de la sélection et envoie seulement `{ "enabled": false }` pour le stock. Les valeurs du dépôt restent en mémoire si l’on réactive l’option. Au moins un module doit être sélectionné.
+
+**Connexion Django.** L’endpoint est défini dans `src/features/onboarding/api/onboarding.api.ts` :
+
+```http
+POST /company/onboarding/
+```
+
+Le client Axios partagé ajoute la base `VITE_API_BASE_URL`, soit `http://localhost:8000/api/company/onboarding/` par défaut. Modifier le chemin dans `saveOnboarding()` et le format dans `toOnboardingPayload()` lorsque le contrat Django sera finalisé. Le payload contient `company`, `business`, `finance`, `inventory`, `invoicing` et `modules`, avec des propriétés en `snake_case`. Le logo facultatif est envoyé sous forme de data URL PNG/JPEG/WebP (fichier limité à 2 Mo), ou `null` ; ce format pourra être adapté à un upload multipart côté Django.
+
+Une réponse HTTP 2xx confirme la sauvegarde ; aucun contenu de réponse n’est exigé à ce stade. `useOnboarding` affiche « Votre société est prête. » / « Enregistré », actualise la société en mémoire si elle existe déjà, puis appelle `navigate('/dashboard', { replace: true })`. Le toast reste visible après la navigation vers le tableau de bord exécutif.
+
+## Tableau de bord exécutif
+
+```text
+React Router → RequireAuth → AppShell → Outlet → DashboardPage
+                                                   ↓
+                                             useDashboard
+                                                   ↓
+                                             dashboard.api
+                                               ↙       ↘
+                                      dashboard.mock   Axios → Django
+```
+
+`AppShell.tsx` compose la sidebar, la topbar et un `Outlet`. React Router remplace cet `Outlet` par la page interne active. Login et Onboarding restent à l’extérieur de ce shell. La sidebar contient les groupes de navigation repliables ; seuls Tableau de bord et le placeholder AI Control Center sont navigables. Les autres entrées sont marquées « À venir ». Aucune autre page métier n’est créée.
+
+### Fichiers du dashboard
+
+| Fichier | Responsabilité |
+| --- | --- |
+| `components/layout/AppShell.tsx` | Structure commune et ouverture du menu mobile |
+| `components/layout/Sidebar.tsx` | Navigation ERP et groupes repliables |
+| `components/layout/Topbar.tsx` | Fil d’Ariane, recherche, Ctrl+K et profil connecté |
+| `features/dashboard/pages/DashboardPage.tsx` | Assemble les sections, gère chargement/erreur et export CSV |
+| `components/KpiCard.tsx`, `components/KpiGrid.tsx` | Une carte réutilisable et la grille des huit indicateurs |
+| `components/ExecutiveSummary.tsx` | Score de santé, analyse, risques, opportunités et recommandations |
+| `components/RevenueChart.tsx` | Comparaison sur douze mois et revenus vs dépenses |
+| `components/CashFlowChart.tsx` | Trésorerie réelle/prévisionnelle et créances par ancienneté |
+| `components/InventoryHealth.tsx` | Valeur et répartition de l’état du stock |
+| `components/AttentionList.tsx` | Alertes et filtre de criticité |
+| `components/DashboardTables.tsx` | Clients, produits, factures et actions rapides |
+| `data/dashboard.mock.ts` | Toutes les données métier de démonstration |
+| `types/dashboard.types.ts` | Contrat TypeScript `DashboardData` et interfaces simples |
+| `api/dashboard.api.ts` | `getDashboard()` et constante de l’endpoint |
+| `hooks/useDashboard.ts` | `useQuery`, cache par utilisateur/société et choix explicite du mode démo |
+| `lib/format.ts` | Formatage partagé des montants, nombres, pourcentages et dates |
+| `components/ui/Badge.tsx` | Badges réutilisables pour les statuts |
+
+Dans ce tableau, les chemins `components/`, `api/`, `hooks/`, `data/` et `types/` sans autre préfixe appartiennent à `src/features/dashboard/`. Les chemins `components/layout`, `components/ui` et `lib` sont partagés sous `src/`.
+
+### Mode démonstration
+
+Par défaut, `VITE_DASHBOARD_USE_MOCK=true`. Les chiffres fournis dans la référence sont regroupés dans `dashboard.mock.ts`, pour un exemple daté de septembre 2026. La page indique clairement « Données de démonstration ». Ce mode concerne uniquement le dashboard : il ne simule ni une connexion ni l’enregistrement de l’onboarding. La garde d’authentification existante reste active.
+
+Les onglets du graphique changent réellement la série affichée (CA, commandes, marge), le filtre d’alertes fonctionne et l’export CSV télécharge les huit indicateurs avec leur période et leur source. Ctrl+K place le focus dans la recherche. La recherche, les filtres de période/dépôt et les créations métier sont encore des interfaces préparatoires ; les actions non développées l’indiquent sans créer de données. Les liens IA ouvrent uniquement le placeholder existant.
+
+Les chiffres constatés, l’analyse IA, les prévisions et les recommandations portent des libellés distincts. La courbe de trésorerie utilise un trait plein pour l’historique et des pointillés pour la prévision. Le résumé de démonstration n’est pas généré par une IA en direct.
+
+### Connecter Django
+
+1. Définir `VITE_API_BASE_URL` dans `.env`.
+2. Passer `VITE_DASHBOARD_USE_MOCK=false`, puis redémarrer Vite.
+3. Adapter `DASHBOARD_ENDPOINT` dans `features/dashboard/api/dashboard.api.ts` si nécessaire. Sa valeur initiale est `/dashboard/summary/`, donc `GET http://localhost:8000/api/dashboard/summary/` par défaut.
+4. Renvoyer un JSON conforme à `DashboardData` ou adapter la réponse dans `getDashboard()` si Django utilise d’autres noms, par exemple `snake_case`. Aucun changement n’est nécessaire dans les cartes ou graphiques.
+5. Appliquer les permissions et limiter les données retournées côté Django selon le rôle. Aucun système RBAC frontend supplémentaire n’est introduit ici.
+
+En mode API, une erreur affiche « Impossible de charger le tableau de bord. » et « Réessayer ». Elle ne déclenche jamais un retour silencieux aux données fictives. Les détails techniques restent hors de l’interface. `AppShell`, Sidebar, Topbar, les composants UI et les fonctions de formatage pourront servir aux prochaines pages.
 
 ## Authentification
 
@@ -141,7 +241,7 @@ En développement, garder le même nom d’hôte des deux côtés (par exemple `
 
 Composition desktop en deux colonnes, panneau navy et formulaire blanc, déclinaison sur une seule colonne en petit écran. L’illustration ERP est composée de vrais éléments HTML/React ; ses chiffres sont strictement décoratifs et ne sont utilisés dans aucun état métier.
 
-**L’image Stitch n’était pas présente dans la pièce jointe disponible.** Le design suit donc la direction visuelle du cahier des charges. La comparaison et l’ajustement exacts nécessitent cette référence.
+L’onboarding reprend la référence Stitch : fond gris clair, navigation latérale, carte principale blanche, champs compacts en deux colonnes, bandeau de progression et barre d’actions fixe au bas de l’écran. Les composants partagés de connexion sont réutilisés ; les styles compacts sont limités à `.onboarding-fields`. Sur petit écran, les étapes défilent horizontalement et les champs passent en une colonne.
 
 ## Vérifications
 
@@ -153,6 +253,18 @@ npm run test:e2e
 ```
 
 Playwright lance ou réutilise Vite sur `http://127.0.0.1:5173`. Les tests interceptent uniquement leurs propres requêtes réseau : validation, clavier, mot de passe, chargement, doubles soumissions, erreurs, navigateur hors ligne, réponses invalides, redirections, e-mail mémorisé et responsive. Aucun backend factice n’est embarqué dans le frontend.
+
+`tests/onboarding.spec.ts` vérifie aussi les sept étapes, les champs conditionnels de stock, les modules, les modifications depuis le récapitulatif, le payload Django, les erreurs et nouvelles tentatives, le logo et les petits écrans. Les captures de contrôle sont écrites dans `test-results/` (ignoré par Git).
+
+`tests/dashboard.spec.ts` vérifie la structure, les huit KPI, les graphiques, les labels IA/prévision, les alertes, le shell, Ctrl+K, l’export CSV et le responsive. Les tests du mode API se lancent séparément avec un serveur Vite redémarré dans ce mode (arrêter le serveur de test précédent avant cette commande) :
+
+```powershell
+$env:VITE_DASHBOARD_USE_MOCK = 'false'
+npm.cmd run test:e2e -- tests/dashboard.spec.ts --grep 'Dashboard API'
+Remove-Item Env:VITE_DASHBOARD_USE_MOCK
+```
+
+Ces tests interceptent les requêtes Django dans le navigateur de test uniquement : chargement, réponse réelle du contrat, erreur serveur, nouvelle tentative et panne réseau. En fonctionnement normal, laisser le mode démo activé jusqu’à la connexion du backend.
 
 Si Chromium est déjà installé, la variable optionnelle `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` peut désigner son exécutable pour les tests, sans téléchargement supplémentaire. Elle ne concerne pas l’application et ne doit pas être préfixée par `VITE_`. Par défaut, Playwright utilise la version installée par sa commande ci-dessus.
 
