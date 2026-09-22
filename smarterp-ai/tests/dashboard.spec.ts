@@ -123,8 +123,8 @@ test.describe('Dashboard démo', () => {
       .filter({ hasText: /^Ventes$/ })
       .click()
     await expect(
-      navigation.getByRole('button', { name: /Clients/ }),
-    ).toBeDisabled()
+      navigation.getByRole('link', { name: 'Customers', exact: true }),
+    ).toHaveAttribute('href', '/customers')
     await navigation
       .locator('summary')
       .filter({ hasText: /^Administration$/ })

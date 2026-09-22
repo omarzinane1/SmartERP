@@ -1,6 +1,6 @@
 # SmartERP AI
 
-Frontend React + TypeScript + Vite, préparé pour **Django + Django REST Framework**. Les pages de connexion, d’onboarding société, de tableau de bord exécutif et d’AI Control Center sont développées.
+Frontend React + TypeScript + Vite, préparé pour **Django + Django REST Framework**. Les pages de connexion, d’onboarding société, de tableau de bord exécutif, d’AI Control Center et de gestion des clients sont développées.
 
 ## Installation
 
@@ -20,6 +20,7 @@ Ouvrir **http://localhost:5173/login**. Sans backend lancé, un envoi valide aff
 VITE_API_BASE_URL=http://localhost:8000/api
 VITE_DASHBOARD_USE_MOCK=true
 VITE_AI_CONTROL_CENTER_USE_MOCK=true
+VITE_CUSTOMERS_USE_MOCK=true
 ```
 
 Modifier cette variable dans `.env`, puis redémarrer Vite. Elle désigne la racine de l’API, sans le suffixe `/auth/login/`. Elle est lue dans `src/config/env.ts` puis utilisée uniquement par le client `src/lib/axios.ts`. Les variables préfixées `VITE_` sont publiques : ne jamais y mettre de secret.
@@ -43,6 +44,7 @@ src/
   features/onboarding/       Configuration de la société en sept étapes
   features/dashboard/        Vue exécutive, graphiques, API et données temporaires
   features/ai-control-center/ Surveillance, alertes, prévisions et recommandations
+  features/customers/        Liste et Kanban clients, filtres et actions locales
   lib/                       Axios centralisé et utilitaire cn()
   store/                     État global Zustand, conservé en mémoire
 tests/                       Tests navigateur, réponses isolées de la production
@@ -60,6 +62,8 @@ Stack : React, React Router DOM, Tailwind CSS via le plugin Vite, Axios, TanStac
 | `/onboarding` | Configuration de la société en 7 étapes |
 | `/dashboard` | Tableau de bord exécutif dans AppShell |
 | `/ai/control-center` | Centre de surveillance et d’intelligence dans AppShell |
+| `/customers` | Portefeuille clients, vues Liste et Kanban |
+| `/customers/:id` | Emplacement de la future fiche client |
 
 La racine et les URLs inconnues renvoient vers `/login`. L’onboarding et les pages internes requièrent un état d’authentification en mémoire. Cette garde facilite la navigation ; les permissions et la protection des données restent à la charge de Django.
 
@@ -116,7 +120,7 @@ React Router → RequireAuth → AppShell → Outlet → DashboardPage
                                       dashboard.mock   Axios → Django
 ```
 
-`AppShell.tsx` compose la sidebar, la topbar et un `Outlet`. React Router remplace cet `Outlet` par la page interne active. Login et Onboarding restent à l’extérieur de ce shell. La sidebar contient les groupes de navigation repliables ; Tableau de bord et AI Control Center sont navigables. Les autres entrées sont marquées « À venir ».
+`AppShell.tsx` compose la sidebar, la topbar et un `Outlet`. React Router remplace cet `Outlet` par la page interne active. Login et Onboarding restent à l’extérieur de ce shell. La sidebar contient les groupes de navigation repliables ; Tableau de bord, AI Control Center et Customers sont navigables. Les autres entrées sont marquées « À venir ».
 
 ### Fichiers du dashboard
 
@@ -189,6 +193,41 @@ Une erreur API affiche un message lisible et un bouton Réessayer, sans retour s
 $env:VITE_AI_CONTROL_CENTER_USE_MOCK = 'false'
 npm.cmd run test:e2e -- tests/ai-control-center.spec.ts --grep 'AI Control Center API'
 Remove-Item Env:VITE_AI_CONTROL_CENTER_USE_MOCK
+```
+
+## Clients — Sales / CRM
+
+`src/features/customers/pages/CustomersPage.tsx` organise les indicateurs, la toolbar, les filtres, la liste ou le Kanban et la pagination. Le dossier `components/` contient `CustomersSummary`, `CustomersToolbar`, `CustomersFilters`, `CustomerTable`, `CustomerKanban`, `CustomerSelectionBar` et `CustomerDialog`. Les styles compacts sont limités au module dans `customers.css`. AppShell, Sidebar, Topbar, les composants UI et `lib/format.ts` sont réutilisés.
+
+Les 248 clients de `data/customers.mock.ts` sont des données de démonstration. Les dix premiers sont définis explicitement ; les suivants sont générés de façon déterministe. Les indicateurs sont calculés sur ces mêmes lignes : 231 actifs au sens commercial (statuts actif, VIP ou à risque), 284 300 MAD d’encours, 73 500 MAD en retard et 8 920 400 MAD de CA annuel. Les prospects, inactifs et archives complètent le portefeuille. Les montants représentent un instantané de septembre 2026.
+
+La recherche compare nom, référence, e-mail, téléphone, ville et tags, sans tenir compte de la casse ni des accents. Les filtres statut, ville, commercial, encours et retard se combinent. Les indicateurs restent globaux, tandis que le nombre de résultats et la pagination correspondent aux filtres. Le filtre « Actif » recherche le statut exact. Les regroupements par ville, commercial, statut ou type sont appliqués aux lignes de la page courante. Le Kanban affiche les mêmes clients et conserve la sélection ; aucun glisser-déposer n’est nécessaire.
+
+Les cases à cocher permettent de sélectionner les clients de la page courante. Les sélections sont conservées entre pages, avec le nombre de clients hors page indiqué dans la barre contextuelle. Changer les filtres efface la sélection pour éviter une action sur des clients masqués. L’export principal produit un CSV de tous les résultats filtrés ; l’export de la barre contextuelle contient uniquement la sélection. Les valeurs textuelles sont échappées pour le CSV et les formules neutralisées.
+
+Les favoris proposent Mes clients, Top clients (VIP), Clients en retard et Clients Casablanca. « Enregistrer la vue » conserve les filtres et le mode Liste/Kanban pendant la visite. Le petit formulaire permet de créer et modifier les coordonnées en mode démo ; archiver, désarchiver, assigner un commercial et ajouter un tag modifient également l’état local. Désarchiver restaure le statut précédent. Ces changements sont perdus en quittant la page ou en la rechargeant.
+
+L’import CSV/Excel est un aperçu : sélectionner un fichier affiche son nom, sans le lire ni l’envoyer. Les actions relevé, relance et devis indiquent qu’elles seront disponibles avec leurs modules métier. Aucun message n’est envoyé. Le nom d’un client et les boutons Ouvrir naviguent vers `/customers/:id`, qui réutilise le placeholder existant et offre un retour à la liste. La vraie fiche sera ajoutée à cette route plus tard.
+
+Le hook `hooks/useCustomers.ts` utilise TanStack Query avec une clé incluant utilisateur, société et mode démo. `api/customers.api.ts` prépare les fonctions suivantes avec le client Axios partagé :
+
+| Fonction | Endpoint relatif à `VITE_API_BASE_URL` |
+| --- | --- |
+| `getCustomers()` | `GET /customers/` |
+| `createCustomer(input)` | `POST /customers/` |
+| `updateCustomer(id, input)` | `PATCH /customers/:id/` |
+| `importCustomers(file)` | `POST /customers/import/`, fichier multipart |
+
+Pour connecter Django, définir `VITE_CUSTOMERS_USE_MOCK=false`, configurer `VITE_API_BASE_URL`, puis redémarrer Vite. Le GET attend `CustomersData` de `types/customers.types.ts`, avec la collection complète, les métadonnées et les permissions. Adapter la réponse à cette frontière si Django renvoie du snake_case ou une pagination serveur. Les endpoints d’écriture sont préparés mais ne sont pas déclenchés par l’interface dans cette première version ; leur branchement et la validation backend seront l’étape suivante.
+
+Les permissions `customers.view`, `customers.create`, `customers.edit` et `customers.export` sont de simples indicateurs retournés par l’API. Elles contrôlent les boutons, et une réponse 403 ou l’absence de `customers.view` affiche « Accès non autorisé ». Django restera responsable de l’application effective des permissions. Les erreurs techniques ne sont pas affichées ; une erreur GET propose Réessayer.
+
+`tests/customers.spec.ts` vérifie liste, Kanban, totaux, recherche, filtres, favoris, regroupement, pagination, sélection entre pages, export, création/modification, archivage, import préparatoire, navigation et mobile. Les tests API vérifient chargement, erreurs, listes vides et permissions. Arrêter le serveur Vite de test précédent avant de lancer le mode API :
+
+```powershell
+$env:VITE_CUSTOMERS_USE_MOCK = 'false'
+npm.cmd run test:e2e -- tests/customers.spec.ts --grep 'Clients API'
+Remove-Item Env:VITE_CUSTOMERS_USE_MOCK
 ```
 
 ## Authentification

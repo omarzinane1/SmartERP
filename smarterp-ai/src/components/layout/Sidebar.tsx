@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 import {
   Activity,
   ArrowUpRight,
@@ -76,6 +76,7 @@ export function Sidebar({
 }) {
   const company = useAuthStore((state) => state.company)
   const user = useAuthStore((state) => state.user)
+  const { pathname } = useLocation()
   return (
     <>
       {open && (
@@ -163,7 +164,14 @@ export function Sidebar({
               {index === 5 && (
                 <p className="sidebar-section-title mt-5">Configuration</p>
               )}
-              <details className="group">
+              <details
+                className="group"
+                open={
+                  label === 'Ventes' && pathname.startsWith('/customers')
+                    ? true
+                    : undefined
+                }
+              >
                 <summary className="sidebar-link list-none">
                   <Icon className="size-4" aria-hidden="true" />
                   <span className="flex-1">{label}</span>
@@ -178,18 +186,34 @@ export function Sidebar({
                   />
                 </summary>
                 <div className="ml-5 border-l border-slate-200 py-1 pl-3">
-                  {links.map((label) => (
-                    <button
-                      key={label}
-                      type="button"
-                      disabled
-                      className="flex w-full items-center justify-between gap-2 rounded px-2 py-2 text-left text-[10px] text-slate-400"
-                      title="Module à venir"
-                    >
-                      <span>{label}</span>
-                      <span className="text-[8px]">À venir</span>
-                    </button>
-                  ))}
+                  {links.map((label) =>
+                    label === 'Clients' ? (
+                      <NavLink
+                        key={label}
+                        to="/customers"
+                        onClick={onClose}
+                        className={({ isActive }) =>
+                          cn(
+                            'sidebar-link text-[10px]',
+                            isActive && 'sidebar-link-active',
+                          )
+                        }
+                      >
+                        Customers
+                      </NavLink>
+                    ) : (
+                      <button
+                        key={label}
+                        type="button"
+                        disabled
+                        className="flex w-full items-center justify-between gap-2 rounded px-2 py-2 text-left text-[10px] text-slate-400"
+                        title="Module à venir"
+                      >
+                        <span>{label}</span>
+                        <span className="text-[8px]">À venir</span>
+                      </button>
+                    ),
+                  )}
                 </div>
               </details>
             </div>

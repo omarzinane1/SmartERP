@@ -26,6 +26,7 @@ export function Topbar({
   const searchRef = useRef<HTMLInputElement>(null)
   const [search, setSearch] = useState('')
   const aiPage = pathname.startsWith('/ai/')
+  const customersPage = pathname.startsWith('/customers')
   const initials =
     user?.name
       .split(' ')
@@ -63,11 +64,19 @@ export function Topbar({
         className="hidden shrink-0 items-center gap-1.5 text-[10px] sm:flex"
       >
         <span className="text-slate-400">
-          {aiPage ? 'Intelligence' : 'Vue d’ensemble'}
+          {aiPage
+            ? 'Intelligence'
+            : customersPage
+            ? 'Ventes'
+            : 'Vue d’ensemble'}
         </span>
         <span className="text-slate-300">/</span>
         <span className="font-semibold text-navy-950">
-          {aiPage ? 'AI Control Center' : 'Tableau de bord'}
+          {aiPage
+            ? 'AI Control Center'
+            : customersPage
+            ? 'Customers'
+            : 'Tableau de bord'}
         </span>
       </nav>
       <form

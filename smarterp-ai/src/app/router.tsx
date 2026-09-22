@@ -20,7 +20,9 @@ export const router = createBrowserRouter([
         path: '/onboarding',
         HydrateFallback: RouteLoading,
         lazy: async () => {
-          const { OnboardingPage } = await import('../features/onboarding/pages/OnboardingPage')
+          const { OnboardingPage } = await import(
+            '../features/onboarding/pages/OnboardingPage'
+          )
           return { Component: OnboardingPage }
         },
       },
@@ -28,10 +30,32 @@ export const router = createBrowserRouter([
         element: <AppShell />,
         children: [
           {
+            path: '/customers',
+            HydrateFallback: RouteLoading,
+            lazy: async () => {
+              const { CustomersPage } = await import(
+                '../features/customers/pages/CustomersPage'
+              )
+              return { Component: CustomersPage }
+            },
+          },
+          {
+            path: '/customers/:id',
+            HydrateFallback: RouteLoading,
+            lazy: async () => {
+              const { CustomerDetailPage } = await import(
+                '../features/customers/pages/CustomerDetailPage'
+              )
+              return { Component: CustomerDetailPage }
+            },
+          },
+          {
             path: '/dashboard',
             HydrateFallback: RouteLoading,
             lazy: async () => {
-              const { DashboardPage } = await import('../features/dashboard/pages/DashboardPage')
+              const { DashboardPage } = await import(
+                '../features/dashboard/pages/DashboardPage'
+              )
               return { Component: DashboardPage }
             },
           },
@@ -39,7 +63,9 @@ export const router = createBrowserRouter([
             path: '/ai/control-center',
             HydrateFallback: RouteLoading,
             lazy: async () => {
-              const { AIControlCenterPage } = await import('../features/ai-control-center/pages/AIControlCenterPage')
+              const { AIControlCenterPage } = await import(
+                '../features/ai-control-center/pages/AIControlCenterPage'
+              )
               return { Component: AIControlCenterPage }
             },
           },
