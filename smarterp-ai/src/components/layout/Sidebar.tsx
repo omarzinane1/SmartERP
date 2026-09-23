@@ -167,7 +167,7 @@ export function Sidebar({
               <details
                 className="group"
                 open={
-                  label === 'Ventes' && pathname.startsWith('/customers')
+                  label === 'Ventes' && (pathname.startsWith('/customers') || pathname.startsWith('/quotes') || pathname.startsWith('/sales'))
                     ? true
                     : undefined
                 }
@@ -187,10 +187,10 @@ export function Sidebar({
                 </summary>
                 <div className="ml-5 border-l border-slate-200 py-1 pl-3">
                   {links.map((label) =>
-                    label === 'Clients' ? (
+                    label === 'Clients' || label === 'Devis' || label === 'Commandes clients' ? (
                       <NavLink
                         key={label}
-                        to="/customers"
+                        to={label === 'Clients' ? '/customers' : label === 'Devis' ? '/quotes' : '/sales'}
                         onClick={onClose}
                         className={({ isActive }) =>
                           cn(
@@ -199,7 +199,7 @@ export function Sidebar({
                           )
                         }
                       >
-                        Customers
+                        {label === 'Clients' ? 'Customers' : label === 'Devis' ? 'Devis / Quotes' : label}
                       </NavLink>
                     ) : (
                       <button

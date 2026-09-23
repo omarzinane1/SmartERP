@@ -21,6 +21,8 @@ VITE_API_BASE_URL=http://localhost:8000/api
 VITE_DASHBOARD_USE_MOCK=true
 VITE_AI_CONTROL_CENTER_USE_MOCK=true
 VITE_CUSTOMERS_USE_MOCK=true
+VITE_QUOTES_USE_MOCK=true
+VITE_SALES_USE_MOCK=true
 ```
 
 Modifier cette variable dans `.env`, puis redémarrer Vite. Elle désigne la racine de l’API, sans le suffixe `/auth/login/`. Elle est lue dans `src/config/env.ts` puis utilisée uniquement par le client `src/lib/axios.ts`. Les variables préfixées `VITE_` sont publiques : ne jamais y mettre de secret.
@@ -45,6 +47,8 @@ src/
   features/dashboard/        Vue exécutive, graphiques, API et données temporaires
   features/ai-control-center/ Surveillance, alertes, prévisions et recommandations
   features/customers/        Liste et Kanban clients, filtres et actions locales
+  features/quotes/           Liste, création et éditeur de devis
+  features/sales/            Accès aux commandes et fiche de suivi commercial
   lib/                       Axios centralisé et utilitaire cn()
   store/                     État global Zustand, conservé en mémoire
 tests/                       Tests navigateur, réponses isolées de la production
@@ -63,7 +67,11 @@ Stack : React, React Router DOM, Tailwind CSS via le plugin Vite, Axios, TanStac
 | `/dashboard` | Tableau de bord exécutif dans AppShell |
 | `/ai/control-center` | Centre de surveillance et d’intelligence dans AppShell |
 | `/customers` | Portefeuille clients, vues Liste et Kanban |
-| `/customers/:id` | Emplacement de la future fiche client |
+| `/customers/:id` | Fiche client |
+| `/quotes` | Devis : KPI, Liste/Kanban, filtres, envoi et duplication |
+| `/quotes/new`, `/quotes/:id` | Création, édition des brouillons et consultation des devis |
+| `/sales` | Liste d’accès aux commandes clients |
+| `/sales/:id` | Détail : workflow, livraisons, factures, paiements, activités et analyse |
 
 La racine et les URLs inconnues renvoient vers `/login`. L’onboarding et les pages internes requièrent un état d’authentification en mémoire. Cette garde facilite la navigation ; les permissions et la protection des données restent à la charge de Django.
 
@@ -229,6 +237,12 @@ $env:VITE_CUSTOMERS_USE_MOCK = 'false'
 npm.cmd run test:e2e -- tests/customers.spec.ts --grep 'Clients API'
 Remove-Item Env:VITE_CUSTOMERS_USE_MOCK
 ```
+
+La page **Devis** est documentée dans [src/features/quotes/README.md](src/features/quotes/README.md) : organisation des fichiers, données temporaires, actions, contrat Django et tests. Le mode démo est contrôlé par `VITE_QUOTES_USE_MOCK` ; il n’envoie aucun e-mail et n’utilise aucun fallback fictif en cas d’erreur API.
+
+Les pages **Détail / Éditeur de devis** utilisent `/quotes/new` et `/quotes/:id` : validation, totaux par ligne, sauvegarde des brouillons, protection des modifications et aperçu imprimable.
+
+La fiche **Commande client** `/sales/:id` et son accès `/sales` sont documentés dans [src/features/sales/README.md](src/features/sales/README.md). `VITE_SALES_USE_MOCK` contrôle la démonstration. Workflow commercial, livraison, facturation et paiement sont séparés ; les préparations de livraison/facture n’enregistrent aucun document en démo. Les endpoints de confirmation, livraison et facture sont préparés pour Django.
 
 ## Authentification
 

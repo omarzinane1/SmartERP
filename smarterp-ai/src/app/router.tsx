@@ -30,6 +30,44 @@ export const router = createBrowserRouter([
         element: <AppShell />,
         children: [
           {
+            path: '/sales',
+            HydrateFallback: RouteLoading,
+            lazy: async () => {
+              const { SalesOrdersPage } = await import('../features/sales/pages/SalesOrdersPage')
+              return { Component: SalesOrdersPage }
+            },
+          },
+          {
+            path: '/sales/:id',
+            HydrateFallback: RouteLoading,
+            lazy: async () => {
+              const { SalesOrderDetailPage } = await import('../features/sales/pages/SalesOrderDetailPage')
+              return { Component: SalesOrderDetailPage }
+            },
+          },
+          {
+            path: '/quotes',
+            HydrateFallback: RouteLoading,
+            lazy: async () => {
+              const { QuotesPage } = await import('../features/quotes/pages/QuotesPage')
+              return { Component: QuotesPage }
+            },
+          },
+          {
+            path: '/quotes/new',
+            lazy: async () => {
+              const { QuoteEditorPage } = await import('../features/quotes/pages/QuoteEditorPage')
+              return { Component: QuoteEditorPage }
+            },
+          },
+          {
+            path: '/quotes/:id',
+            lazy: async () => {
+              const { QuoteEditorPage } = await import('../features/quotes/pages/QuoteEditorPage')
+              return { Component: QuoteEditorPage }
+            },
+          },
+          {
             path: '/customers',
             HydrateFallback: RouteLoading,
             lazy: async () => {

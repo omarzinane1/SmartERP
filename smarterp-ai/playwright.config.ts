@@ -3,6 +3,10 @@ import { join } from 'node:path'
 import { env } from 'node:process'
 import { defineConfig, devices } from '@playwright/test'
 
+// Un port distinct permet de tester le mode API sans réutiliser un serveur démo.
+const port = env.PLAYWRIGHT_PORT || '5173'
+const baseURL = `http://127.0.0.1:${port}`
+
 export default defineConfig({
   testDir: './tests',
   fullyParallel: true,
@@ -10,7 +14,7 @@ export default defineConfig({
   reporter: 'list',
   outputDir: join(tmpdir(), 'smarterp-ai-playwright-results'),
   use: {
-    baseURL: 'http://127.0.0.1:5173',
+    baseURL,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     launchOptions: env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
@@ -24,8 +28,8 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'npm run dev -- --host 127.0.0.1 --port 5173 --strictPort',
-    url: 'http://127.0.0.1:5173/login',
+    command: `npm run dev -- --host 127.0.0.1 --port ${port} --strictPort`,
+    url: `${baseURL}/login`,
     reuseExistingServer: true,
   },
 })

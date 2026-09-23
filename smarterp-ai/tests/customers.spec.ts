@@ -179,7 +179,7 @@ test.describe('Clients démo', () => {
     for (const value of [
       'nova retail',
       'CUS-000124',
-      'contact@novaretail.example',
+      'contact@novaretail.ma',
       '+212 522 45 88 12',
     ]) {
       await search.fill(value)
@@ -355,7 +355,7 @@ test.describe('Clients démo', () => {
     expect(uploads).toEqual([])
   })
 
-  test('opens the future customer detail and remains usable on mobile', async ({
+  test('opens the customer detail and remains usable on mobile', async ({
     page,
   }) => {
     await page.goto('/customers/124')
@@ -366,7 +366,7 @@ test.describe('Clients démo', () => {
       .click()
     await expect(page).toHaveURL(/\/customers\/124$/)
     await expect(
-      page.getByRole('heading', { name: 'Fiche client · 124' }),
+      page.getByRole('heading', { name: 'Nova Retail SARL', exact: true }),
     ).toBeVisible()
     await page.getByRole('link', { name: 'Retour aux clients' }).click()
     await page.setViewportSize({ width: 390, height: 844 })

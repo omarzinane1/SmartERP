@@ -5,4 +5,6 @@ export const env = {
   dashboardUseMock: import.meta.env.VITE_DASHBOARD_USE_MOCK !== 'false',
   aiControlCenterUseMock: import.meta.env.VITE_AI_CONTROL_CENTER_USE_MOCK !== 'false',
   customersUseMock: import.meta.env.VITE_CUSTOMERS_USE_MOCK !== 'false',
+  quotesUseMock: import.meta.env.VITE_QUOTES_USE_MOCK !== 'false',
+  salesUseMock: import.meta.env.VITE_SALES_USE_MOCK !== 'false',
 } as const

@@ -579,15 +579,3 @@ export function CustomersPage() {
     </main>
   )
 }
-
-export function CustomerDetailPlaceholder() {
-  const { id } = useParams()
-  return (
-    <FeaturePlaceholder
-      title={`Fiche client · ${id}`}
-      description="La fiche détaillée de ce client sera disponible dans une prochaine étape : coordonnées, commandes, factures et historique commercial."
-      backTo="/customers"
-      backLabel="Retour aux clients"
-    />
-  )
-}
