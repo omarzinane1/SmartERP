@@ -1,6 +1,6 @@
 # Commandes clients — `/sales/:id`
 
-La fiche réutilise AppShell, les composants UI, Axios, TanStack Query et les clients existants. Aucune dépendance ajoutée. La route `/sales` étant absente du dépôt initial, `SalesOrdersPage.tsx` fournit une liste d’accès simple. Aucune page complète Livraison, Facture ou Paiement n’est créée.
+La fiche réutilise AppShell, les composants UI, Axios, TanStack Query et les clients existants. Aucune dépendance ajoutée. La route `/sales` étant absente du dépôt initial, `SalesOrdersPage.tsx` fournit une liste d’accès simple. Les factures liées ouvrent désormais la feature [Factures clients](../invoices/README.md) via `/invoices/:id`. Livraison et Paiement restent des sections internes.
 
 ## Structure
 
@@ -45,6 +45,8 @@ L’annulation est désactivée, avec une explication visible pour les commandes
 `VITE_SALES_USE_MOCK=true` par défaut. L’instantané est daté du 30 septembre 2026. Les états couvrent brouillon, confirmée, en préparation, terminée, annulée, exécution partielle et complète. `/sales/1048` reprend Nova Retail, la date et les 42 500 MAD de l’historique Client existant ; lignes et coûts reproduisent aussi sa marge de 31,2 % HT. `/sales/1054` illustre une commande issue du devis accepté `/quotes/268` (même client et total).
 
 La confirmation de démonstration est explicitement simulée et conservée en mémoire jusqu’au rechargement. Les préparations de livraison/facture ne créent aucun document, n’incrémentent aucun compteur et ne modifient aucun stock. Le panneau IA fournit à la demande un exemple structuré calculé à partir des faits, sans appel à un modèle. Ses recommandations n’exécutent aucune opération.
+
+Les paiements simulés enregistrés depuis une facture existante de la feature Invoices sont répercutés sur sa commande source et actualisent le solde. `/sales/1048` ouvre notamment `/invoices/10480` ; le montant facturé initial est 25 500 MAD et le payé 12 400 MAD.
 
 ## Connexion Django
 

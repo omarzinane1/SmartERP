@@ -1,4 +1,5 @@
 import { CreditCard, ReceiptText } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { Button } from '../../../components/ui/Button'
 import { formatDate } from '../../../lib/format'
 import { formatMoney } from '../../../lib/money'
@@ -11,7 +12,7 @@ export function SalesOrderInvoicePanel({ order, canCreate, busy, onCreate }: { o
   return <section id="sales-invoices" tabIndex={-1} className="sales-card" aria-labelledby="sales-invoices-title">
     <header className="sales-card-title"><ReceiptText size={16} aria-hidden="true" /><h2 id="sales-invoices-title">Facturation</h2><span className={`sales-badge sales-badge-${order.invoiceStatus}`}>{invoiceStatusLabels[order.invoiceStatus] ?? order.invoiceStatus}</span></header>
     <dl className="sales-panel-metrics"><div><dt>Commande TTC</dt><dd>{formatMoney(order.totalAmount)}</dd></div><div><dt>Déjà facturé</dt><dd>{formatMoney(invoiced)}</dd></div><div><dt>Reste à facturer</dt><dd>{formatMoney(unbilled)}</dd></div></dl>
-    {order.invoices.length ? <div className="sales-table-scroll"><table><thead><tr><th>Facture</th><th>Date / Échéance</th><th>Montant TTC</th><th>Statut</th><th>Actions</th></tr></thead><tbody>{order.invoices.map((invoice) => <tr key={invoice.id}><td><strong>{invoice.reference}</strong></td><td>{formatDate(invoice.date)}<small>Éch. {formatDate(invoice.dueDate)}</small></td><td>{formatMoney(invoice.amount)}</td><td>{labels[invoice.status] ?? invoice.status}</td><td><button disabled title="La fiche facture sera disponible dans le module Factures">Fiche à venir</button></td></tr>)}</tbody></table></div> : <p className="sales-empty">Aucune facture associée.</p>}
+    {order.invoices.length ? <div className="sales-table-scroll"><table><thead><tr><th>Facture</th><th>Date / Échéance</th><th>Montant TTC</th><th>Statut</th><th>Actions</th></tr></thead><tbody>{order.invoices.map((invoice) => <tr key={invoice.id}><td><Link to={`/invoices/${invoice.id}`}>{invoice.reference}</Link></td><td>{formatDate(invoice.date)}<small>Éch. {formatDate(invoice.dueDate)}</small></td><td>{formatMoney(invoice.amount)}</td><td>{labels[invoice.status] ?? invoice.status}</td><td><Link to={`/invoices/${invoice.id}`} aria-label={`Ouvrir ${invoice.reference}`}>Ouvrir</Link></td></tr>)}</tbody></table></div> : <p className="sales-empty">Aucune facture associée.</p>}
     {canCreate && <footer className="sales-panel-footer"><Button variant="secondary" className="sales-button" disabled={busy} onClick={onCreate}><ReceiptText size={13} />Créer une facture</Button><span>Éligibilité finale vérifiée lors de la création.</span></footer>}
   </section>
 }

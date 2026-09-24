@@ -26,7 +26,7 @@ const groups = [
   {
     label: 'Ventes',
     icon: ShoppingBag,
-    links: ['Clients', 'Devis', 'Commandes clients', 'Factures', 'Paiements'],
+    links: ['Clients', 'Devis', 'Commandes clients', 'Factures clients', 'Paiements'],
   },
   {
     label: 'Achats',
@@ -167,7 +167,7 @@ export function Sidebar({
               <details
                 className="group"
                 open={
-                  label === 'Ventes' && (pathname.startsWith('/customers') || pathname.startsWith('/quotes') || pathname.startsWith('/sales'))
+                  label === 'Ventes' && (pathname.startsWith('/customers') || pathname.startsWith('/quotes') || pathname.startsWith('/sales') || pathname.startsWith('/invoices'))
                     ? true
                     : undefined
                 }
@@ -187,10 +187,10 @@ export function Sidebar({
                 </summary>
                 <div className="ml-5 border-l border-slate-200 py-1 pl-3">
                   {links.map((label) =>
-                    label === 'Clients' || label === 'Devis' || label === 'Commandes clients' ? (
+                    label === 'Clients' || label === 'Devis' || label === 'Commandes clients' || label === 'Factures clients' ? (
                       <NavLink
                         key={label}
-                        to={label === 'Clients' ? '/customers' : label === 'Devis' ? '/quotes' : '/sales'}
+                        to={label === 'Clients' ? '/customers' : label === 'Devis' ? '/quotes' : label === 'Commandes clients' ? '/sales' : '/invoices'}
                         onClick={onClose}
                         className={({ isActive }) =>
                           cn(

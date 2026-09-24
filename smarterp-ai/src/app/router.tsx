@@ -30,6 +30,28 @@ export const router = createBrowserRouter([
         element: <AppShell />,
         children: [
           {
+            path: '/invoices',
+            HydrateFallback: RouteLoading,
+            lazy: async () => {
+              const { InvoicesPage } = await import('../features/invoices/pages/InvoicesPage')
+              return { Component: InvoicesPage }
+            },
+          },
+          {
+            path: '/invoices/new',
+            lazy: async () => {
+              const { InvoiceDetailPage } = await import('../features/invoices/pages/InvoiceDetailPage')
+              return { Component: InvoiceDetailPage }
+            },
+          },
+          {
+            path: '/invoices/:id',
+            lazy: async () => {
+              const { InvoiceDetailPage } = await import('../features/invoices/pages/InvoiceDetailPage')
+              return { Component: InvoiceDetailPage }
+            },
+          },
+          {
             path: '/sales',
             HydrateFallback: RouteLoading,
             lazy: async () => {

@@ -1,6 +1,6 @@
 # SmartERP AI
 
-Frontend React + TypeScript + Vite, préparé pour **Django + Django REST Framework**. Les pages de connexion, d’onboarding société, de tableau de bord exécutif, d’AI Control Center et de gestion des clients sont développées.
+Frontend React + TypeScript + Vite, préparé pour **Django + Django REST Framework**. Les pages de connexion, d’onboarding société, de tableau de bord exécutif, d’AI Control Center, de gestion des clients, devis, commandes et factures clients sont développées.
 
 ## Installation
 
@@ -23,6 +23,7 @@ VITE_AI_CONTROL_CENTER_USE_MOCK=true
 VITE_CUSTOMERS_USE_MOCK=true
 VITE_QUOTES_USE_MOCK=true
 VITE_SALES_USE_MOCK=true
+VITE_INVOICES_USE_MOCK=true
 ```
 
 Modifier cette variable dans `.env`, puis redémarrer Vite. Elle désigne la racine de l’API, sans le suffixe `/auth/login/`. Elle est lue dans `src/config/env.ts` puis utilisée uniquement par le client `src/lib/axios.ts`. Les variables préfixées `VITE_` sont publiques : ne jamais y mettre de secret.
@@ -49,6 +50,7 @@ src/
   features/customers/        Liste et Kanban clients, filtres et actions locales
   features/quotes/           Liste, création et éditeur de devis
   features/sales/            Accès aux commandes et fiche de suivi commercial
+  features/invoices/         Liste, aging, création, détail et suivi des paiements
   lib/                       Axios centralisé et utilitaire cn()
   store/                     État global Zustand, conservé en mémoire
 tests/                       Tests navigateur, réponses isolées de la production
@@ -72,6 +74,10 @@ Stack : React, React Router DOM, Tailwind CSS via le plugin Vite, Axios, TanStac
 | `/quotes/new`, `/quotes/:id` | Création, édition des brouillons et consultation des devis |
 | `/sales` | Liste d’accès aux commandes clients |
 | `/sales/:id` | Détail : workflow, livraisons, factures, paiements, activités et analyse |
+| `/invoices` | Factures clients : KPI, aging, Liste/Kanban, filtres et actions |
+| `/invoices/new`, `/invoices/:id` | Création, édition des brouillons, validation, paiements et aperçu |
+
+La [documentation des factures](src/features/invoices/README.md) détaille les fichiers, règles financières, permissions, données de démonstration, tests et contrats Django. Les actions de démonstration restent en mémoire ; comptabilisation réelle, emails, paiements persistés, PDF, avoirs et IA nécessitent les services backend correspondants.
 
 La racine et les URLs inconnues renvoient vers `/login`. L’onboarding et les pages internes requièrent un état d’authentification en mémoire. Cette garde facilite la navigation ; les permissions et la protection des données restent à la charge de Django.
 

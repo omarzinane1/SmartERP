@@ -29,6 +29,7 @@ export function Topbar({
   const customersPage = pathname.startsWith('/customers')
   const quotesPage = pathname.startsWith('/quotes')
   const salesPage = pathname.startsWith('/sales')
+  const invoicesPage = pathname.startsWith('/invoices')
   const initials =
     user?.name
       .split(' ')
@@ -68,6 +69,8 @@ export function Topbar({
         <span className="text-slate-400">
           {aiPage
             ? 'Intelligence'
+            : invoicesPage
+            ? 'Finance'
             : customersPage || quotesPage || salesPage
             ? 'Ventes'
             : 'Vue d’ensemble'}
@@ -76,6 +79,8 @@ export function Topbar({
         <span className="font-semibold text-navy-950">
           {aiPage
             ? 'AI Control Center'
+            : invoicesPage
+            ? 'Factures clients'
             : customersPage
             ? 'Customers'
             : quotesPage

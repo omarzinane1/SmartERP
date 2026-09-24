@@ -106,3 +106,4 @@
   .quotes-quick-filters { flex-basis: 100%; }.quotes-pagination > div { gap: 7px; }
   .quotes-send-dialog { bottom: 16px; right: 16px; }.quotes-selection { align-items: flex-start; }
 }
+.quotes-table-scroll { position: relative; }

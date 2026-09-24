@@ -5,7 +5,7 @@ import type { SalesActionResult, SalesDeliveryInput, SalesInvoiceInput, SalesOrd
 
 export const SALES_ENDPOINT = '/sales-orders/'
 export class SalesOrderNotFoundError extends Error {}
-function fromAPI(order: SalesOrderDetail): SalesOrderDetail {
+function fromAPI(order: Omit<SalesOrderDetail, 'capabilities'> & { capabilities?: Partial<SalesOrderDetail['capabilities']> }): SalesOrderDetail {
   return { ...order,
     capabilities: { canConfirm: false, canCancel: false, canDeliver: false, canInvoice: false, invoiceableAmount: 0, ...order.capabilities },
     lines: order.lines.map((line) => ({ ...line, unitCost: typeof line.unitCost === 'number' && Number.isFinite(line.unitCost) ? line.unitCost : null })),

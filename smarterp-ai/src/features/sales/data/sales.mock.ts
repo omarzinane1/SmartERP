@@ -65,6 +65,14 @@ export async function getSalesOrdersMock(scope: string) {
 export async function getSalesOrderMock(scope: string, id: number) {
   return structuredClone(session(scope).find((order) => order.id === id) ?? null)
 }
+// Synchronise un paiement de démonstration provenant de la fiche facture liée.
+export function syncSalesInvoiceMock(scope: string, orderId: number, invoiceId: number, payments: SalesOrderDetail['payments']) {
+  const order = session(scope).find((item) => item.id === orderId)
+  if (!order || !order.invoices.some((invoice) => invoice.id === invoiceId)) return
+  order.payments = [...order.payments.filter((payment) => payment.invoiceId !== invoiceId), ...structuredClone(payments)]
+  const financials = salesFinancials(order)
+  order.paymentStatus = financials.invoiced > 0 && financials.balance === 0 ? 'paid' : financials.paid > 0 ? 'partial' : 'unpaid'
+}
 export async function confirmSalesOrderMock(scope: string, id: number) {
   await new Promise((resolve) => setTimeout(resolve, 500))
   const order = session(scope).find((item) => item.id === id)

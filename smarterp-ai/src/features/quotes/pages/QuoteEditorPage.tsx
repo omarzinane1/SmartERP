@@ -140,7 +140,7 @@ function QuoteEditorForm({ editor, data }: { editor: ReturnType<typeof useQuoteE
       {error && !confirmation && <Alert variant="error">{error}</Alert>}
       {!!Object.keys(form.formState.errors).length && <p role="alert" className="quote-validation-summary">Veuillez corriger les champs indiqués avant d’enregistrer.</p>}
       {!editable && <p className="quote-readonly-note">Lecture seule : {quote?.status !== 'draft' ? 'seuls les brouillons peuvent être modifiés.' : 'vous ne disposez pas de la permission de modification.'}</p>}
-      {quote?.convertedTo && <Alert>Conversion confirmée par le serveur : {quote.convertedTo.target === 'sales_order' ? <Link className="underline" to={`/sales/${quote.convertedTo.id}`}>{quote.convertedTo.reference}</Link> : `${quote.convertedTo.reference} (fiche facture à venir)`}.</Alert>}
+      {quote?.convertedTo && <Alert>Conversion confirmée par le serveur : <Link className="underline" to={`/${quote.convertedTo.target === 'sales_order' ? 'sales' : 'invoices'}/${quote.convertedTo.id}`}>{quote.convertedTo.reference}</Link>.</Alert>}
       <QuoteGeneralInformation quote={quote} editable={editable} busy={editor.busy} onCustomerChange={setChosenCustomer} />
       <LineItemsEditor products={data.products} disabled={!editable || editor.busy} />
       <div className="quote-editor-bottom"><QuoteTabs activities={quote?.activities ?? []} disabled={!editable || editor.busy} isDemo={editor.isDemo} /><TotalsPanel totals={totals} /></div>

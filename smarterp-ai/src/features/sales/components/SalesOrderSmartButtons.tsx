@@ -10,7 +10,7 @@ export function SalesOrderSmartButtons({ order }: { order: SalesOrderDetail }) {
     { label: 'Documents', count: order.documents.length, target: 'sales-documents', icon: Files },
   ]
   return <nav className="sales-smart-buttons" aria-label="Documents liés à la commande">
-    {items.map(({ label, count, target, icon: Icon }) => <a key={target} href={`#${target}`}><Icon size={17} aria-hidden="true" /><span>{label}</span><strong>{count}</strong></a>)}
+    {items.map(({ label, count, target, icon: Icon }) => <Link key={target} to={`#${target}`} onClick={() => document.getElementById(target)?.focus()}><Icon size={17} aria-hidden="true" /><span>{label}</span><strong>{count}</strong></Link>)}
     {order.quoteId ? <Link to={`/quotes/${order.quoteId}`}><FileText size={17} aria-hidden="true" /><span>Devis source</span><strong>1</strong></Link>
       : <span className="sales-smart-disabled" title="Aucun devis source"><FileText size={17} aria-hidden="true" /><span>Devis source</span><strong>0</strong></span>}
   </nav>
