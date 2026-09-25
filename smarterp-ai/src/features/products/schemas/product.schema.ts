@@ -1,0 +1,4 @@
+import { z } from 'zod'
+import { decimal } from '../../purchases/schemas/purchase.schema'
+import type { ProductInput } from '../types/products.types'
+export const productSchema: z.ZodType<ProductInput, ProductInput> = z.object({ name: z.string().trim().min(2, 'Nom obligatoire.').max(150), sku: z.string().trim().min(1, 'SKU obligatoire.').max(60), type: z.enum(['product', 'service']), category: z.string().trim().min(1, 'Catégorie obligatoire.').max(80), supplierId: z.number().int().positive('Fournisseur obligatoire.'), purchasePrice: decimal(1000000, 2), sellingPrice: decimal(1000000, 2), unit: z.string().trim().min(1), barcode: z.string().max(80), minimumStock: decimal(1000000, 3), maximumStock: decimal(1000000, 3), description: z.string().max(3000) }).refine((p) => p.type === 'service' || p.maximumStock === 0 || p.maximumStock >= p.minimumStock, { path: ['maximumStock'], message: 'Le maximum doit être supérieur ou égal au minimum.' })

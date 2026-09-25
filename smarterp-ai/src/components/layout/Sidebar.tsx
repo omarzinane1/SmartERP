@@ -22,6 +22,11 @@ import { Button } from '../ui/Button'
 import { useAuthStore } from '../../store/auth.store'
 import { cn } from '../../lib/cn'
 
+const modulePaths: Record<string, string> = {
+  Clients: '/customers', Devis: '/quotes', 'Commandes clients': '/sales', 'Factures clients': '/invoices',
+  Paiements: '/payments', Fournisseurs: '/suppliers', 'Commandes fournisseurs': '/purchases', 'Factures fournisseurs': '/supplier-invoices',
+  'Produits & services': '/products', Inventaire: '/inventory', 'Mouvements de stock': '/inventory/movements', 'Dépôts': '/warehouses', 'Transferts de stock': '/inventory/transfers', 'Dépenses': '/expenses', 'Trésorerie': '/finance/cash-flow', Rapports: '/reports',
+}
 const groups = [
   {
     label: 'Ventes',
@@ -39,6 +44,7 @@ const groups = [
     links: [
       'Produits & services',
       'Inventaire',
+      'Mouvements de stock',
       'Dépôts',
       'Transferts de stock',
     ],
@@ -167,7 +173,7 @@ export function Sidebar({
               <details
                 className="group"
                 open={
-                  (label === 'Ventes' && (pathname.startsWith('/customers') || pathname.startsWith('/quotes') || pathname.startsWith('/sales') || pathname.startsWith('/invoices'))) || (label === 'Finance' && pathname.startsWith('/payments')) || (label === 'Achats' && (pathname.startsWith('/suppliers') || pathname.startsWith('/purchases') || pathname.startsWith('/supplier-invoices')))
+                  links.some((link) => modulePaths[link] && (pathname === modulePaths[link] || pathname.startsWith(`${modulePaths[link]}/`)))
                     ? true
                     : undefined
                 }
@@ -187,10 +193,11 @@ export function Sidebar({
                 </summary>
                 <div className="ml-5 border-l border-slate-200 py-1 pl-3">
                   {links.map((label) =>
-                    label === 'Clients' || label === 'Devis' || label === 'Commandes clients' || label === 'Factures clients' || label === 'Paiements' || label === 'Fournisseurs' || label === 'Commandes fournisseurs' || label === 'Factures fournisseurs' ? (
+                    modulePaths[label] ? (
                       <NavLink
                         key={label}
-                        to={label === 'Clients' ? '/customers' : label === 'Devis' ? '/quotes' : label === 'Commandes clients' ? '/sales' : label === 'Paiements' ? '/payments' : label === 'Fournisseurs' ? '/suppliers' : label === 'Commandes fournisseurs' ? '/purchases' : label === 'Factures fournisseurs' ? '/supplier-invoices' : '/invoices'}
+                        to={modulePaths[label]}
+                        end={modulePaths[label] === '/inventory'}
                         onClick={onClose}
                         className={({ isActive }) =>
                           cn(

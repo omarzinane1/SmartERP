@@ -34,6 +34,11 @@ export function Topbar({
   const purchasesPage = pathname.startsWith('/purchases')
   const supplierInvoicesPage = pathname.startsWith('/supplier-invoices')
   const suppliersPage = pathname.startsWith('/suppliers')
+  const stockPage = /^\/(products|inventory|warehouses)(\/|$)/.test(pathname)
+  const expensePage = pathname === '/expenses'
+  const cashPage = pathname === '/finance/cash-flow'
+  const reportsPage = pathname === '/reports'
+  const stockLabel = pathname.startsWith('/products') ? 'Produits & Services' : pathname.startsWith('/warehouses') ? 'Dépôts' : pathname.startsWith('/inventory/movements') ? 'Mouvements de stock' : pathname.startsWith('/inventory/transfers') ? 'Transferts de stock' : 'Dashboard Stock'
   const initials =
     user?.name
       .split(' ')
@@ -71,7 +76,7 @@ export function Topbar({
         className="hidden shrink-0 items-center gap-1.5 text-[10px] sm:flex"
       >
         <span className="text-slate-400">
-          {aiPage
+          {stockPage ? 'Stock' : reportsPage ? 'BI / Reporting' : expensePage || cashPage ? 'Finance' : aiPage
             ? 'Intelligence'
             : suppliersPage || purchasesPage
             ? 'Achats'
@@ -83,7 +88,7 @@ export function Topbar({
         </span>
         <span className="text-slate-300">/</span>
         <span className="font-semibold text-navy-950">
-          {aiPage
+          {stockPage ? stockLabel : reportsPage ? 'Rapports' : expensePage ? 'Dépenses' : cashPage ? 'Trésorerie' : aiPage
             ? 'AI Control Center'
             : supplierInvoicesPage
             ? 'Factures fournisseurs'

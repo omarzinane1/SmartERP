@@ -17,7 +17,7 @@ export function usePayments(filters: PaymentQuery) {
   })
   const summary = useQuery({ ...options, queryKey: ['payments-summary', userId, companyId, env.paymentsUseMock, filters], enabled: !!query.data?.permissions.includes('payments.view'), queryFn: ({ signal }) => getPaymentsSummary(scope, filters, signal) })
   async function refresh() {
-    await Promise.all(['supplier-detail', 'supplier-metrics', 'supplier-invoices', 'supplier-invoice-detail', 'supplier-invoice-aging', 'purchase-orders', 'purchase-order-detail', 'payments', 'payments-summary', 'invoices', 'invoice-detail', 'invoice-aging', 'sales-order', 'sales-orders', 'suppliers', 'customers', 'customer-detail', 'dashboard'].map((key) => client.invalidateQueries({ queryKey: [key, userId, companyId] })))
+    await Promise.all(['cash-flow', 'cash-forecast', 'cash-upcoming', 'product', 'product-metrics', 'product-history', 'products', 'reports', 'supplier-detail', 'supplier-metrics', 'supplier-invoices', 'supplier-invoice-detail', 'supplier-invoice-aging', 'purchase-orders', 'purchase-order-detail', 'payments', 'payments-summary', 'invoices', 'invoice-detail', 'invoice-aging', 'sales-order', 'sales-orders', 'suppliers', 'customers', 'customer-detail', 'dashboard'].map((key) => client.invalidateQueries({ queryKey: [key, userId, companyId] })))
   }
   const create = useMutation({ ...options, mutationFn: (input: PaymentInput) => createPayment(scope, input), onSuccess: refresh })
   const cancel = useMutation({ ...options, mutationFn: (id: number) => cancelPayment(scope, id), onSuccess: refresh })

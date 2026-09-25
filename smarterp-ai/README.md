@@ -370,3 +370,7 @@ Ces tests interceptent les requêtes Django dans le navigateur de test uniquemen
 Si Chromium est déjà installé, la variable optionnelle `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` peut désigner son exécutable pour les tests, sans téléchargement supplémentaire. Elle ne concerne pas l’application et ne doit pas être préfixée par `VITE_`. Par défaut, Playwright utilise la version installée par sa commande ci-dessus.
 
 Pour l’hébergement final, configurer le serveur afin de servir `index.html` pour les routes SPA, notamment `/login`.
+
+## Achats : pages 16 à 20
+
+La [documentation Achats](src/features/purchases/README.md) décrit les cinq nouvelles pages, les contrats Django, les permissions, la cohérence des paiements et les tests.

@@ -12,7 +12,7 @@ export function usePurchasingScope() {
   const scope = `${userId}:${companyId}`
   const key = (name: string) => [name, userId, companyId]
   async function refresh() {
-    await Promise.all(['purchase-orders', 'purchase-order-detail', 'supplier-invoices', 'supplier-invoice-detail', 'supplier-invoice-aging', 'supplier-detail', 'supplier-metrics', 'supplier-price-history', 'suppliers', 'payments', 'payments-summary', 'dashboard'].map((name) => client.invalidateQueries({ queryKey: key(name) })))
+    await Promise.all(['cash-flow', 'cash-forecast', 'cash-upcoming', 'product', 'product-metrics', 'reports', 'purchase-orders', 'purchase-order-detail', 'supplier-invoices', 'supplier-invoice-detail', 'supplier-invoice-aging', 'supplier-detail', 'supplier-metrics', 'supplier-price-history', 'suppliers', 'payments', 'payments-summary', 'dashboard'].map((name) => client.invalidateQueries({ queryKey: key(name) })))
   }
   return { scope, key, refresh }
 }

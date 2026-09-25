@@ -1,6 +1,12 @@
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim()
 
 export const env = {
+  productsUseMock: import.meta.env.VITE_PRODUCTS_USE_MOCK !== 'false',
+  inventoryUseMock: import.meta.env.VITE_INVENTORY_USE_MOCK !== 'false',
+  warehousesUseMock: import.meta.env.VITE_WAREHOUSES_USE_MOCK !== 'false',
+  expensesUseMock: import.meta.env.VITE_EXPENSES_USE_MOCK !== 'false',
+  financeUseMock: import.meta.env.VITE_FINANCE_USE_MOCK !== 'false',
+  reportsUseMock: import.meta.env.VITE_REPORTS_USE_MOCK !== 'false',
   apiBaseUrl: (apiBaseUrl || 'http://localhost:8000/api').replace(/\/+$/, ''),
   dashboardUseMock: import.meta.env.VITE_DASHBOARD_USE_MOCK !== 'false',
   aiControlCenterUseMock: import.meta.env.VITE_AI_CONTROL_CENTER_USE_MOCK !== 'false',

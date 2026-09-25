@@ -62,6 +62,46 @@ export const router = createBrowserRouter([
             },
           },
           {
+            path: '/products',
+            lazy: async () => ({ Component: (await import('../features/products/pages/ProductsPage')).ProductsPage }),
+          },
+          {
+            path: '/products/:id',
+            lazy: async () => ({ Component: (await import('../features/products/pages/ProductDetailPage')).ProductDetailPage }),
+          },
+          {
+            path: '/inventory',
+            lazy: async () => ({ Component: (await import('../features/inventory/pages/InventoryDashboardPage')).InventoryDashboardPage }),
+          },
+          {
+            path: '/inventory/movements',
+            lazy: async () => ({ Component: (await import('../features/inventory/pages/StockMovementsPage')).StockMovementsPage }),
+          },
+          {
+            path: '/inventory/transfers',
+            lazy: async () => ({ Component: (await import('../features/inventory/pages/StockTransfersPage')).StockTransfersPage }),
+          },
+          {
+            path: '/warehouses',
+            lazy: async () => ({ Component: (await import('../features/warehouses/pages/WarehousesPage')).WarehousesPage }),
+          },
+          {
+            path: '/warehouses/:id',
+            lazy: async () => ({ Component: (await import('../features/warehouses/pages/WarehouseDetailPage')).WarehouseDetailPage }),
+          },
+          {
+            path: '/expenses',
+            lazy: async () => ({ Component: (await import('../features/expenses/pages/ExpensesPage')).ExpensesPage }),
+          },
+          {
+            path: '/finance/cash-flow',
+            lazy: async () => ({ Component: (await import('../features/finance/pages/CashFlowPage')).CashFlowPage }),
+          },
+          {
+            path: '/reports',
+            lazy: async () => ({ Component: (await import('../features/reports/pages/ReportsLibraryPage')).ReportsLibraryPage }),
+          },
+          {
             path: '/payments',
             HydrateFallback: RouteLoading,
             lazy: async () => {

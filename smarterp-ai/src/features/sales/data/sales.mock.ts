@@ -62,6 +62,7 @@ export async function getSalesOrdersMock(scope: string) {
   const orders = session(scope).map(({ id, reference, customerId, customerName, salesperson, createdAt, totalAmount, orderStatus }) => ({ id, reference, customerId, customerName, salesperson, createdAt, totalAmount, orderStatus }))
   return { orders, permissions: [...permissions], asOf: salesDemoDate }
 }
+export const salesSnapshot = (scope: string) => structuredClone(session(scope))
 export async function getSalesOrderMock(scope: string, id: number) {
   return structuredClone(session(scope).find((order) => order.id === id) ?? null)
 }

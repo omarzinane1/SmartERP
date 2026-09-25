@@ -24,6 +24,7 @@ export function useInvoiceDetail(id: string | undefined) {
     client.setQueryData([...prefix, invoice.id], { invoice, permissions: invoice.permissions, asOf: invoice.asOf, salesperson: invoice.salesperson })
     insight.reset()
     await Promise.all([
+      ...['cash-flow', 'cash-forecast', 'cash-upcoming', 'reports'].map((name) => client.invalidateQueries({ queryKey: [name, userId, companyId] })),
       client.invalidateQueries({ queryKey: ['invoices', userId, companyId] }), client.invalidateQueries({ queryKey: ['invoice-aging', userId, companyId] }),
       client.invalidateQueries({ queryKey: ['sales-order', userId, companyId] }), client.invalidateQueries({ queryKey: ['sales-orders', userId, companyId] }),
       client.invalidateQueries({ queryKey: ['payments', userId, companyId] }), client.invalidateQueries({ queryKey: ['payments-summary', userId, companyId] }),
