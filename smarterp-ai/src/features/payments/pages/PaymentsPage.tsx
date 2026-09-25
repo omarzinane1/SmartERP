@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { RefreshCw, ShieldAlert } from 'lucide-react'
 import { toast } from 'sonner'
 import { Alert } from '../../../components/ui/Alert'
@@ -20,7 +20,8 @@ import { paymentDirectionLabels, paymentMethodLabels, type Payment, type Payment
 import '../../../components/ui/business.css'
 
 export function PaymentsPage() {
-  const [filters, setFilters] = useState<Filters>({ ...paymentDefaultFilters })
+  const [params] = useSearchParams()
+  const [filters, setFilters] = useState<Filters>({ ...paymentDefaultFilters, search: params.get('search') ?? '', invoice: params.get('invoice') ?? '', period: params.has('search') || params.has('invoice') ? '' : paymentDefaultFilters.period })
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(25)
   const [sort, setSort] = useState('date_desc')
@@ -77,7 +78,7 @@ export function PaymentsPage() {
       {record && <RecordPaymentModal invoices={data.openInvoices} asOf={data.asOf} isDemo={query.isDemo} busy={busy} error={error} onClose={() => setRecord(false)} onSubmit={(input) => void save(input)} />}
     </>}
     {cancel && <Dialog title={`Annuler le paiement ${cancel.reference} ?`} className="business-dialog" busy={busy} onClose={() => setCancel(null)}><p>Cette action peut modifier le solde de la facture associée. Le paiement restera dans l’historique avec le statut Annulé.</p><p>{cancel.partnerName} · {formatMoney(cancel.amount)} · {cancel.invoiceReference}</p>{query.isDemo && <p className="business-info">Annulation simulée localement, sans opération bancaire.</p>}{error && <p role="alert" className="business-error">{error}</p>}<footer><Button variant="secondary" className="business-button" disabled={busy} onClick={() => setCancel(null)} autoFocus>Retour</Button><Button className="business-button" disabled={busy} onClick={() => void cancelPayment()}>{busy ? 'Annulation…' : 'Annuler le paiement'}</Button></footer></Dialog>}
-    {opened && <Dialog title={opened.reference} className="business-dialog" onClose={() => setOpened(null)}><PaymentStatusBadge status={opened.status} /><dl className="mt-5"><div><dt>Type</dt><dd>{paymentDirectionLabels[opened.direction]}</dd></div><div><dt>Montant</dt><dd>{formatMoney(opened.amount)}</dd></div><div><dt>Tiers</dt><dd>{opened.partnerName}</dd></div><div><dt>Date</dt><dd>{formatDate(opened.date)}</dd></div><div><dt>Méthode</dt><dd>{paymentMethodLabels[opened.method]}</dd></div><div><dt>Référence externe</dt><dd>{opened.referenceExternal || '—'}</dd></div></dl><p>{opened.note || 'Aucune note.'}</p>{opened.invoiceId && opened.direction === 'incoming' ? <Link to={`/invoices/${opened.invoiceId}`}>Ouvrir {opened.invoiceReference}</Link> : <p>{opened.invoiceReference} · Fiche facture fournisseur à venir.</p>}<footer><Button className="business-button" onClick={() => setOpened(null)} autoFocus>Fermer</Button></footer></Dialog>}
+    {opened && <Dialog title={opened.reference} className="business-dialog" onClose={() => setOpened(null)}><PaymentStatusBadge status={opened.status} /><dl className="mt-5"><div><dt>Type</dt><dd>{paymentDirectionLabels[opened.direction]}</dd></div><div><dt>Montant</dt><dd>{formatMoney(opened.amount)}</dd></div><div><dt>Tiers</dt><dd>{opened.partnerName}</dd></div><div><dt>Date</dt><dd>{formatDate(opened.date)}</dd></div><div><dt>Méthode</dt><dd>{paymentMethodLabels[opened.method]}</dd></div><div><dt>Référence externe</dt><dd>{opened.referenceExternal || '—'}</dd></div></dl><p>{opened.note || 'Aucune note.'}</p>{opened.invoiceId ? <Link to={`/${opened.direction === 'incoming' ? 'invoices' : 'supplier-invoices'}/${opened.invoiceId}`}>Ouvrir {opened.invoiceReference}</Link> : <p>Aucune facture associée.</p>}<footer><Button className="business-button" onClick={() => setOpened(null)} autoFocus>Fermer</Button></footer></Dialog>}
     {more && <Dialog title="Lecture des paiements" className="business-dialog" onClose={() => setMore(false)}><p>Les KPI portent sur tous les résultats filtrés. Reçus et Envoyés comptent uniquement les paiements confirmés ; les annulations et échecs sont exclus.</p><p>Le délai moyen est la moyenne simple des jours entre émission de facture et encaissement confirmé, lorsque les deux dates sont disponibles et cohérentes.</p><footer><Button className="business-button" onClick={() => setMore(false)} autoFocus>Fermer</Button></footer></Dialog>}
   </main>
 }

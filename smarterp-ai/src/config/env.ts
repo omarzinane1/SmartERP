@@ -10,4 +10,6 @@ export const env = {
   invoicesUseMock: import.meta.env.VITE_INVOICES_USE_MOCK !== 'false',
   paymentsUseMock: import.meta.env.VITE_PAYMENTS_USE_MOCK !== 'false',
   suppliersUseMock: import.meta.env.VITE_SUPPLIERS_USE_MOCK !== 'false',
+  purchasesUseMock: import.meta.env.VITE_PURCHASES_USE_MOCK !== 'false',
+  supplierInvoicesUseMock: import.meta.env.VITE_SUPPLIER_INVOICES_USE_MOCK !== 'false',
 } as const

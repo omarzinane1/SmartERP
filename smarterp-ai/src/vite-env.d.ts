@@ -1,6 +1,8 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
+  readonly VITE_PURCHASES_USE_MOCK?: string
+  readonly VITE_SUPPLIER_INVOICES_USE_MOCK?: string
   readonly VITE_API_BASE_URL?: string
   readonly VITE_DASHBOARD_USE_MOCK?: string
   readonly VITE_AI_CONTROL_CENTER_USE_MOCK?: string

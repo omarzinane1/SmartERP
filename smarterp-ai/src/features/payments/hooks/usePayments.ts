@@ -3,7 +3,7 @@ import { isAxiosError } from 'axios'
 import { env } from '../../../config/env'
 import { useAuthStore } from '../../../store/auth.store'
 import { cancelPayment, createPayment, getPayments, getPaymentsSummary } from '../api/payments.api'
-import type { PaymentInput, PaymentQuery } from '../types/payments.types'
+import type { PaymentsData, PaymentInput, PaymentQuery } from '../types/payments.types'
 
 export function usePayments(filters: PaymentQuery) {
   const userId = useAuthStore((state) => state.user?.id)
@@ -11,13 +11,13 @@ export function usePayments(filters: PaymentQuery) {
   const scope = `${userId}:${companyId}`
   const client = useQueryClient()
   const options = { retry: false, networkMode: 'always' as const }
-  const query = useQuery({ ...options,
-    placeholderData: (previous, previousQuery) => previousQuery?.queryKey[1] === userId && previousQuery.queryKey[2] === companyId ? previous : undefined,
+  const query = useQuery<PaymentsData>({ ...options,
+    placeholderData: (previous, previousQuery) => previousQuery?.queryKey[1] === userId && previousQuery?.queryKey[2] === companyId ? previous : undefined,
     queryKey: ['payments', userId, companyId, env.paymentsUseMock, filters], queryFn: ({ signal }) => getPayments(scope, filters, signal),
   })
   const summary = useQuery({ ...options, queryKey: ['payments-summary', userId, companyId, env.paymentsUseMock, filters], enabled: !!query.data?.permissions.includes('payments.view'), queryFn: ({ signal }) => getPaymentsSummary(scope, filters, signal) })
   async function refresh() {
-    await Promise.all(['payments', 'payments-summary', 'invoices', 'invoice-detail', 'invoice-aging', 'sales-order', 'sales-orders', 'suppliers', 'customers', 'customer-detail', 'dashboard'].map((key) => client.invalidateQueries({ queryKey: [key, userId, companyId] })))
+    await Promise.all(['supplier-detail', 'supplier-metrics', 'supplier-invoices', 'supplier-invoice-detail', 'supplier-invoice-aging', 'purchase-orders', 'purchase-order-detail', 'payments', 'payments-summary', 'invoices', 'invoice-detail', 'invoice-aging', 'sales-order', 'sales-orders', 'suppliers', 'customers', 'customer-detail', 'dashboard'].map((key) => client.invalidateQueries({ queryKey: [key, userId, companyId] })))
   }
   const create = useMutation({ ...options, mutationFn: (input: PaymentInput) => createPayment(scope, input), onSuccess: refresh })
   const cancel = useMutation({ ...options, mutationFn: (id: number) => cancelPayment(scope, id), onSuccess: refresh })

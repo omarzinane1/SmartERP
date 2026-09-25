@@ -3,7 +3,7 @@ import { isAxiosError } from 'axios'
 import { env } from '../../../config/env'
 import { useAuthStore } from '../../../store/auth.store'
 import { createSupplier, getSuppliers, updateSupplier } from '../api/suppliers.api'
-import type { SupplierInput, SupplierQuery } from '../types/suppliers.types'
+import type { SuppliersData, SupplierInput, SupplierQuery } from '../types/suppliers.types'
 
 export function useSuppliers(filters: SupplierQuery) {
   const userId = useAuthStore((state) => state.user?.id)
@@ -11,11 +11,11 @@ export function useSuppliers(filters: SupplierQuery) {
   const scope = `${userId}:${companyId}`
   const client = useQueryClient()
   const options = { retry: false, networkMode: 'always' as const }
-  const query = useQuery({ ...options,
-    placeholderData: (previous, previousQuery) => previousQuery?.queryKey[1] === userId && previousQuery.queryKey[2] === companyId ? previous : undefined,
+  const query = useQuery<SuppliersData>({ ...options,
+    placeholderData: (previous, previousQuery) => previousQuery?.queryKey[1] === userId && previousQuery?.queryKey[2] === companyId ? previous : undefined,
     queryKey: ['suppliers', userId, companyId, env.suppliersUseMock, filters], queryFn: ({ signal }) => getSuppliers(scope, filters, signal),
   })
-  async function refresh() { await Promise.all(['suppliers', 'payments'].map((key) => client.invalidateQueries({ queryKey: [key, userId, companyId] }))) }
+  async function refresh() { await Promise.all(['suppliers', 'supplier-detail', 'supplier-metrics', 'purchase-orders', 'purchase-order-detail', 'supplier-invoices', 'supplier-invoice-detail', 'payments'].map((key) => client.invalidateQueries({ queryKey: [key, userId, companyId] }))) }
   const save = useMutation({ ...options, mutationFn: ({ id, input }: { id?: number; input: SupplierInput }) => id === undefined ? createSupplier(scope, input) : updateSupplier(scope, id, input), onSuccess: refresh })
   const archive = useMutation({ ...options, mutationFn: (id: number) => updateSupplier(scope, id, { status: 'archived' }), onSuccess: refresh })
   async function exportRows() {

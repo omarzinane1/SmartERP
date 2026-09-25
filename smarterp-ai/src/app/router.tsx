@@ -30,6 +30,38 @@ export const router = createBrowserRouter([
         element: <AppShell />,
         children: [
           {
+            path: '/purchases',
+            HydrateFallback: RouteLoading,
+            lazy: async () => {
+              const { PurchaseOrdersPage } = await import('../features/purchases/pages/PurchaseOrdersPage')
+              return { Component: PurchaseOrdersPage }
+            },
+          },
+          {
+            path: '/purchases/:id',
+            HydrateFallback: RouteLoading,
+            lazy: async () => {
+              const { PurchaseOrderDetailPage } = await import('../features/purchases/pages/PurchaseOrderDetailPage')
+              return { Component: PurchaseOrderDetailPage }
+            },
+          },
+          {
+            path: '/supplier-invoices',
+            HydrateFallback: RouteLoading,
+            lazy: async () => {
+              const { SupplierInvoicesPage } = await import('../features/supplier-invoices/pages/SupplierInvoicesPage')
+              return { Component: SupplierInvoicesPage }
+            },
+          },
+          {
+            path: '/supplier-invoices/:id',
+            HydrateFallback: RouteLoading,
+            lazy: async () => {
+              const { SupplierInvoiceDetailPage } = await import('../features/supplier-invoices/pages/SupplierInvoiceDetailPage')
+              return { Component: SupplierInvoiceDetailPage }
+            },
+          },
+          {
             path: '/payments',
             HydrateFallback: RouteLoading,
             lazy: async () => {
@@ -48,8 +80,8 @@ export const router = createBrowserRouter([
           {
             path: '/suppliers/:id',
             lazy: async () => {
-              const { SupplierPlaceholderPage } = await import('../features/suppliers/pages/SuppliersPage')
-              return { Component: SupplierPlaceholderPage }
+              const { SupplierDetailPage } = await import('../features/suppliers/pages/SupplierDetailPage')
+              return { Component: SupplierDetailPage }
             },
           },
           {

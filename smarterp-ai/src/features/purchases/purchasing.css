@@ -1,0 +1,51 @@
+@import '../../components/ui/business.css';
+.purchasing-page { min-width:0; }
+.purchasing-page h2 { font-size:14px; font-weight:600; color:#294b72; }
+.purchasing-page h3 { font-weight:600; color:#526e94; }
+.purchasing-panel { padding:20px; margin-top:16px; }
+.purchasing-panel > header { display:flex; gap:16px; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.purchasing-panel p { line-height:1.8; margin:9px 0; }
+.purchasing-panel dl { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; margin-top:20px; }
+.purchasing-panel dt { color:#8799af; font-size:10px; margin-bottom:5px; }
+.purchasing-panel dd { color:#35587f; overflow-wrap:anywhere; }
+.purchasing-actions { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+.purchasing-back { display:block; font-size:11px; margin-bottom:14px; }
+.purchasing-workflow { display:flex; gap:12px; flex-wrap:wrap; align-items:center; padding:14px 18px; margin-bottom:16px; }
+.purchasing-workflow > span { display:inline-flex; gap:6px; align-items:center; }
+.purchasing-smart { display:flex; flex-wrap:wrap; gap:8px; margin:18px 0; }
+.purchasing-smart :is(button,a) { background:white; border:1px solid #dfe7f2; border-radius:5px; padding:10px 14px; font-size:11px; color:#4a6d98; }
+.purchasing-tabs { display:flex; flex-wrap:wrap; gap:5px; border-bottom:1px solid #dfe7f2; padding-bottom:8px; margin:20px 0; }
+.purchasing-tabs button { padding:9px 13px; border-radius:5px; color:#8093ac; }
+.purchasing-tabs button[aria-selected=true] { background:#eaf2ff; color:#275fa6; }
+.purchasing-two { display:grid; grid-template-columns:minmax(0,1.8fr) minmax(280px,1fr); gap:16px; align-items:start; }
+.purchasing-six { grid-template-columns:repeat(6,minmax(0,1fr)); }
+.purchasing-six strong { font-size:21px; }
+.receipt-progress { min-width:100px; font-size:10px; }
+.receipt-progress progress { display:block; width:100%; height:5px; margin:5px 0; accent-color:#408b83; }
+.receipt-progress small { color:#8398af; }
+.purchasing-board .supplier-column { min-width:235px; }
+.purchasing-timeline { margin-top:18px; }
+.purchasing-timeline li { border-left:2px solid #dce7f6; padding:0 0 18px 16px; position:relative; }
+.purchasing-timeline li:before { content:''; position:absolute; left:-5px; top:3px; width:8px; height:8px; background:#6697d1; border-radius:50%; }
+.purchasing-timeline time { display:block; color:#8b9bb2; font-size:10px; margin-bottom:5px; }
+.purchasing-insight { background:linear-gradient(130deg,white,#f7f7ff); border-color:#dfe0f5; }
+.purchasing-insight h2 { display:flex; gap:8px; align-items:center; color:#6263a3; }
+.purchasing-insight h3 { font-size:10px; color:#7676a8; margin-top:18px; letter-spacing:.08em; }
+.purchasing-insight ul { list-style:disc; padding-left:18px; line-height:1.9; margin-top:8px; }
+.purchasing-insight small { color:#9291ae; font-size:10px; }
+.purchasing-dialog { width:min(1040px,calc(100% - 32px)); }
+.purchasing-editor .business-table { min-width:850px; }
+.purchasing-editor input { width:100%; min-width:55px; }
+.purchasing-editor td:first-child input { min-width:140px; }
+.purchasing-editor .business-table td { padding:8px; }
+.purchasing-total { display:flex; gap:22px; flex-wrap:wrap; justify-content:flex-end; padding:16px; border-top:1px solid #e4ebf5; }
+.purchasing-total strong { color:#2d567f; }
+.payable-aging { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:10px; margin-bottom:18px; }
+.payable-aging button { text-align:left; padding:13px; }
+.payable-aging button[aria-pressed=true] { outline:2px solid #7faaf0; }
+.payable-aging span,.payable-aging strong,.payable-aging small { display:block; }
+.payable-aging span,.payable-aging small { font-size:10px; color:#8698b0; }
+.payable-aging strong { margin:8px 0; color:#476c96; font-size:16px; }
+.attachment-preview { width:100%; height:450px; border:1px solid #dde6f2; object-fit:contain; }
+@media(max-width:1200px) { .purchasing-six { grid-template-columns:repeat(3,minmax(0,1fr)); } .purchasing-two { grid-template-columns:1fr; } }
+@media(max-width:700px) { .payable-aging { grid-template-columns:repeat(2,minmax(0,1fr)); } .purchasing-panel dl { grid-template-columns:1fr 1fr; } }

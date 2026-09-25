@@ -65,7 +65,7 @@ test('critical payment reduces 12800 to 6400 and cancellation restores balances 
 })
 test('outgoing confirmed payments update supplier balances, pending cancellation does not add money', async () => {
   const scope = 'unit-outgoing'
-  await cancelPaymentMock(scope, 2_000_000)
+  await cancelPaymentMock(scope, 2_000_005)
   expect(supplierSnapshot(scope).find((row) => row.id === 42)?.outstandingBalance).toBe(48600)
   const payment = await createPaymentMock(scope, { direction: 'outgoing', partnerId: 42, invoiceId: 78, date: paymentsDemoDate, amount: 1000, method: 'cash', referenceExternal: '', note: '' })
   expect(supplierSnapshot(scope).find((row) => row.id === 42)?.outstandingBalance).toBe(47600)
@@ -95,7 +95,7 @@ test.describe('Payments and Suppliers démo', () => {
     await page.getByRole('combobox', { name: 'Regrouper par' }).selectOption('direction')
     await expect(page.locator('.payment-table .group')).toContainText('Décaissement')
     await page.getByRole('button', { name: 'Ouvrir PAY-2026-0186' }).click()
-    await expect(page.getByRole('dialog')).toContainText('Fiche facture fournisseur à venir')
+    await expect(page.getByRole('dialog').getByRole('link', { name: 'Ouvrir BILL-2026-0078' })).toBeVisible()
     await page.getByRole('button', { name: 'Fermer', exact: true }).click()
     const download = page.waitForEvent('download')
     await page.getByRole('button', { name: 'Exporter', exact: true }).click()
@@ -176,7 +176,7 @@ test.describe('Payments and Suppliers démo', () => {
     expect((await download).suggestedFilename()).toBe('fournisseurs-demo.csv')
     await page.getByRole('link', { name: 'Ouvrir Atlas Packaging', exact: true }).click()
     await expect(page).toHaveURL(/\/suppliers\/42$/)
-    await expect(page.getByRole('heading', { name: 'Fiche fournisseur à venir' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Atlas Packaging', exact: true })).toBeVisible()
   })
   test('supplier create, edit and archive are explicit local mutations; empty filter and risk view work', async ({ page }) => {
     await login(page); await navigate(page, 'Fournisseurs')

@@ -1,0 +1,10 @@
+import { calculateLineAmounts, calculateTotals, formatMoney } from '../../../lib/money'
+import type { PurchaseLine } from '../types/purchases.types'
+export function PurchaseLineItems({ lines }: { lines: PurchaseLine[] }) {
+  const totals = calculateTotals(lines)
+  return <section className="business-card purchasing-panel"><h2>Lignes de commande</h2><div className="business-table-scroll mt-4"><table className="business-table"><thead><tr>{['Produit / Description', 'Commandé', 'Reçu', 'Restant', 'Prix unitaire', 'Remise', 'TVA', 'Total HT'].map((l) => <th key={l}>{l}</th>)}</tr></thead><tbody>{lines.map((l) => <tr key={l.id}><td>{l.productName}<small>{l.description}</small></td><td>{l.quantity}</td><td>{l.receivedQuantity}</td><td>{Math.round((l.quantity - l.receivedQuantity) * 1000) / 1000}</td><td className="money">{formatMoney(l.unitPrice)}</td><td>{l.discountRate} %</td><td>{l.taxRate} %</td><td className="money">{formatMoney(calculateLineAmounts(l).net)}</td></tr>)}</tbody></table></div><div className="purchasing-total"><span>HT {formatMoney(totals.net)}</span><span>TVA {formatMoney(totals.tax)}</span><strong>TTC {formatMoney(totals.total)}</strong></div></section>
+}
+export function SupplierPriceComparison({ lines }: { lines: PurchaseLine[] }) {
+  const rows = lines.filter((l) => l.previousPrice !== null || l.averagePrice !== null)
+  return <section className="business-card purchasing-panel"><h2>Comparaison des prix fournisseur</h2>{!rows.length ? <p>Historique de prix indisponible.</p> : <div className="business-table-scroll mt-4"><table className="business-table min-w-0"><thead><tr>{['Produit', 'Prix actuel', 'Précédent', 'Variation', 'Moyenne 6 mois'].map((h) => <th key={h}>{h}</th>)}</tr></thead><tbody>{rows.map((l) => <tr key={l.id}><td>{l.productName}</td><td className="money">{formatMoney(l.unitPrice)}</td><td className="money">{l.previousPrice === null ? '—' : formatMoney(l.previousPrice)}</td><td>{l.previousPrice ? `${((l.unitPrice / l.previousPrice - 1) * 100).toFixed(1)} %` : '—'}</td><td className="money">{l.averagePrice === null ? '—' : formatMoney(l.averagePrice)}</td></tr>)}</tbody></table></div>}</section>
+}

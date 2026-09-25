@@ -6,8 +6,8 @@ import { formatMoney } from '../../../lib/money'
 import { recordPaymentSchema } from '../schemas/payment.schema'
 import { paymentMethodLabels, type PaymentInput, type PaymentInvoiceOption } from '../types/payments.types'
 
-export function RecordPaymentModal({ invoices, asOf, isDemo, busy, error, onClose, onSubmit }: { invoices: PaymentInvoiceOption[]; asOf: string; isDemo: boolean; busy: boolean; error: string | null; onClose: () => void; onSubmit: (input: PaymentInput) => void }) {
-  const form = useForm<PaymentInput>({ resolver: zodResolver(recordPaymentSchema(invoices)), defaultValues: { direction: 'incoming', partnerId: 0, invoiceId: 0, date: asOf, amount: 0, method: 'bank_transfer', referenceExternal: '', note: '' } })
+export function RecordPaymentModal({ invoices, initialInvoice, asOf, isDemo, busy, error, onClose, onSubmit }: { invoices: PaymentInvoiceOption[]; initialInvoice?: PaymentInvoiceOption; asOf: string; isDemo: boolean; busy: boolean; error: string | null; onClose: () => void; onSubmit: (input: PaymentInput) => void }) {
+  const form = useForm<PaymentInput>({ resolver: zodResolver(recordPaymentSchema(invoices)), defaultValues: { direction: initialInvoice?.direction ?? 'incoming', partnerId: initialInvoice?.partnerId ?? 0, invoiceId: initialInvoice?.id ?? 0, date: asOf, amount: initialInvoice?.remainingAmount ?? 0, method: 'bank_transfer', referenceExternal: '', note: '' } })
   const [direction, partnerId, invoiceId] = useWatch({ control: form.control, name: ['direction', 'partnerId', 'invoiceId'] })
   const partners = [...new Map(invoices.filter((invoice) => invoice.direction === direction).map((invoice) => [invoice.partnerId, invoice.partnerName])).entries()]
   const available = invoices.filter((invoice) => invoice.direction === direction && invoice.partnerId === partnerId)

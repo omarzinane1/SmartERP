@@ -25,6 +25,12 @@ export const suppliersMock: Supplier[] = Array.from({ length: 48 }, (_, index) =
 const stores = new Map<string, Supplier[]>()
 function store(scope: string) { if (!stores.has(scope)) stores.set(scope, structuredClone(suppliersMock)); return stores.get(scope)! }
 export function supplierSnapshot(scope: string) { return structuredClone(store(scope)) }
+export function changeSupplierPurchases(scope: string, id: number, amount: number, date: string) {
+  const supplier = store(scope).find((row) => row.id === id)
+  if (!supplier) throw new Error('Fournisseur introuvable')
+  supplier.purchaseVolume = sumMoney([supplier.purchaseVolume, amount])
+  supplier.lastPurchaseAt = date
+}
 export function changeSupplierBalance(scope: string, id: number, change: number) {
   const supplier = store(scope).find((row) => row.id === id)
   if (!supplier || sumMoney([supplier.outstandingBalance, change]) < 0) throw new Error('Solde fournisseur invalide')

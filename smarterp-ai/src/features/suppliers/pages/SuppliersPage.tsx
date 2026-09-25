@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { Archive, Download, RefreshCw, ShieldAlert, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { Alert } from '../../../components/ui/Alert'
@@ -95,13 +95,4 @@ export function SuppliersPage() {
     {details && <Dialog title={details.name} className="business-dialog" onClose={() => setDetails(null)}><p>{details.reference} · {details.category}</p><dl><div><dt>Contact</dt><dd>{details.contact || '—'}</dd></div><div><dt>E-mail</dt><dd>{details.email || '—'}</dd></div><div><dt>Téléphone</dt><dd>{details.phone || '—'}</dd></div><div><dt>Dernier achat</dt><dd>{details.lastPurchaseAt ? formatDate(details.lastPurchaseAt) : 'Aucun'}</dd></div></dl><p>Score fournisseur : <SupplierScoreBadge supplier={details} /></p><p>{details.scoreSource}. Le risque est un indicateur distinct.</p><Link to={`/suppliers/${details.id}`}>Ouvrir la fiche fournisseur</Link><footer><Button className="business-button" onClick={() => setDetails(null)} autoFocus>Fermer</Button></footer></Dialog>}
     {more && <Dialog title="Gestion des fournisseurs" className="business-dialog" onClose={() => setMore(false)}><p>Sélectionnez des fournisseurs pour exporter ou archiver selon vos droits. Les groupes et le Kanban montrent la page courante ; les indicateurs couvrent tous les résultats filtrés.</p><p>L’import CSV / Excel et la fiche complète seront disponibles après raccordement de leurs services.</p><footer><Button className="business-button" onClick={() => setMore(false)} autoFocus>Fermer</Button></footer></Dialog>}
   </main>
-}
-
-export function SupplierPlaceholderPage() {
-  const { id } = useParams()
-  const query = useSuppliers({ ...supplierDefaultFilters, page: 1, pageSize: 25, sort: 'name' })
-  if (query.isForbidden) return <main className="dashboard-page business-page business-state"><h1>Accès non autorisé</h1><Link to="/suppliers">Retour aux fournisseurs</Link></main>
-  if (query.isPending) return <main className="dashboard-page business-page"><p role="status">Chargement…</p><div className="business-card business-skeleton" /></main>
-  if (!query.data) return <main className="dashboard-page business-page"><Alert variant="error">Impossible de charger les fournisseurs.</Alert><Button onClick={() => void query.refetch()}>Réessayer</Button></main>
-  return <main className="dashboard-page business-page business-state"><h1>Fiche fournisseur à venir</h1><p>Fournisseur #{id}. Cette route est réservée à la future fiche détaillée.</p><p>Les informations disponibles, modifications et archives se consultent depuis la liste.</p><Link to="/suppliers">Retour aux fournisseurs</Link></main>
 }
