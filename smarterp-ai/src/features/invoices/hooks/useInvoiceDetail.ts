@@ -26,6 +26,7 @@ export function useInvoiceDetail(id: string | undefined) {
     await Promise.all([
       client.invalidateQueries({ queryKey: ['invoices', userId, companyId] }), client.invalidateQueries({ queryKey: ['invoice-aging', userId, companyId] }),
       client.invalidateQueries({ queryKey: ['sales-order', userId, companyId] }), client.invalidateQueries({ queryKey: ['sales-orders', userId, companyId] }),
+      client.invalidateQueries({ queryKey: ['payments', userId, companyId] }), client.invalidateQueries({ queryKey: ['payments-summary', userId, companyId] }),
     ])
   }
   const save = useMutation({ ...options, mutationFn: (input: InvoiceInput) => numericId === undefined ? createInvoice(scope, input) : updateInvoice(scope, numericId, input), onSuccess: refresh })

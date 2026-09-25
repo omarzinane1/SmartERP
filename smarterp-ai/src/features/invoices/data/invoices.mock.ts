@@ -48,6 +48,18 @@ export function invoiceSummary(invoice: InvoiceDetail): InvoiceSummary {
 }
 export async function getInvoicesMock(scope: string) { return structuredClone({ invoices: session(scope).map(invoiceSummary), permissions: invoiceDemoPermissions, asOf: invoiceDemoDate, currentSalesperson: 'Sara El Mansouri' }) }
 export async function getInvoiceMock(scope: string, id: number) { return structuredClone(session(scope).find((invoice) => invoice.id === id) ?? null) }
+export function invoiceSnapshot(scope: string) { return structuredClone(session(scope)) }
+export async function cancelInvoicePaymentMock(scope: string, paymentId: number) {
+  const invoice = session(scope).find((row) => row.payments.some((payment) => payment.id === paymentId))
+  const payment = invoice?.payments.find((row) => row.id === paymentId)
+  if (!invoice || !payment || invoice.workflowStatus !== 'posted' || payment.status === 'cancelled') throw new Error('Paiement non annulable')
+  payment.status = 'cancelled'
+  invoice.paidAmount = sumMoney(invoice.payments.filter((row) => row.status === 'confirmed').map((row) => row.amount))
+  invoice.paymentStatus = remainingAmount(invoice) === 0 ? 'paid' : invoice.paidAmount > 0 ? 'partially_paid' : 'unpaid'
+  invoice.capabilities.canPay = remainingAmount(invoice) > 0
+  activity(invoice, 'payment', 'Annulation du paiement simulée localement. Historique conservé.', payment.reference)
+  if (invoice.salesOrderId) syncSalesInvoiceMock(scope, invoice.salesOrderId, invoice.id, invoice.payments.map((row) => ({ ...row, invoiceId: invoice.id })))
+}
 export async function getInvoicesAgingMock(scope: string) { return calculateAging(session(scope), invoiceDemoDate) }
 function activity(invoice: InvoiceDetail, type: InvoiceDetail['activities'][number]['type'], description: string, reference?: string) {
   invoice.activities.push({ id: crypto.randomUUID(), type, description, date: `${invoiceDemoDate}T${new Date().toISOString().slice(11)}`, user: invoice.salesperson, reference })
@@ -83,7 +95,7 @@ export async function invoiceActionMock(scope: string, id: number, action: Invoi
     const payment = paymentSchema(remainingAmount(invoice)).parse(input)
     const id = Math.max(0, ...session(scope).flatMap((item) => item.payments.map((entry) => entry.id))) + 1
     const reference = `PAY-DEMO-${id}`
-    invoice.payments.push({ id, reference, amount: payment.amount, date: payment.date, method: payment.method, status: 'confirmed' })
+    invoice.payments.push({ id, reference, amount: payment.amount, date: payment.date, method: payment.method, status: 'confirmed', referenceExternal: payment.reference, note: payment.note })
     invoice.paidAmount = sumMoney(invoice.payments.filter((entry) => entry.status === 'confirmed').map((entry) => entry.amount))
     invoice.paymentStatus = remainingAmount(invoice) === 0 ? 'paid' : 'partially_paid'; invoice.capabilities.canPay = remainingAmount(invoice) > 0
     activity(invoice, 'payment', `Paiement simulé localement : ${formatMoney(payment.amount)}.${payment.reference ? ` Référence saisie : ${payment.reference}.` : ''}${payment.note ? ` Note : ${payment.note}` : ''}`, reference)

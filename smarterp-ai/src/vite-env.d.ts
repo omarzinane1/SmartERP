@@ -8,6 +8,8 @@ interface ImportMetaEnv {
   readonly VITE_QUOTES_USE_MOCK?: string
   readonly VITE_SALES_USE_MOCK?: string
   readonly VITE_INVOICES_USE_MOCK?: string
+  readonly VITE_PAYMENTS_USE_MOCK?: string
+  readonly VITE_SUPPLIERS_USE_MOCK?: string
 }
 
 interface ImportMeta {

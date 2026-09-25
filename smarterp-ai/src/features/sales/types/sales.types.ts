@@ -17,6 +17,7 @@ export interface SalesInvoice {
 export interface SalesPayment {
   id: number; reference: string; date: string; invoiceId: number; method: string; amount: number
   status: 'pending' | 'confirmed' | 'cancelled'
+  referenceExternal?: string; note?: string
 }
 export interface SalesActivity {
   id: string; type: 'created' | 'confirmed' | 'delivery' | 'invoice' | 'payment' | 'note' | 'cancelled'

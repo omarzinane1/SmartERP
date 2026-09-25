@@ -8,4 +8,6 @@ export const env = {
   quotesUseMock: import.meta.env.VITE_QUOTES_USE_MOCK !== 'false',
   salesUseMock: import.meta.env.VITE_SALES_USE_MOCK !== 'false',
   invoicesUseMock: import.meta.env.VITE_INVOICES_USE_MOCK !== 'false',
+  paymentsUseMock: import.meta.env.VITE_PAYMENTS_USE_MOCK !== 'false',
+  suppliersUseMock: import.meta.env.VITE_SUPPLIERS_USE_MOCK !== 'false',
 } as const

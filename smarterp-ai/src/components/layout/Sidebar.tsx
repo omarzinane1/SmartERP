@@ -26,7 +26,7 @@ const groups = [
   {
     label: 'Ventes',
     icon: ShoppingBag,
-    links: ['Clients', 'Devis', 'Commandes clients', 'Factures clients', 'Paiements'],
+    links: ['Clients', 'Devis', 'Commandes clients', 'Factures clients'],
   },
   {
     label: 'Achats',
@@ -46,7 +46,7 @@ const groups = [
   {
     label: 'Finance',
     icon: Landmark,
-    links: ['Dépenses', 'Trésorerie', 'Rapports'],
+    links: ['Paiements', 'Dépenses', 'Trésorerie', 'Rapports'],
   },
   {
     label: 'Intelligence',
@@ -167,7 +167,7 @@ export function Sidebar({
               <details
                 className="group"
                 open={
-                  label === 'Ventes' && (pathname.startsWith('/customers') || pathname.startsWith('/quotes') || pathname.startsWith('/sales') || pathname.startsWith('/invoices'))
+                  (label === 'Ventes' && (pathname.startsWith('/customers') || pathname.startsWith('/quotes') || pathname.startsWith('/sales') || pathname.startsWith('/invoices'))) || (label === 'Finance' && pathname.startsWith('/payments')) || (label === 'Achats' && pathname.startsWith('/suppliers'))
                     ? true
                     : undefined
                 }
@@ -187,10 +187,10 @@ export function Sidebar({
                 </summary>
                 <div className="ml-5 border-l border-slate-200 py-1 pl-3">
                   {links.map((label) =>
-                    label === 'Clients' || label === 'Devis' || label === 'Commandes clients' || label === 'Factures clients' ? (
+                    label === 'Clients' || label === 'Devis' || label === 'Commandes clients' || label === 'Factures clients' || label === 'Paiements' || label === 'Fournisseurs' ? (
                       <NavLink
                         key={label}
-                        to={label === 'Clients' ? '/customers' : label === 'Devis' ? '/quotes' : label === 'Commandes clients' ? '/sales' : '/invoices'}
+                        to={label === 'Clients' ? '/customers' : label === 'Devis' ? '/quotes' : label === 'Commandes clients' ? '/sales' : label === 'Paiements' ? '/payments' : label === 'Fournisseurs' ? '/suppliers' : '/invoices'}
                         onClick={onClose}
                         className={({ isActive }) =>
                           cn(

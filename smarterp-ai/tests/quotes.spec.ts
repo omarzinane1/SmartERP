@@ -16,6 +16,7 @@ async function openQuotes(page: Page) {
   await page.getByRole('navigation', { name: 'Navigation ERP' }).locator('summary').filter({ hasText: /^Ventes$/ }).click()
   await page.getByRole('link', { name: 'Devis / Quotes', exact: true }).click()
   await expect(page).toHaveURL(/\/quotes$/)
+  await expect(page.getByRole('heading', { name: 'Devis', exact: true })).toBeVisible()
 }
 const rows = (page: Page) => page.locator('.quotes-table tbody tr:not(.quotes-group-row)')
 const row = (page: Page, reference: string) => rows(page).filter({ hasText: reference })

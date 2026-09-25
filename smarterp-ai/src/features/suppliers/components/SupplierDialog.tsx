@@ -1,0 +1,13 @@
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { Dialog } from '../../../components/ui/Dialog'
+import { Button } from '../../../components/ui/Button'
+import type { Supplier, SupplierInput } from '../types/suppliers.types'
+
+const schema = z.object({ name: z.string().trim().min(2, 'Deux caractères minimum.').max(150), contact: z.string().trim().max(120), email: z.union([z.literal(''), z.email('E-mail invalide.')]), phone: z.string().max(30), category: z.string().trim().min(1, 'Catégorie obligatoire.').max(80), city: z.string().trim().min(1, 'Ville obligatoire.').max(80), country: z.string().trim().min(1, 'Pays obligatoire.').max(80), buyer: z.string().trim().min(1, 'Acheteur obligatoire.').max(100) })
+export function SupplierDialog({ supplier, buyer, isDemo, busy, error, onClose, onSubmit }: { supplier: Supplier | null; buyer: string; isDemo: boolean; busy: boolean; error: string | null; onClose: () => void; onSubmit: (input: SupplierInput) => void }) {
+  const form = useForm<SupplierInput>({ resolver: zodResolver(schema), defaultValues: supplier ? { name: supplier.name, contact: supplier.contact, email: supplier.email, phone: supplier.phone, category: supplier.category, city: supplier.city, country: supplier.country, buyer: supplier.buyer } : { name: '', contact: '', email: '', phone: '', category: '', city: '', country: 'Maroc', buyer } })
+  const fields: [keyof SupplierInput, string][] = [['name', 'Nom du fournisseur *'], ['category', 'Catégorie *'], ['contact', 'Contact'], ['email', 'E-mail'], ['phone', 'Téléphone'], ['city', 'Ville *'], ['country', 'Pays *'], ['buyer', 'Acheteur *']]
+  return <Dialog title={supplier ? `Modifier ${supplier.name}` : 'Créer un fournisseur'} className="business-dialog" busy={busy} onClose={onClose}><p>Informations de contact essentielles. Les indicateurs financiers et le score ne se modifient pas ici.</p>{isDemo && <p className="business-info">Données enregistrées dans la démonstration en mémoire uniquement.</p>}<form noValidate onSubmit={form.handleSubmit(onSubmit)}><fieldset className="business-form-grid" disabled={busy}>{fields.map(([name, label]) => <label key={name}>{label}<input type={name === 'email' ? 'email' : 'text'} {...form.register(name)} /><small>{form.formState.errors[name]?.message}</small></label>)}</fieldset>{error && <p role="alert" className="business-error">{error}</p>}<footer><Button variant="secondary" className="business-button" disabled={busy} onClick={onClose}>Retour</Button><Button type="submit" className="business-button" disabled={busy}>{busy ? 'Enregistrement…' : 'Enregistrer'}</Button></footer></form></Dialog>
+}
