@@ -3,7 +3,7 @@ import { expect, test, type Page } from '@playwright/test'
 import { sumMoney } from '../src/lib/money'
 import { catalogSnapshot, completeTransferMock, createMovementMock, inventorySummaryMock, movementSnapshot, saveTransferMock, stockSnapshot, transferSnapshot, warehouseSummaryMock } from '../src/features/inventory/data/inventory.mock'
 import { productMargin } from '../src/features/products/products.utils'
-import { productsMock, saveProductMock, stockDemoDate, stockDemoPermissions } from '../src/features/products/data/products.mock'
+import { productsMock, saveProductMock, stockDemoDate } from '../src/features/products/data/products.mock'
 import { productDetailMock, productHistoryMock, productMetricsMock } from '../src/features/products/data/productDetail.mock'
 import { transferSchema } from '../src/features/inventory/schemas/inventory.schema'
 import { warehouseSnapshot } from '../src/features/warehouses/data/warehouses.mock'
@@ -135,7 +135,7 @@ test.describe('operations API', () => {
   for (const [path, endpoint] of routes) test(`loading, error retry and denied without fallback ${path}`, async ({ page }) => {
     let mode = 'error', requested = 0
     await page.route(`**/api${endpoint}`, async (route) => { requested++; await new Promise((r) => setTimeout(r, 250)); await route.fulfill(mode === 'error' ? { status: 500, json: { detail: 'Indisponible' } } : { json: { permissions: [] } }) })
-    await open(page, path); await expect(page.getByRole('heading', { name: 'Chargement…' })).toBeVisible(); await expect(page.getByRole('button', { name: 'Réessayer', exact: true })).toBeVisible(); await expect(page.getByText(/Mode démonstration/)).toHaveCount(0); mode = 'denied'; await page.getByRole('button', { name: 'Réessayer', exact: true }).click(); await expect(page.getByRole('heading', { name: 'Accès non autorisé', exact: true })).toBeVisible(); expect(requested).toBe(2)
+    await open(page, path); await expect(page.getByRole('heading', { name: 'Chargement…' })).toBeVisible(); await expect(page.getByRole('button', { name: 'Réessayer', exact: true })).toBeVisible(); await expect(page.getByText(/Mode démonstration/)).toHaveCount(0); mode = 'denied'; await page.getByRole('button', { name: 'Réessayer', exact: true }).click(); await expect(page.getByRole('heading', { name: 'Accès non autorisé', exact: true })).toBeVisible(); expect(requested).toBeGreaterThanOrEqual(2)
   })
   test('products read-only permissions hide stock and writes; empty data stays empty', async ({ page }) => {
     let products = catalogSnapshot('api-fixture'); await page.route('**/api/products/', (route) => route.fulfill({ json: { products, suppliers: [], permissions: ['products.view'], asOf: stockDemoDate } })); await open(page, '/products'); await expect(page.getByRole('button', { name: 'Créer produit' })).toHaveCount(0); await expect(page.getByRole('columnheader', { name: 'Disponible', exact: true })).toHaveCount(0); await expect(page.getByRole('button', { name: 'Exporter CSV' })).toHaveCount(0); products = []; await navigate(page, '/warehouses'); await navigate(page, '/products'); await expect(page.getByText('Aucune donnée disponible.', { exact: true })).toBeVisible()

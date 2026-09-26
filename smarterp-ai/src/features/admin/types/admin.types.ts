@@ -1,0 +1,10 @@
+export interface AdminUser { id: number; name: string; email: string; department: string; roleId: number; roleName: string; status: 'active' | 'invited' | 'suspended' | 'disabled'; twoFactorEnabled: boolean; passwordResetRequired: boolean; lastLogin: string | null; createdAt: string; capabilities: { canEdit: boolean; canAssignRole: boolean; canSuspend: boolean; canReactivate: boolean } }
+export interface UserInput { name: string; email: string; department: string; roleId?: number; status?: AdminUser['status'] }
+export interface Permission { code: string; label: string; module: string; action: 'view' | 'create' | 'edit' | 'delete' | 'export' | 'approve' | 'ai' | 'sensitive'; grantable: boolean }
+export interface Role { id: number; name: string; description: string; system: boolean; permissionCodes: string[]; version: number; userIds: number[]; capabilities: { canEdit: boolean; canDuplicate: boolean; canAssign: boolean } }
+export interface RoleInput { name: string; description: string; permissionCodes: string[]; version?: number }
+export interface UsersData { users: AdminUser[]; permissions: string[]; asOf: string; roles: { id: number; name: string }[]; departments: string[]; currentUserId: number; assignableRoleIds: number[]; canCreateDirectly: boolean }
+export interface RolesData { roles: Role[]; users: Pick<AdminUser, 'id' | 'name' | 'roleId'>[]; permissions: string[]; asOf: string }
+export interface AuditLog { id: number; timestamp: string; actor: string; module: string; action: string; entityType: string; recordId: number | null; reference: string; result: 'success' | 'failure' | 'denied'; ip: string | null; device: string | null; requestId: string | null; before: Record<string, unknown>; after: Record<string, unknown>; restricted: boolean; canOpenRecord: boolean }
+export interface AuditData { logs: AuditLog[]; permissions: string[]; asOf: string; canViewNetwork: boolean; exportFormats: ('csv' | 'pdf' | 'xlsx')[] }
+export interface AuditFilters { search: string; dateFrom: string; dateTo: string; actor: string; module: string; action: string; entityType: string; result: string; ip: string }

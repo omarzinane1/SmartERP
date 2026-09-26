@@ -21,7 +21,7 @@ export function useSalesOrderDetail(id: string | undefined) {
       client.setQueryData(key, result.order)
       client.setQueryData<SalesOrdersData>(listKey, (current) => current && ({ ...current, orders: current.orders.map((order) => order.id === result.order!.id ? result.order! : order) }))
     }
-    await Promise.all([client.invalidateQueries({ queryKey: key }), client.invalidateQueries({ queryKey: listKey })])
+    await Promise.all([...['product', 'product-metrics', 'reports'].map((name) => client.invalidateQueries({ queryKey: [name, userId, companyId] })), client.invalidateQueries({ queryKey: key }), client.invalidateQueries({ queryKey: listKey })])
     insight.reset()
   }
   const confirm = useMutation({ ...options, mutationFn: () => confirmSalesOrder(scope, orderId), onSuccess: refresh })

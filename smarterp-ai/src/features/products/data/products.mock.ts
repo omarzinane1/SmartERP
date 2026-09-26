@@ -17,7 +17,7 @@ export async function saveProductMock(scope: string, input: ProductInput | { sta
   await new Promise((r) => setTimeout(r, 250))
   const original = store(scope).find((p) => p.id === id)
   if (id !== undefined && (!original || !original.capabilities.canEdit)) throw new Error('Produit non modifiable')
-  if ('status' in input) { if (!original) throw new BusinessNotFoundError(); original.status = 'archived'; original.capabilities = { canEdit: false, canArchive: false }; return structuredClone(original) }
+  if ('status' in input && !('name' in input)) { if (!original) throw new BusinessNotFoundError(); original.status = 'archived'; original.capabilities = { canEdit: false, canArchive: false }; return structuredClone(original) }
   const values = productSchema.parse(input)
   if (store(scope).some((p) => p.sku.toLowerCase() === values.sku.toLowerCase() && p.id !== id)) throw new Error('SKU déjà utilisé')
   if (!supplierSnapshot(scope).some((s) => s.id === values.supplierId)) throw new Error('Fournisseur invalide')

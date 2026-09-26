@@ -1,0 +1,49 @@
+import { z } from 'zod'
+import { BusinessNotFoundError } from '../../../hooks/useBusinessScope'
+import { stockDemoDate, stockDemoPermissions } from '../../products/data/products.mock'
+import { purchasingPermissions } from '../../purchases/data/purchases.mock'
+import { invoiceDemoPermissions } from '../../invoices/data/invoices.mock'
+import { expensePermissions } from '../../expenses/data/expenses.mock'
+import { documentPermissions } from '../../documents/data/documents.mock'
+import type { AdminUser, AuditLog, Permission, Role, RoleInput, UserInput } from '../types/admin.types'
+export class RoleConflictError extends Error {}
+export const adminPermissions = ['users.manage', 'roles.assign', 'roles.manage', 'audit.view', 'audit.export']
+export const permissionCatalog: Permission[] = [...new Set([...stockDemoPermissions, ...purchasingPermissions, ...invoiceDemoPermissions, ...expensePermissions, ...documentPermissions, ...adminPermissions, 'reports.view', 'reports.generate', 'reports.export', 'forecast.view', 'forecast.recalculate', 'ai.opportunities.view', 'ai.tools.finance', 'ai.tools.inventory', 'approvals.view', 'approvals.approve'])].map((code) => { const last = code.split('.').at(-1)!; return { code, label: code, module: code.split('.')[0], action: code.startsWith('ai.') || last === 'ai_analyze' ? 'ai' : ['manage', 'assign', 'recalculate'].includes(last) ? 'sensitive' : code.includes('approve') ? 'approve' : (['view', 'create', 'edit', 'delete', 'export'].includes(last) ? last : 'edit') as Permission['action'], grantable: !['users.manage', 'roles.manage', 'roles.assign', 'audit.export'].includes(code) } })
+const userSchema = z.object({ name: z.string().trim().min(2).max(120), email: z.email(), department: z.string().trim().min(1).max(80), roleId: z.number().int().positive().optional(), status: z.enum(['active', 'invited', 'suspended', 'disabled']).optional() })
+const roleSchema = z.object({ name: z.string().trim().min(2).max(80), description: z.string().max(1000), permissionCodes: z.array(z.string()).max(200), version: z.number().int().positive().optional() })
+interface AdminStore { users: AdminUser[]; roles: Role[]; logs: AuditLog[] }
+const stores = new Map<string, AdminStore>()
+function store(scope: string) {
+  if (!stores.has(scope)) {
+    const roleNames = ['Owner', 'Admin', 'Manager', 'Commercial', 'Comptable', 'Acheteur', 'Stock', 'Analyste personnalisé'], roles = roleNames.map((name, n): Role => ({ id: n + 1, name, description: n < 7 ? 'Rôle système protégé.' : 'Consultation des rapports et du catalogue.', system: n < 7, version: 1, permissionCodes: n < 2 ? permissionCatalog.map((p) => p.code) : n === 7 ? ['reports.view', 'products.view'] : permissionCatalog.filter((p) => p.grantable && (p.action === 'view' || n === 2 || p.module === ['','','','sales','invoices','purchases','inventory'][n])).map((p) => p.code), userIds: [], capabilities: { canEdit: n === 7, canDuplicate: n > 0, canAssign: n > 0 } }))
+    const users: AdminUser[] = Array.from({ length: 18 }, (_, n) => { const roleId = n === 0 ? 2 : n === 1 ? 1 : 3 + n % 6; return { id: n + 1, name: ['Omar Zinane', 'Direction Atlas', 'Sara El Mansouri', 'Amine Berrada', 'Salma Idrissi'][n] ?? `Collaborateur ${n + 1}`, email: n === 0 ? 'omar@atlas.ma' : `membre${n + 1}@atlas.example`, department: ['Direction', 'Finance', 'Commercial', 'Achats', 'Stock'][n % 5], roleId, roleName: roleNames[roleId - 1], status: n < 5 ? 'active' : (['active', 'invited', 'suspended', 'disabled'] as const)[n % 4], twoFactorEnabled: n % 3 !== 0, passwordResetRequired: n === 7, lastLogin: n % 4 === 1 ? null : `2026-09-${String(15 + n % 15).padStart(2, '0')}T09:00:00Z`, createdAt: '2026-01-15', capabilities: { canEdit: n !== 1, canAssignRole: n > 1, canSuspend: n > 1, canReactivate: n > 1 } } })
+    const logs: AuditLog[] = Array.from({ length: 36 }, (_, n) => ({ id: 1000 + n, timestamp: `2026-09-${String(1 + n % 29).padStart(2, '0')}T${String(8 + n % 9).padStart(2, '0')}:20:00Z`, actor: users[n % users.length].name, module: ['CRM', 'Finance', 'Stock', 'Administration'][n % 4], action: ['update', 'payment', 'stock_adjustment', 'permissions_changed', 'login', 'export'][n % 6], entityType: n % 3 === 0 ? 'customer' : n % 3 === 1 ? 'invoice' : 'product', recordId: n % 3 === 0 ? 124 : n % 3 === 1 ? 413 : 104, reference: n % 3 === 0 ? 'Nova Retail SARL' : n % 3 === 1 ? 'INV-2026-0413' : 'PRD-00104', result: n % 9 === 0 ? 'denied' : n % 11 === 0 ? 'failure' : 'success', ip: null, device: null, requestId: `demo-request-${1000 + n}`, before: n % 4 === 0 ? { credit_limit: 50000, password: 'never-display-before', connection: { token: 'never-display-token' } } : { status: 'draft', unchanged: true }, after: n % 4 === 0 ? { credit_limit: 100000, password: 'never-display-after', connection: { token: 'never-display-new-token' } } : { status: 'approved', unchanged: true }, restricted: n === 9, canOpenRecord: n !== 9 }))
+    stores.set(scope, { users, roles, logs })
+  }
+  return stores.get(scope)!
+}
+export const adminUsersSnapshot = (scope: string) => structuredClone(store(scope).users.map((u) => ({ ...u, roleName: store(scope).roles.find((r) => r.id === u.roleId)?.name ?? u.roleName })))
+export const rolesSnapshot = (scope: string) => structuredClone(store(scope).roles.map((r) => ({ ...r, userIds: store(scope).users.filter((u) => u.roleId === r.id).map((u) => u.id) })))
+export const auditSnapshot = (scope: string) => structuredClone(store(scope).logs).sort((a, b) => b.timestamp.localeCompare(a.timestamp))
+export function auditByIdMock(scope: string, id: number) { const log = auditSnapshot(scope).find((l) => l.id === id); if (!log) throw new BusinessNotFoundError(); return log }
+export function appendAuditMock(scope: string, event: Pick<AuditLog, 'module' | 'action' | 'entityType' | 'recordId' | 'reference' | 'before' | 'after'>) { const id = Math.max(0, ...store(scope).logs.map((l) => l.id)) + 1; store(scope).logs.unshift({ ...event, id, timestamp: new Date().toISOString(), actor: 'Omar Zinane', result: 'success', ip: null, device: null, requestId: `demo-${id}`, restricted: false, canOpenRecord: false }) }
+export async function saveAdminUserMock(scope: string, input: UserInput, id?: number, invite = false) {
+  await new Promise((r) => setTimeout(r, 250)); const v = userSchema.parse(input), state = store(scope), old = state.users.find((u) => u.id === id)
+  if (id && (!old || !old.capabilities.canEdit)) throw new Error('Utilisateur protégé.')
+  if (state.users.some((u) => u.email.toLowerCase() === v.email.toLowerCase() && u.id !== id)) throw new Error('Cette adresse existe déjà.')
+  const roleId = v.roleId ?? old?.roleId; if (!roleId || !state.roles.some((r) => r.id === roleId && r.id !== 1)) throw new Error('Rôle non attribuable.')
+  if (old && roleId !== old.roleId && !old.capabilities.canAssignRole) throw new Error('Votre propre rôle ne peut pas être élevé.')
+  if (old && v.status && v.status !== old.status && (!old.capabilities.canSuspend || old.id === 1)) throw new Error('Changement de statut non autorisé.')
+  const result: AdminUser = { ...old, id: old?.id ?? Math.max(...state.users.map((u) => u.id)) + 1, name: v.name, email: old?.email ?? v.email, department: v.department, roleId, roleName: state.roles.find((r) => r.id === roleId)!.name, status: invite ? 'invited' : v.status ?? old?.status ?? 'active', twoFactorEnabled: old?.twoFactorEnabled ?? false, passwordResetRequired: old?.passwordResetRequired ?? true, createdAt: old?.createdAt ?? stockDemoDate, lastLogin: old?.lastLogin ?? null, capabilities: old?.capabilities ?? { canEdit: true, canAssignRole: true, canSuspend: true, canReactivate: true } }
+  const before = old ? { name: old.name, department: old.department, role_id: old.roleId, status: old.status } : {}; if (old) Object.assign(old, result); else state.users.push(result)
+  appendAuditMock(scope, { module: 'Administration', action: invite ? 'invitation_created_demo' : 'user_updated_demo', entityType: 'user', recordId: result.id, reference: result.name, before, after: { name: result.name, department: result.department, role_id: result.roleId, status: result.status } }); return structuredClone(result)
+}
+export async function saveRoleMock(scope: string, input: RoleInput, id?: number) {
+  await new Promise((r) => setTimeout(r, 250)); const v = roleSchema.parse(input), state = store(scope), old = state.roles.find((r) => r.id === id)
+  if (id && (!old || !old.capabilities.canEdit || old.system)) throw new Error('Rôle système protégé.')
+  if (old && old.version !== v.version) throw new RoleConflictError('Le rôle a été modifié entre-temps. Rechargez avant de réessayer.')
+  if (state.roles.some((r) => r.name.toLowerCase() === v.name.toLowerCase() && r.id !== id)) throw new Error('Ce nom de rôle existe déjà.')
+  if (!v.permissionCodes.every((code) => permissionCatalog.some((p) => p.code === code && p.grantable))) throw new Error('Une permission demandée ne peut pas être accordée par cet utilisateur.')
+  const result: Role = { id: id ?? Math.max(...state.roles.map((r) => r.id)) + 1, name: v.name, description: v.description, permissionCodes: [...new Set(v.permissionCodes)], version: (old?.version ?? 0) + 1, system: false, userIds: old?.userIds ?? [], capabilities: { canEdit: true, canDuplicate: true, canAssign: true } }, before = old ? { permissions: [...old.permissionCodes], version: old.version } : {}
+  if (old) Object.assign(old, result); else state.roles.push(result); appendAuditMock(scope, { module: 'Administration', action: 'permissions_changed_demo', entityType: 'role', recordId: result.id, reference: result.name, before, after: { permissions: result.permissionCodes, version: result.version } }); return structuredClone(result)
+}

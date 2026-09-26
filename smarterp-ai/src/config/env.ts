@@ -1,6 +1,10 @@
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim()
 
 export const env = {
+  documentsUseMock: import.meta.env.VITE_DOCUMENTS_USE_MOCK !== 'false',
+  aiWorkspaceUseMock: import.meta.env.VITE_AI_WORKSPACE_USE_MOCK !== 'false',
+  approvalsUseMock: import.meta.env.VITE_APPROVALS_USE_MOCK !== 'false',
+  adminUseMock: import.meta.env.VITE_ADMIN_USE_MOCK !== 'false',
   productsUseMock: import.meta.env.VITE_PRODUCTS_USE_MOCK !== 'false',
   inventoryUseMock: import.meta.env.VITE_INVENTORY_USE_MOCK !== 'false',
   warehousesUseMock: import.meta.env.VITE_WAREHOUSES_USE_MOCK !== 'false',
