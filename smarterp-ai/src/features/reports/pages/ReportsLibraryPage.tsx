@@ -11,7 +11,7 @@ import { GenerateReportModal } from '../components/GenerateReportModal'
 import type { GeneratedReport, ReportDefinition } from '../types/reports.types'
 import { downloadCSV } from '../../../lib/csv'
 import { formatDate } from '../../../lib/format'
-const allowedPath = (path: string | null) => !!path && /^\/(sales|products|customers|inventory|suppliers|purchases|invoices|supplier-invoices|payments|expenses|finance\/cash-flow)(\/\d+)?$/.test(path)
+const allowedPath = (path: string | null) => !!path && (/^\/reports\/(sales|profitability|customers|products|inventory|purchases|suppliers|invoices|payments|expenses|cash-flow)$/.test(path) || /^\/(sales|products|customers|inventory|suppliers|purchases|invoices|supplier-invoices|payments|expenses|finance\/cash-flow)(\/\d+)?$/.test(path))
 function downloadReport(r: GeneratedReport) {
   if (r.status !== 'ready') return
   if (r.format === 'csv' && r.rows) { downloadCSV(r.filename, r.rows); return }

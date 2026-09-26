@@ -1,6 +1,13 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
+  readonly VITE_MODULES_USE_MOCK?: string
+  readonly VITE_SETTINGS_USE_MOCK?: string
+  readonly VITE_PROFILE_USE_MOCK?: string
+  readonly VITE_DOCUMENTS_USE_MOCK?: string
+  readonly VITE_AI_WORKSPACE_USE_MOCK?: string
+  readonly VITE_APPROVALS_USE_MOCK?: string
+  readonly VITE_ADMIN_USE_MOCK?: string
   readonly VITE_PRODUCTS_USE_MOCK?: string
   readonly VITE_INVENTORY_USE_MOCK?: string
   readonly VITE_WAREHOUSES_USE_MOCK?: string

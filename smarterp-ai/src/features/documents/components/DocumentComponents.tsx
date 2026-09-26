@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import { Badge } from '../../../components/ui/Badge'
 import { Button } from '../../../components/ui/Button'
 import { indexStatusLabels, type DocumentList, type DocumentMetadata, type DocumentSource, type IndexStatus } from '../types/documents.types'
-export const documentURL = (value: string | null, demo = false) => { if (!value) return null; try { const url = new URL(value, window.location.origin); return ['http:', 'https:'].includes(url.protocol) || demo && url.protocol === 'blob:' ? url.href : null } catch { return null } }
 export function IndexStatusBadge({ status }: { status: IndexStatus }) { return <Badge tone={status === 'indexed' ? 'positive' : status === 'index_error' ? 'critical' : 'warning'}>{indexStatusLabels[status]}</Badge> }
 export function SourceCitationList({ sources, documentId, onPage, canDocuments = true }: { sources: DocumentSource[]; documentId?: number; onPage?: (page: number) => void; canDocuments?: boolean }) {
   const allowed = sources.filter((s) => s.authorized && (s.documentId === null || canDocuments))

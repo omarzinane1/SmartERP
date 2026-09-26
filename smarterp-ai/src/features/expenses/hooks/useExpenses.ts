@@ -4,7 +4,7 @@ import { businessQueryOptions as options, useBusinessScope } from '../../../hook
 import { approveExpense, createExpense, getExpenses, submitExpense } from '../api/expenses.api'
 import type { ExpenseInput } from '../types/expenses.types'
 export function useExpenses() {
-  const { scope, key, invalidate } = useBusinessScope(), refresh = () => invalidate(['expenses', 'cash-flow', 'cash-forecast', 'cash-upcoming', 'reports', 'reports-recent'])
+  const { scope, key, invalidate } = useBusinessScope(), refresh = () => invalidate(['expenses', 'cash-flow', 'cash-forecast', 'cash-upcoming', 'reports', 'report-analytics', 'forecast', 'forecast-drivers', 'ai-opportunities', 'approvals', 'reports-recent'])
   const query = useQuery({ ...options, queryKey: [...key('expenses'), env.expensesUseMock], queryFn: ({ signal }) => getExpenses(scope, signal) })
   const create = useMutation({ ...options, mutationFn: (v: ExpenseInput) => createExpense(scope, v), onSuccess: refresh })
   const action = useMutation({ ...options, mutationFn: ({ id, action }: { id: number; action: 'submit' | 'approve' }) => action === 'submit' ? submitExpense(scope, id) : approveExpense(scope, id), onSuccess: refresh })

@@ -1,0 +1,27 @@
+import type { AuthUser } from '../../auth/types/auth.types'
+import { adminUsersSnapshot } from '../../admin/data/admin.mock'
+import { passwordSchema, preferenceSchema, profileSchema } from '../schemas/profile.schema'
+import type { PasswordInput, ProfileUpdate, TwoFactorInput, TwoFactorResult, UserProfile } from '../types/profile.types'
+const stores = new Map<string, UserProfile>(), challenges = new Map<string, string>()
+const delay = () => new Promise((r) => setTimeout(r, 250))
+export function profileMock(scope: string, user: AuthUser): UserProfile {
+  if (!stores.has(scope)) { const admin = adminUsersSnapshot(scope).find((u) => u.id === user.id), [firstName = '', ...rest] = user.name.split(' '); stores.set(scope, { id: user.id, identity: { firstName, lastName: rest.join(' '), displayName: user.name, email: user.email, phone: '', jobTitle: '' }, preferences: { language: 'fr', timezone: 'Africa/Casablanca', theme: 'system', dateFormat: 'DD/MM/YYYY', numberFormat: 'fr-FR', notifications: { email: false, inApp: true, approvals: true, invoiceReminders: true, stockAlerts: true, aiAlerts: true } }, role: user.role, department: admin?.department ?? '', status: admin?.status ?? 'active', avatarUrl: null, twoFactorEnabled: admin?.twoFactorEnabled ?? false, sessions: [{ id: 'current', device: null, browser: null, ip: null, location: null, lastActivity: '2026-09-30T09:00:00Z', createdAt: '2026-09-30T08:00:00Z', current: true, canRevoke: false }, { id: 'demo-remote', device: 'Session distante de démonstration', browser: null, ip: null, location: null, lastActivity: '2026-09-28T15:30:00Z', createdAt: '2026-09-27T08:00:00Z', current: false, canRevoke: true }], activity: [{ id: 'demo-login', event: 'Connexion de démonstration', date: '2026-09-30T08:00:00Z' }], passwordPolicy: { minLength: 12, maxLength: null, requireUppercase: false, requireNumber: false, summary: 'Démonstration : 12 caractères minimum. Aucun mot de passe réel n’est modifié ni conservé.' }, capabilities: { canEditProfile: true, canEditEmail: false, canChangePassword: true, canSetup2FA: true, canDisable2FA: false }, options: { languages: ['fr', 'en', 'ar'], timezones: ['Africa/Casablanca', 'Europe/Paris', 'UTC'], dateFormats: ['DD/MM/YYYY', 'YYYY-MM-DD', 'MM/DD/YYYY'], numberFormats: ['fr-FR', 'en-US', 'ar-MA'] }, asOf: '2026-09-30' }) }
+  return structuredClone(stores.get(scope)!)
+}
+function activity(profile: UserProfile, event: string) { profile.activity.unshift({ id: crypto.randomUUID(), event, date: new Date().toISOString() }) }
+export async function updateMeMock(scope: string, user: AuthUser, data: ProfileUpdate) {
+  await delay(); profileMock(scope, user); const state = stores.get(scope)!
+  if ('identity' in data) { const value = profileSchema.parse(data.identity); if (!state.capabilities.canEditProfile || !state.capabilities.canEditEmail && value.email !== state.identity.email) throw new Error('Modification non autorisée.'); state.identity = value; activity(state, 'Profil modifié (simulation)') }
+  else { const value = preferenceSchema.parse(data.preferences); if (!state.options.languages.includes(value.language) || !state.options.timezones.includes(value.timezone) || !state.options.dateFormats.includes(value.dateFormat) || !state.options.numberFormats.includes(value.numberFormat)) throw new Error('Préférence non prise en charge.'); state.preferences = value; activity(state, 'Préférences modifiées (simulation)') }
+  return structuredClone(state)
+}
+export async function changePasswordMock(scope: string, user: AuthUser, input: PasswordInput) { await delay(); profileMock(scope, user); const state = stores.get(scope)!; if (!state.capabilities.canChangePassword) throw new Error('Action indisponible.'); passwordSchema(state.passwordPolicy).parse(input); activity(state, 'Changement de mot de passe simulé — aucun secret enregistré'); return { success: true, simulated: true } }
+export async function setup2FAMock(scope: string, user: AuthUser, data: TwoFactorInput): Promise<TwoFactorResult> {
+  await delay(); profileMock(scope, user); const state = stores.get(scope)!
+  if (data.action === 'disable') { if (!state.capabilities.canDisable2FA) throw new Error('La politique impose la double authentification.'); state.twoFactorEnabled = false; activity(state, '2FA désactivée (simulation)'); return { status: 'disabled', simulated: true } }
+  if (!state.capabilities.canSetup2FA || state.twoFactorEnabled) throw new Error('Configuration indisponible.')
+  if (data.action === 'setup') { const id = crypto.randomUUID(); challenges.set(scope, id); return { status: 'setup', setupId: id, qrImage: null, secret: null, codeLength: 6, instruction: 'Simulation sans secret TOTP. Saisissez 123456 pour vérifier le parcours ; aucun compte réel ne sera protégé.', simulated: true } }
+  if (challenges.get(scope) !== data.setupId || data.code !== '123456') throw new Error('Code de vérification incorrect ou expiré.')
+  challenges.delete(scope); state.twoFactorEnabled = true; activity(state, '2FA activée (simulation)'); return { status: 'enabled', simulated: true }
+}
+export async function deleteSessionMock(scope: string, user: AuthUser, id: string) { await delay(); profileMock(scope, user); const state = stores.get(scope)!, session = state.sessions.find((s) => s.id === id); if (!session?.canRevoke || session.current) throw new Error('Cette session ne peut pas être fermée.'); state.sessions = state.sessions.filter((s) => s.id !== id); activity(state, 'Session distante fermée (simulation)'); return { revoked: true } }

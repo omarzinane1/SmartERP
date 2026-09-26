@@ -1,3 +1,4 @@
+import { documentURL } from '../documents.utils'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -7,7 +8,7 @@ import { BusinessState, Empty, PageHeading, SearchField, SelectFilter } from '..
 import { CollectionPagination } from '../../../components/ui/CollectionPagination'
 import { ActionConfirmation, PurchasingNotice } from '../../purchases/components/PurchasingShared'
 import { useDocuments } from '../hooks/useDocuments'
-import { DocumentUploadZone, documentURL, IndexStatusBadge } from '../components/DocumentComponents'
+import { DocumentUploadZone, IndexStatusBadge } from '../components/DocumentComponents'
 import { indexStatusLabels, type DocumentRecord } from '../types/documents.types'
 import { formatDate } from '../../../lib/format'
 import '../../ai/intelligence.css'

@@ -9,12 +9,14 @@ const loginResponseSchema = z.object({
     name: z.string(),
     email: z.string().email(),
     role: z.string(),
+    permissions: z.array(z.string()).optional(),
   }),
   company: z
     .object({
       id: z.number().int().positive(),
       name: z.string(),
       onboarding_completed: z.boolean(),
+      enabled_modules: z.array(z.string()).optional(),
     })
     .nullable(),
 })
@@ -62,6 +64,7 @@ export async function login(credentials: LoginCredentials): Promise<LoginRespons
             id: response.company.id,
             name: response.company.name,
             onboardingCompleted: response.company.onboarding_completed,
+            enabledModules: response.company.enabled_modules,
           }
         : null,
     }

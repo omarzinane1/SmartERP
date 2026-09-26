@@ -12,7 +12,7 @@ export interface PurchaseLine extends MoneyLine {
   previousPrice: number | null; averagePrice: number | null
 }
 export interface Activity { id: string; date: string; title: string; detail: string }
-export interface BusinessDocument { id: string; name: string; mime: string; url: string | null }
+export interface BusinessDocument { id: string; name: string; mime: string; url: string | null; size?: number; uploadedAt?: string }
 export interface Receipt {
   id: number; reference: string; date: string; warehouse: string
   lines: { lineId: string; quantity: number }[]

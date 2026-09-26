@@ -1,0 +1,2 @@
+import { settingSections, sectionLabels, type SettingsData, type SettingsSection } from '../types/settings.types'
+export function SettingsSidebar({ data, section, onSelect }: { data: SettingsData; section: SettingsSection; onSelect: (s: SettingsSection) => void }) { return <nav className="business-card config-sidebar" aria-label="Sections des paramètres">{settingSections.filter((s) => data.policies[s].canView).map((s) => <button key={s} aria-current={section === s} onClick={() => onSelect(s)}>{sectionLabels[s]}</button>)}</nav> }

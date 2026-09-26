@@ -15,7 +15,7 @@ export function useSuppliers(filters: SupplierQuery) {
     placeholderData: (previous, previousQuery) => previousQuery?.queryKey[1] === userId && previousQuery?.queryKey[2] === companyId ? previous : undefined,
     queryKey: ['suppliers', userId, companyId, env.suppliersUseMock, filters], queryFn: ({ signal }) => getSuppliers(scope, filters, signal),
   })
-  async function refresh() { await Promise.all(['products', 'product', 'cash-flow', 'cash-upcoming', 'suppliers', 'supplier-detail', 'supplier-metrics', 'purchase-orders', 'purchase-order-detail', 'supplier-invoices', 'supplier-invoice-detail', 'payments'].map((key) => client.invalidateQueries({ queryKey: [key, userId, companyId] }))) }
+  async function refresh() { await Promise.all(['report-analytics', 'ai-opportunities', 'products', 'product', 'cash-flow', 'cash-upcoming', 'suppliers', 'supplier-detail', 'supplier-metrics', 'purchase-orders', 'purchase-order-detail', 'supplier-invoices', 'supplier-invoice-detail', 'payments'].map((key) => client.invalidateQueries({ queryKey: [key, userId, companyId] }))) }
   const save = useMutation({ ...options, mutationFn: ({ id, input }: { id?: number; input: SupplierInput }) => id === undefined ? createSupplier(scope, input) : updateSupplier(scope, id, input), onSuccess: refresh })
   const archive = useMutation({ ...options, mutationFn: (id: number) => updateSupplier(scope, id, { status: 'archived' }), onSuccess: refresh })
   async function exportRows() {

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import {
   Bell,
   ChevronDown,
@@ -13,6 +13,7 @@ import { toast } from 'sonner'
 import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
 import { useAuthStore } from '../../store/auth.store'
+import { env } from '../../config/env'
 
 export function Topbar({
   sidebarOpen,
@@ -22,7 +23,10 @@ export function Topbar({
   onToggleSidebar: () => void
 }) {
   const { pathname } = useLocation()
+  const navigate = useNavigate(), [profileMenu, setProfileMenu] = useState(false), profileMenuRef = useRef<HTMLDivElement>(null)
   const user = useAuthStore((state) => state.user)
+  const company = useAuthStore((state) => state.company)
+  const canAssistant = (user?.permissions ? user.permissions.includes('ai.use') : env.aiWorkspaceUseMock) && (!company?.enabledModules || company.enabledModules.includes('ai'))
   const searchRef = useRef<HTMLInputElement>(null)
   const [search, setSearch] = useState('')
   const aiPage = pathname.startsWith('/ai/')
@@ -37,7 +41,11 @@ export function Topbar({
   const stockPage = /^\/(products|inventory|warehouses)(\/|$)/.test(pathname)
   const expensePage = pathname === '/expenses'
   const cashPage = pathname === '/finance/cash-flow'
-  const reportsPage = pathname === '/reports'
+  const reportsPage = pathname.startsWith('/reports')
+  const configurationPage = pathname.startsWith('/admin/') || ['/approvals', '/modules', '/settings'].includes(pathname)
+  const documentsPage = pathname.startsWith('/documents'), profilePage = pathname === '/profile'
+  const configurationLabel = pathname === '/admin/users' ? 'Utilisateurs' : pathname === '/admin/roles' ? 'Rôles & permissions' : pathname === '/admin/audit-logs' ? 'Journal d’audit' : pathname === '/approvals' ? 'Centre de validation' : pathname === '/modules' ? 'Modules' : 'Paramètres société'
+  const aiLabel = pathname === '/ai/assistant' ? 'AI Assistant' : pathname === '/ai/forecasting' ? 'Forecasting' : pathname === '/ai/opportunities' ? 'Opportunités IA' : 'AI Control Center'
   const stockLabel = pathname.startsWith('/products') ? 'Produits & Services' : pathname.startsWith('/warehouses') ? 'Dépôts' : pathname.startsWith('/inventory/movements') ? 'Mouvements de stock' : pathname.startsWith('/inventory/transfers') ? 'Transferts de stock' : 'Dashboard Stock'
   const initials =
     user?.name
@@ -47,6 +55,13 @@ export function Topbar({
       .map((part) => part[0])
       .join('')
       .toUpperCase() || '?'
+
+  useEffect(() => {
+    const close = (event: PointerEvent) => { if (!profileMenuRef.current?.contains(event.target as Node)) setProfileMenu(false) }
+    const escape = (event: KeyboardEvent) => { if (event.key === 'Escape') setProfileMenu(false) }
+    document.addEventListener('pointerdown', close); document.addEventListener('keydown', escape)
+    return () => { document.removeEventListener('pointerdown', close); document.removeEventListener('keydown', escape) }
+  }, [])
 
   useEffect(() => {
     function focusSearch(event: KeyboardEvent) {
@@ -76,7 +91,7 @@ export function Topbar({
         className="hidden shrink-0 items-center gap-1.5 text-[10px] sm:flex"
       >
         <span className="text-slate-400">
-          {stockPage ? 'Stock' : reportsPage ? 'BI / Reporting' : expensePage || cashPage ? 'Finance' : aiPage
+          {configurationPage ? 'Administration' : documentsPage ? 'Intelligence' : profilePage ? 'Mon compte' : stockPage ? 'Stock' : reportsPage ? 'BI / Reporting' : expensePage || cashPage ? 'Finance' : aiPage
             ? 'Intelligence'
             : suppliersPage || purchasesPage
             ? 'Achats'
@@ -88,8 +103,8 @@ export function Topbar({
         </span>
         <span className="text-slate-300">/</span>
         <span className="font-semibold text-navy-950">
-          {stockPage ? stockLabel : reportsPage ? 'Rapports' : expensePage ? 'Dépenses' : cashPage ? 'Trésorerie' : aiPage
-            ? 'AI Control Center'
+          {configurationPage ? configurationLabel : documentsPage ? 'Documents' : profilePage ? 'Profil' : stockPage ? stockLabel : reportsPage ? 'Rapports' : expensePage ? 'Dépenses' : cashPage ? 'Trésorerie' : aiPage
+            ? aiLabel
             : supplierInvoicesPage
             ? 'Factures fournisseurs'
             : purchasesPage
@@ -146,18 +161,14 @@ export function Topbar({
         Créer
       </Button>
       <div className="ml-auto flex shrink-0 items-center gap-1 border-l border-slate-100 pl-2">
-        <button
+        {canAssistant && <button
           type="button"
           aria-label="SmartERP AI"
           className="topbar-icon hidden text-blue-600 sm:grid"
-          onClick={() =>
-            toast.info(
-              'L’assistant IA sera disponible dans une prochaine étape.',
-            )
-          }
+          onClick={() => { void navigate('/ai/assistant') }}
         >
           <Sparkles className="size-4" />
-        </button>
+        </button>}
         <button
           type="button"
           aria-label="Notifications"
@@ -181,11 +192,13 @@ export function Topbar({
           <CircleHelp className="size-4" />
         </button>
       </div>
-      <button
+      <div className="relative" ref={profileMenuRef}><button
         type="button"
         className="flex min-w-0 shrink-0 items-center gap-2 rounded-md py-1 text-left focus-visible:ring-2 focus-visible:ring-blue-500"
         aria-label={`Profil de ${user?.name || 'l’utilisateur'}`}
-        onClick={() => toast.info(`${user?.name} · ${user?.email}`)}
+        aria-expanded={profileMenu}
+        aria-controls="profile-menu"
+        onClick={() => setProfileMenu((value) => !value)}
       >
         <span className="grid size-7 shrink-0 place-items-center rounded-full bg-[#18345e] text-[10px] font-semibold text-white">
           {initials}
@@ -202,7 +215,7 @@ export function Topbar({
           className="hidden size-3 text-slate-400 lg:block"
           aria-hidden="true"
         />
-      </button>
+      </button>{profileMenu && <nav id="profile-menu" aria-label="Menu utilisateur" className="absolute right-0 top-full mt-3 w-52 rounded-lg border border-slate-200 bg-white p-2 text-xs text-slate-600 shadow-lg"><Link className="block rounded px-3 py-2 hover:bg-slate-50" to="/profile" onClick={() => setProfileMenu(false)}>Mon profil</Link><Link className="block rounded px-3 py-2 hover:bg-slate-50" to="/profile?tab=preferences" onClick={() => setProfileMenu(false)}>Paramètres personnels</Link></nav>}</div>
     </header>
   )
 }

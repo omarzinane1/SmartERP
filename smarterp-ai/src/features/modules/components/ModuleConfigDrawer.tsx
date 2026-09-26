@@ -1,0 +1,5 @@
+import { Link } from 'react-router-dom'
+import { Dialog } from '../../../components/ui/Dialog'
+import type { ERPModule } from '../types/modules.types'
+import { ModuleDependencyList, PlanBadge } from './ModuleCard'
+export function ModuleConfigDrawer({ module, modules, canSettings, onClose }: { module: ERPModule; modules: ERPModule[]; canSettings: boolean; onClose: () => void }) { return <Dialog title={`Configuration · ${module.name}`} className="business-dialog ops-drawer" onClose={onClose}><PlanBadge module={module} /><p className="my-4">{module.description}</p><dl className="ops-record">{module.configuration.map((c) => <div key={c.label}><dt>{c.label}</dt><dd>{c.value}</dd></div>)}</dl><ModuleDependencyList module={module} modules={modules} /><p className="ops-note">Les règles métier se configurent dans les paramètres société, selon vos droits par section.</p>{canSettings && module.settingsSection && <Link className="ops-link" to={`/settings?section=${encodeURIComponent(module.settingsSection)}`}>Ouvrir les paramètres</Link>}</Dialog> }

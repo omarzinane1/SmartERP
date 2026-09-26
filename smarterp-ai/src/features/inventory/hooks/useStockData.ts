@@ -3,7 +3,7 @@ import { businessQueryOptions as options, useBusinessScope } from '../../../hook
 import { env } from '../../../config/env'
 import * as api from '../api/inventory.api'
 import type { MovementInput, TransferInput } from '../types/inventory.types'
-export const stockQueryNames = ['products', 'product', 'product-metrics', 'product-history', 'inventory-summary', 'inventory-health', 'inventory-critical', 'inventory-recent', 'movements', 'transfers', 'warehouses', 'warehouse', 'warehouse-inventory', 'warehouse-movements', 'warehouse-valuation', 'reports']
+export const stockQueryNames = ['products', 'product', 'product-metrics', 'product-history', 'inventory-summary', 'inventory-health', 'inventory-critical', 'inventory-recent', 'movements', 'transfers', 'warehouses', 'warehouse', 'warehouse-inventory', 'warehouse-movements', 'warehouse-valuation', 'reports', 'report-analytics', 'forecast', 'forecast-drivers', 'ai-opportunities', 'approvals']
 export function useInventoryDashboard() {
   const { scope, key } = useBusinessScope()
   const summary = useQuery({ ...options, queryKey: [...key('inventory-summary'), env.inventoryUseMock], queryFn: ({ signal }) => api.getInventorySummary(scope, signal) })

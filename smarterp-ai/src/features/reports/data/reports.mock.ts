@@ -13,18 +13,18 @@ import { salesSnapshot } from '../../sales/data/sales.mock'
 import { cashFlowMock } from '../../finance/data/finance.mock'
 import type { GeneratedReport, ReportDefinition, ReportInput } from '../types/reports.types'
 const definitions: ReportDefinition[] = [
-  { id: 'sales', name: 'Performance des ventes', category: 'Ventes', description: 'Commandes confirmées, clients et montants TTC.', formats: ['csv'], supportsPeriod: true, path: '/sales' },
-  { id: 'profit', name: 'Rentabilité par produit', category: 'Rentabilité', description: 'Consultez les marges et prix du catalogue.', formats: [], supportsPeriod: false, path: '/products' },
-  { id: 'customers', name: 'Analyse clients', category: 'CRM', description: 'Portefeuille, segmentation et comptes clients.', formats: [], supportsPeriod: false, path: '/customers' },
-  { id: 'stock', name: 'Stock et valorisation', category: 'Stock', description: 'Photographie actuelle par produit et dépôt, au coût moyen.', formats: ['csv'], supportsPeriod: false, path: '/inventory' },
-  { id: 'turnover', name: 'Rotation du stock', category: 'Stock', description: 'Consultez les mouvements et le stock dormant. Export historique à connecter.', formats: [], supportsPeriod: false, path: '/inventory' },
-  { id: 'suppliers', name: 'Performance fournisseurs', category: 'Achats', description: 'Scores, achats et soldes du portefeuille fournisseurs.', formats: [], supportsPeriod: false, path: '/suppliers' },
-  { id: 'purchases', name: 'Achats par fournisseur', category: 'Achats', description: 'Détail des commandes fournisseurs confirmées.', formats: ['csv'], supportsPeriod: true, path: '/purchases' },
-  { id: 'receivable', name: 'Créances clients', category: 'Finance', description: 'Soldes actuels des factures comptabilisées non réglées.', formats: ['csv'], supportsPeriod: false, path: '/invoices' },
+  { id: 'sales', name: 'Performance des ventes', category: 'Ventes', description: 'Commandes confirmées, clients et montants TTC.', formats: ['csv'], supportsPeriod: true, path: '/reports/sales' },
+  { id: 'profit', name: 'Rentabilité par produit', category: 'Rentabilité', description: 'Consultez les marges et prix du catalogue.', formats: [], supportsPeriod: false, path: '/reports/profitability' },
+  { id: 'customers', name: 'Analyse clients', category: 'CRM', description: 'Portefeuille, segmentation et comptes clients.', formats: [], supportsPeriod: false, path: '/reports/customers' },
+  { id: 'stock', name: 'Stock et valorisation', category: 'Stock', description: 'Photographie actuelle par produit et dépôt, au coût moyen.', formats: ['csv'], supportsPeriod: false, path: '/reports/inventory' },
+  { id: 'turnover', name: 'Rotation du stock', category: 'Stock', description: 'Consultez les mouvements et le stock dormant. Export historique à connecter.', formats: [], supportsPeriod: false, path: '/reports/inventory' },
+  { id: 'suppliers', name: 'Performance fournisseurs', category: 'Achats', description: 'Scores, achats et soldes du portefeuille fournisseurs.', formats: [], supportsPeriod: false, path: '/reports/suppliers' },
+  { id: 'purchases', name: 'Achats par fournisseur', category: 'Achats', description: 'Détail des commandes fournisseurs confirmées.', formats: ['csv'], supportsPeriod: true, path: '/reports/purchases' },
+  { id: 'receivable', name: 'Créances clients', category: 'Finance', description: 'Soldes actuels des factures comptabilisées non réglées.', formats: ['csv'], supportsPeriod: false, path: '/reports/invoices' },
   { id: 'payable', name: 'Dettes fournisseurs', category: 'Finance', description: 'Soldes actuels des factures fournisseurs à payer.', formats: ['csv'], supportsPeriod: false, path: '/supplier-invoices' },
-  { id: 'payments', name: 'Paiements', category: 'Finance', description: 'Encaissements et décaissements confirmés sur la période.', formats: ['csv'], supportsPeriod: true, path: '/payments' },
-  { id: 'expenses', name: 'Dépenses par catégorie', category: 'Finance', description: 'Détail classé par catégorie, montants HT, taxes et TTC.', formats: ['csv'], supportsPeriod: true, path: '/expenses' },
-  { id: 'cash', name: 'Cash Flow', category: 'Finance', description: 'Historique des soldes confirmés, hors projection.', formats: ['csv'], supportsPeriod: true, path: '/finance/cash-flow' },
+  { id: 'payments', name: 'Paiements', category: 'Finance', description: 'Encaissements et décaissements confirmés sur la période.', formats: ['csv'], supportsPeriod: true, path: '/reports/payments' },
+  { id: 'expenses', name: 'Dépenses par catégorie', category: 'Finance', description: 'Détail classé par catégorie, montants HT, taxes et TTC.', formats: ['csv'], supportsPeriod: true, path: '/reports/expenses' },
+  { id: 'cash', name: 'Cash Flow', category: 'Finance', description: 'Historique des soldes confirmés, hors projection.', formats: ['csv'], supportsPeriod: true, path: '/reports/cash-flow' },
 ].map((r) => ({ ...r, canOpen: true, lastGenerated: null, generatedBy: null })) as ReportDefinition[]
 const stores = new Map<string, GeneratedReport[]>()
 function store(scope: string) { if (!stores.has(scope)) stores.set(scope, []); return stores.get(scope)! }

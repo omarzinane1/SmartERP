@@ -21,8 +21,13 @@ import { BrandLogo } from './BrandLogo'
 import { Button } from '../ui/Button'
 import { useAuthStore } from '../../store/auth.store'
 import { cn } from '../../lib/cn'
+import { env } from '../../config/env'
+import { moduleForPath } from './moduleNavigation'
 
 const modulePaths: Record<string, string> = {
+  Modules: '/modules', Paramètres: '/settings',
+  Documents: '/documents', 'AI Assistant': '/ai/assistant', Forecasting: '/ai/forecasting', 'Opportunités IA': '/ai/opportunities',
+  'Centre d’approbation': '/approvals', Utilisateurs: '/admin/users', 'Rôles & permissions': '/admin/roles', 'Journal d’audit': '/admin/audit-logs',
   Clients: '/customers', Devis: '/quotes', 'Commandes clients': '/sales', 'Factures clients': '/invoices',
   Paiements: '/payments', Fournisseurs: '/suppliers', 'Commandes fournisseurs': '/purchases', 'Factures fournisseurs': '/supplier-invoices',
   'Produits & services': '/products', Inventaire: '/inventory', 'Mouvements de stock': '/inventory/movements', 'Dépôts': '/warehouses', 'Transferts de stock': '/inventory/transfers', 'Dépenses': '/expenses', 'Trésorerie': '/finance/cash-flow', Rapports: '/reports',
@@ -83,6 +88,11 @@ export function Sidebar({
   const company = useAuthStore((state) => state.company)
   const user = useAuthStore((state) => state.user)
   const { pathname } = useLocation()
+  const navAccess: Record<string, [string, boolean]> = {
+    Documents: ['documents.view', env.documentsUseMock], 'AI Assistant': ['ai.use', env.aiWorkspaceUseMock], Forecasting: ['forecast.view', env.aiWorkspaceUseMock], 'Opportunités IA': ['ai.opportunities.view', env.aiWorkspaceUseMock],
+    'Centre d’approbation': ['approvals.view', env.approvalsUseMock], Utilisateurs: ['users.manage', env.adminUseMock], 'Rôles & permissions': ['roles.manage', env.adminUseMock], 'Journal d’audit': ['audit.view', env.adminUseMock], Modules: ['modules.manage', env.modulesUseMock], Paramètres: ['settings.view', env.settingsUseMock],
+  }
+  const visible = (label: string) => { const access = navAccess[label], module = moduleForPath(modulePaths[label] ?? ''); return (!module || !company?.enabledModules || company.enabledModules.includes(module)) && (!access || (user?.permissions ? user.permissions.includes(access[0]) : access[1])) }
   return (
     <>
       {open && (
@@ -148,7 +158,7 @@ export function Sidebar({
             <span className="flex-1">Tableau de bord</span>
             <span className="size-1.5 rounded-full bg-blue-600" />
           </NavLink>
-          <NavLink
+          {(!company?.enabledModules || company.enabledModules.includes('ai')) && <NavLink
             to="/ai/control-center"
             onClick={onClose}
             className={({ isActive }) =>
@@ -160,9 +170,9 @@ export function Sidebar({
             <span className="rounded bg-indigo-50 px-1 text-[8px] text-indigo-600">
               IA
             </span>
-          </NavLink>
+          </NavLink>}
           <p className="sidebar-section-title mt-5">Opérations</p>
-          {groups.map(({ label, icon: Icon, links }, index) => (
+          {groups.map(({ label, icon: Icon, links }, index) => links.some(visible) && (
             <div key={label}>
               {index === 4 && (
                 <p className="sidebar-section-title mt-5">Intelligence</p>
@@ -192,7 +202,7 @@ export function Sidebar({
                   />
                 </summary>
                 <div className="ml-5 border-l border-slate-200 py-1 pl-3">
-                  {links.map((label) =>
+                  {links.filter(visible).map((label) =>
                     modulePaths[label] ? (
                       <NavLink
                         key={label}

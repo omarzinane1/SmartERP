@@ -374,3 +374,11 @@ Pour l’hébergement final, configurer le serveur afin de servir `index.html` p
 ## Achats : pages 16 à 20
 
 La [documentation Achats](src/features/purchases/README.md) décrit les cinq nouvelles pages, les contrats Django, les permissions, la cohérence des paiements et les tests.
+
+## Pages 21 à 43
+
+- [Stock, dépenses et reporting — pages 21 à 30](docs/operations-21-30.md)
+- [Intelligence et administration — pages 31 à 40](docs/intelligence-31-40.md)
+- [Modules, paramètres société et profil — pages 41 à 43](docs/configuration-41-43.md)
+
+Ces documents détaillent les routes, fichiers, permissions, sources IA, confirmations humaines, contrats Django, modes de démonstration et fonctionnalités restant à connecter côté serveur. Les nouvelles fonctions réutilisent la session, le shell et les clients existants, sans dépendance supplémentaire.

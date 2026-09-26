@@ -29,6 +29,19 @@ export const router = createBrowserRouter([
       {
         element: <AppShell />,
         children: [
+          { path: '/modules', lazy: async () => ({ Component: (await import('../features/modules/pages/ModulesMarketplacePage')).ModulesMarketplacePage }) },
+          { path: '/settings', lazy: async () => ({ Component: (await import('../features/settings/pages/CompanySettingsPage')).CompanySettingsPage }) },
+          { path: '/profile', lazy: async () => ({ Component: (await import('../features/profile/pages/UserProfilePage')).UserProfilePage }) },
+          { path: '/reports/:type', lazy: async () => ({ Component: (await import('../features/reports/pages/ReportAnalyticsPage')).ReportAnalyticsPage }) },
+          { path: '/documents', lazy: async () => ({ Component: (await import('../features/documents/pages/DocumentsPage')).DocumentsPage }) },
+          { path: '/documents/:id', lazy: async () => ({ Component: (await import('../features/documents/pages/DocumentDetailPage')).DocumentDetailPage }) },
+          { path: '/ai/assistant', lazy: async () => ({ Component: (await import('../features/ai/pages/AIAssistantPage')).AIAssistantPage }) },
+          { path: '/ai/forecasting', lazy: async () => ({ Component: (await import('../features/ai/pages/AIForecastingPage')).AIForecastingPage }) },
+          { path: '/ai/opportunities', lazy: async () => ({ Component: (await import('../features/ai/pages/AIOpportunitiesPage')).AIOpportunitiesPage }) },
+          { path: '/approvals', lazy: async () => ({ Component: (await import('../features/approvals/pages/ApprovalCenterPage')).ApprovalCenterPage }) },
+          { path: '/admin/users', lazy: async () => ({ Component: (await import('../features/admin/pages/UsersAdminPage')).UsersAdminPage }) },
+          { path: '/admin/roles', lazy: async () => ({ Component: (await import('../features/admin/pages/RolesPermissionsPage')).RolesPermissionsPage }) },
+          { path: '/admin/audit-logs', lazy: async () => ({ Component: (await import('../features/admin/pages/AuditLogsPage')).AuditLogsPage }) },
           {
             path: '/purchases',
             HydrateFallback: RouteLoading,

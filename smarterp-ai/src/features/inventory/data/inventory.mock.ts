@@ -93,7 +93,7 @@ export async function saveTransferMock(scope: string, input: TransferInput | { s
   const state = store(scope), original = state.transfers.find((t) => t.id === id)
   if ('status' in input) {
     if (!original || !(input.status === 'ready' && original.status === 'draft' || input.status === 'in_transit' && original.status === 'ready' || input.status === 'cancelled' && ['draft', 'ready'].includes(original.status))) throw new Error('Transition interdite.')
-    if (input.status !== 'cancelled') transferSchema(stockSnapshot(scope)).parse(original)
+    if (input.status !== 'cancelled') { transferSchema(stockSnapshot(scope)).parse(original); if (![original.sourceId, original.destinationId].every((id) => warehouseSnapshot(scope).some((w) => w.id === id && w.status === 'active')) || !original.lines.every((l) => productSnapshot(scope).some((p) => p.id === l.productId && p.type === 'product' && p.status === 'active'))) throw new Error('Produits et dépôts actifs requis.') }
     if (input.status === 'in_transit') dispatchTransfer(scope, original)
     original.status = input.status; original.capabilities = transferCapabilities(input.status)
     original.activities.unshift({ id: crypto.randomUUID(), date: stockDemoDate, title: `Statut : ${input.status}`, detail: 'Transition simulée en mémoire.' }); return structuredClone(original)
