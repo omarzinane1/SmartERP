@@ -7,11 +7,16 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from .serializers import LoginSerializer
 from .services import (
     authenticate_user,
+    build_auth_payload,
+    build_profile_payload,
     get_default_active_membership,
+    logout_user,
+    resolve_active_membership,
 )
 
 
@@ -77,30 +82,84 @@ class LoginView(APIView):
         request.session["active_company_id"] = membership.company_id
         request.session["active_membership_id"] = membership.id
 
-        company = membership.company
-
-        full_name = user.get_full_name().strip()
+        payload = build_auth_payload(
+            user=user,
+            membership=membership,
+        )
 
         return Response(
-            {
-                "user": {
-                "id": user.id,
-                "name": full_name or user.email,
-                "email": user.email,
-                "role": "Admin" if user.is_superuser else "User",
-                "permissions": [],
-                },
-                
-                "company": {
-                    "id": company.id,
-                    "name": company.name,
-                    "onboarding_completed": (
-                        company.onboarding_completed
-                    ),
+            payload,
+            status=status.HTTP_200_OK,
+        )
 
-                    # CompanyModule sera créé plus tard.
-                    "enabled_modules": [],
+class SessionView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        membership = resolve_active_membership(
+            request=request,
+        )
+
+        if membership is None:
+            return Response(
+                {
+                    "detail": (
+                        "Aucune société active n'est associée "
+                        "à cette session."
+                    ),
+                    "code": "no_active_membership",
                 },
-            },
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        payload = build_auth_payload(
+            user=request.user,
+            membership=membership,
+        )
+
+        return Response(
+            payload,
+            status=status.HTTP_200_OK,
+        )
+
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        logout_user(
+            request=request,
+        )
+
+        return Response(
+            status=status.HTTP_204_NO_CONTENT,
+        )
+
+class MeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        membership = resolve_active_membership(
+            request=request,
+        )
+
+        if membership is None:
+            return Response(
+                {
+                    "detail": (
+                        "Aucune société active n'est associée "
+                        "à cet utilisateur."
+                    ),
+                    "code": "no_active_membership",
+                },
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        payload = build_profile_payload(
+            user=request.user,
+            membership=membership,
+        )
+
+        return Response(
+            payload,
             status=status.HTTP_200_OK,
         )
