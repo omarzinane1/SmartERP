@@ -96,9 +96,7 @@ class SessionView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        membership = resolve_active_membership(
-            request=request,
-        )
+        membership = request.membership
 
         if membership is None:
             return Response(
@@ -138,9 +136,7 @@ class MeView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        membership = resolve_active_membership(
-            request=request,
-        )
+        membership = request.membership
 
         if membership is None:
             return Response(

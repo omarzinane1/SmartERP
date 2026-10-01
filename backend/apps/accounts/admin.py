@@ -4,6 +4,14 @@ from .models import Membership, User
 
 from .models import User
 
+from .models import (
+    Membership,
+    MembershipRole,
+    Permission,
+    Role,
+    RolePermission,
+    User,
+)
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
@@ -132,4 +140,81 @@ class MembershipAdmin(admin.ModelAdmin):
     readonly_fields = (
         "created_at",
         "updated_at",
+    )
+
+@admin.register(Permission)
+class PermissionAdmin(admin.ModelAdmin):
+    list_display = (
+        "code",
+        "label",
+        "module",
+        "action",
+        "is_active",
+        "is_grantable",
+    )
+
+    list_filter = (
+        "module",
+        "is_active",
+        "is_grantable",
+    )
+
+    search_fields = (
+        "code",
+        "label",
+    )
+
+
+@admin.register(Role)
+class RoleAdmin(admin.ModelAdmin):
+    list_display = (
+        "name",
+        "code",
+        "company",
+        "is_system",
+        "is_active",
+        "version",
+    )
+
+    list_filter = (
+        "company",
+        "is_system",
+        "is_active",
+    )
+
+    search_fields = (
+        "name",
+        "code",
+    )
+
+    autocomplete_fields = (
+        "company",
+    )
+
+
+@admin.register(RolePermission)
+class RolePermissionAdmin(admin.ModelAdmin):
+    list_display = (
+        "role",
+        "permission",
+        "created_at",
+    )
+
+    autocomplete_fields = (
+        "role",
+        "permission",
+    )
+
+
+@admin.register(MembershipRole)
+class MembershipRoleAdmin(admin.ModelAdmin):
+    list_display = (
+        "membership",
+        "role",
+        "created_at",
+    )
+
+    autocomplete_fields = (
+        "membership",
+        "role",
     )

@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.core.exceptions import ValidationError
 
 from common.models import TimeStampedModel
 
@@ -142,3 +143,162 @@ class Membership(TimeStampedModel):
 
     def __str__(self):
         return f"{self.user.email} - {self.company.name}"
+
+class Role(TimeStampedModel):
+    company = models.ForeignKey(
+        "companies.Company",
+        on_delete=models.CASCADE,
+        related_name="roles",
+    )
+
+    name = models.CharField(
+        max_length=100,
+    )
+
+    code = models.SlugField(
+        max_length=100,
+    )
+
+    description = models.TextField(
+        blank=True,
+    )
+
+    is_system = models.BooleanField(
+        default=False,
+    )
+
+    is_active = models.BooleanField(
+        default=True,
+    )
+
+    version = models.PositiveIntegerField(
+        default=1,
+    )
+
+    class Meta:
+        db_table = "accounts_role"
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=["company", "code"],
+                name="unique_role_code_per_company",
+            ),
+        ]
+
+        indexes = [
+            models.Index(
+                fields=["company", "is_active"],
+                name="role_company_active_idx",
+            ),
+        ]
+
+        ordering = ["name"]
+
+    def __str__(self):
+        return f"{self.name} - {self.company.name}"
+
+class Permission(TimeStampedModel):
+    code = models.CharField(
+        max_length=150,
+        unique=True,
+    )
+
+    label = models.CharField(
+        max_length=255,
+    )
+
+    module = models.CharField(
+        max_length=100,
+    )
+
+    action = models.CharField(
+        max_length=100,
+    )
+
+    is_active = models.BooleanField(
+        default=True,
+    )
+
+    is_grantable = models.BooleanField(
+        default=True,
+    )
+
+    class Meta:
+        db_table = "accounts_permission"
+
+        ordering = ["module", "code"]
+
+    def __str__(self):
+        return self.code
+
+class RolePermission(TimeStampedModel):
+    role = models.ForeignKey(
+        Role,
+        on_delete=models.CASCADE,
+        related_name="role_permissions",
+    )
+
+    permission = models.ForeignKey(
+        Permission,
+        on_delete=models.CASCADE,
+        related_name="role_permissions",
+    )
+
+    class Meta:
+        db_table = "accounts_role_permission"
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=["role", "permission"],
+                name="unique_role_permission",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.role.name} -> {self.permission.code}"
+
+class MembershipRole(TimeStampedModel):
+    membership = models.ForeignKey(
+        Membership,
+        on_delete=models.CASCADE,
+        related_name="membership_roles",
+    )
+
+    role = models.ForeignKey(
+        Role,
+        on_delete=models.CASCADE,
+        related_name="membership_roles",
+    )
+
+    class Meta:
+        db_table = "accounts_membership_role"
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=["membership", "role"],
+                name="unique_membership_role",
+            ),
+        ]
+
+    def clean(self):
+        super().clean()
+
+        if (
+            self.membership_id
+            and self.role_id
+            and self.membership.company_id != self.role.company_id
+        ):
+            raise ValidationError(
+                {
+                    "role": (
+                        "Le rôle doit appartenir à la même société "
+                        "que le membership."
+                    )
+                }
+            )
+
+    def __str__(self):
+        return (
+            f"{self.membership.user.email} "
+            f"-> {self.role.name}"
+        )

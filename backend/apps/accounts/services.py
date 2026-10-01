@@ -3,6 +3,10 @@ from django.contrib.auth import authenticate
 from .models import Membership, MembershipStatus
 from django.contrib.auth import authenticate, logout
 from django.utils import timezone
+from .selectors import (
+    get_effective_permission_codes,
+    get_membership_role_display,
+)
 
 
 def authenticate_user(*, request, email, password):
@@ -82,14 +86,23 @@ def build_auth_payload(*, user, membership):
 
     full_name = user.get_full_name().strip()
 
+    role = get_membership_role_display(
+        membership=membership,
+    )
+
+    permissions = get_effective_permission_codes(
+        membership=membership,
+    )
+
     return {
         "user": {
             "id": user.id,
             "name": full_name or user.email,
             "email": user.email,
-            "role": "Admin" if user.is_superuser else "User",
-            "permissions": [],
+            "role": role,
+            "permissions": permissions,
         },
+
         "company": {
             "id": company.id,
             "name": company.name,
@@ -116,6 +129,10 @@ def build_profile_payload(*, user, membership):
     company = membership.company
 
     full_name = user.get_full_name().strip()
+
+    role = get_membership_role_display(
+    membership=membership,
+)
 
     return {
         "id": user.id,
@@ -150,7 +167,7 @@ def build_profile_payload(*, user, membership):
         },
 
         # Temporary until RBAC is implemented.
-        "role": "Admin" if user.is_superuser else "User",
+        "role": role,
 
         # Department model will be added later.
         "department": "",
