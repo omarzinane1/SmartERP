@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     # SmartERP
     "apps.accounts.apps.AccountsConfig",
     "apps.companies.apps.CompaniesConfig",
+    "apps.inventory.apps.InventoryConfig",
 ]
 
 
@@ -145,7 +146,7 @@ AUTH_USER_MODEL = "accounts.User"
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.SessionAuthentication",
+        "common.authentication.SessionAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",

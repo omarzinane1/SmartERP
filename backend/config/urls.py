@@ -5,6 +5,7 @@ from apps.accounts.views import MeView
 
 
 urlpatterns = [
+    path("api/company/", include("apps.companies.urls")),
     path(
         "admin/",
         admin.site.urls,

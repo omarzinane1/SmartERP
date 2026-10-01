@@ -4,10 +4,9 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
 
 from rest_framework import status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from .serializers import LoginSerializer
 from .services import (
@@ -16,7 +15,6 @@ from .services import (
     build_profile_payload,
     get_default_active_membership,
     logout_user,
-    resolve_active_membership,
 )
 
 

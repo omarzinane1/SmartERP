@@ -1,4 +1,4 @@
-from django.urls import include, path
+from django.urls import path
 
 from .views import (
     CSRFTokenView,
@@ -35,8 +35,4 @@ urlpatterns = [
         LogoutView.as_view(),
         name="logout",
     ),
-    #path(
-    #    "api/auth/",
-    #    include("apps.accounts.urls"),
-    #)
 ]

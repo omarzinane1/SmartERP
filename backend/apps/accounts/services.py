@@ -1,11 +1,12 @@
-from django.contrib.auth import authenticate
-
-from .models import Membership, MembershipStatus
 from django.contrib.auth import authenticate, logout
 from django.utils import timezone
+from apps.companies.selectors import get_enabled_module_codes
+
+from .models import Membership, MembershipStatus
 from .selectors import (
     get_effective_permission_codes,
     get_membership_role_display,
+    membership_has_permission,
 )
 
 
@@ -107,7 +108,7 @@ def build_auth_payload(*, user, membership):
             "id": company.id,
             "name": company.name,
             "onboarding_completed": company.onboarding_completed,
-            "enabled_modules": [],
+            "enabled_modules": get_enabled_module_codes(company=company),
         },
     }
 
@@ -131,8 +132,8 @@ def build_profile_payload(*, user, membership):
     full_name = user.get_full_name().strip()
 
     role = get_membership_role_display(
-    membership=membership,
-)
+        membership=membership,
+    )
 
     return {
         "id": user.id,
@@ -166,7 +167,6 @@ def build_profile_payload(*, user, membership):
             },
         },
 
-        # Temporary until RBAC is implemented.
         "role": role,
 
         # Department model will be added later.
@@ -213,3 +213,81 @@ def build_profile_payload(*, user, membership):
 
         "asOf": timezone.localdate().isoformat(),
     }
+
+def can(*, membership, permission_code):
+    """
+    Return whether the membership has the requested
+    SmartERP permission.
+
+    This is the central authorization helper for
+    permission-code checks.
+    """
+
+    if membership is None:
+        return False
+
+    if not permission_code:
+        return False
+
+    return membership_has_permission(
+        membership=membership,
+        permission_code=permission_code,
+    )
+
+def can_any(*, membership, permission_codes):
+    """
+    Return True if the membership has at least one
+    of the requested permissions.
+    """
+
+    if membership is None:
+        return False
+
+    codes = [
+        code
+        for code in permission_codes
+        if code
+    ]
+
+    if not codes:
+        return False
+
+    effective_permissions = set(
+        get_effective_permission_codes(
+            membership=membership,
+        )
+    )
+
+    return any(
+        code in effective_permissions
+        for code in codes
+    )
+
+def can_all(*, membership, permission_codes):
+    """
+    Return True only if the membership has all
+    requested permissions.
+    """
+
+    if membership is None:
+        return False
+
+    codes = [
+        code
+        for code in permission_codes
+        if code
+    ]
+
+    if not codes:
+        return False
+
+    effective_permissions = set(
+        get_effective_permission_codes(
+            membership=membership,
+        )
+    )
+
+    return all(
+        code in effective_permissions
+        for code in codes
+    )
