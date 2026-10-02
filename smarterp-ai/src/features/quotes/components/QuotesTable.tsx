@@ -48,9 +48,9 @@ export function QuotesTable(props: Props) {
         {rows.map((quote) => <tr key={quote.id} data-selected={selectedIds.includes(quote.id)}>
           <td><Checkbox aria-label={`Sélectionner ${quote.reference}`} checked={selectedIds.includes(quote.id)} onChange={() => onSelect(quote.id)} /></td>
           <td><Link to={`/quotes/${quote.id}`} className="quotes-reference">{quote.reference}</Link></td>
-          <td><Link to={`/quotes/${quote.id}`} className="font-semibold text-slate-700 hover:text-blue-600">{quote.customerName}</Link><span className="quotes-subtext">CUS-{String(quote.customerId).padStart(6, '0')}</span></td>
+          <td><Link to={`/quotes/${quote.id}`} className="font-semibold text-slate-700 hover:text-primary-text">{quote.customerName}</Link><span className="quotes-subtext">CUS-{String(quote.customerId).padStart(6, '0')}</span></td>
           <td className="quotes-date">{formatDate(quote.createdAt)}</td>
-          <td className="quotes-date"><span className={isExpiringQuote(quote, asOf) ? 'text-amber-700' : ''}>{formatDate(quote.expiresAt)}</span>
+          <td className="quotes-date"><span className={isExpiringQuote(quote, asOf) ? 'text-warning-text' : ''}>{formatDate(quote.expiresAt)}</span>
             {isExpiringQuote(quote, asOf) && <span className="quotes-expiration">{daysUntilExpiration(quote, asOf) === 0 ? 'Expire aujourd’hui' : `Dans ${daysUntilExpiration(quote, asOf)} jours`}</span>}</td>
           <td><span className="quotes-salesperson"><span className="quotes-avatar">{quote.salesperson.split(' ').map((part) => part[0]).slice(0, 2).join('')}</span>{quote.salesperson}</span></td>
           <td className="quotes-amount">{formatCurrency(quote.totalAmount)}</td>

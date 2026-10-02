@@ -131,7 +131,7 @@ export function DashboardTables({ data }: { data: DashboardData }) {
               <tbody>
                 {data.topCustomers.map((customer) => (
                   <tr key={customer.id}>
-                    <td className="font-medium text-[#31486c]">
+                    <td className="font-medium text-[color:var(--text-primary)]">
                       {customer.name}
                     </td>
                     <td className="text-right font-mono font-medium">
@@ -142,9 +142,9 @@ export function DashboardTables({ data }: { data: DashboardData }) {
                       className={cn(
                         'text-right font-mono',
                         customer.outstanding > 40000
-                          ? 'text-rose-500'
+                          ? 'text-danger-text'
                           : customer.outstanding > 0
-                            ? 'text-amber-600'
+                            ? 'text-warning-text'
                             : 'text-slate-400',
                       )}
                     >
@@ -154,8 +154,8 @@ export function DashboardTables({ data }: { data: DashboardData }) {
                       className={cn(
                         'text-right font-mono',
                         customer.trend >= 0
-                          ? 'text-emerald-600'
-                          : 'text-rose-500',
+                          ? 'text-success-text'
+                          : 'text-danger-text',
                       )}
                     >
                       {customer.trend > 0 ? '+' : ''}
@@ -217,7 +217,7 @@ export function DashboardTables({ data }: { data: DashboardData }) {
                 {data.topProducts.map((product) => (
                   <tr key={product.id}>
                     <td>
-                      <span className="font-medium text-[#31486c]">
+                      <span className="font-medium text-[color:var(--text-primary)]">
                         {product.name}
                       </span>
                       <span className="mt-0.5 block text-[8px] text-slate-400">
@@ -234,8 +234,8 @@ export function DashboardTables({ data }: { data: DashboardData }) {
                       className={cn(
                         'text-right font-mono',
                         product.margin >= 28
-                          ? 'text-emerald-600'
-                          : 'text-amber-600',
+                          ? 'text-success-text'
+                          : 'text-warning-text',
                       )}
                     >
                       {formatPercentage(product.margin)}
@@ -252,8 +252,8 @@ export function DashboardTables({ data }: { data: DashboardData }) {
                       className={cn(
                         'text-right font-mono',
                         product.trend >= 0
-                          ? 'text-emerald-600'
-                          : 'text-rose-500',
+                          ? 'text-success-text'
+                          : 'text-danger-text',
                       )}
                     >
                       {product.trend > 0 ? '+' : ''}
@@ -312,7 +312,7 @@ export function DashboardTables({ data }: { data: DashboardData }) {
               <tbody>
                 {data.recentInvoices.map((invoice) => (
                   <tr key={invoice.id}>
-                    <td className="font-mono font-medium text-blue-600">
+                    <td className="font-mono font-medium text-primary-text">
                       {invoice.id}
                     </td>
                     <td>{invoice.customer}</td>
@@ -323,7 +323,7 @@ export function DashboardTables({ data }: { data: DashboardData }) {
                       className={cn(
                         'font-mono',
                         invoice.status === 'overdue'
-                          ? 'text-rose-600'
+                          ? 'text-danger-text'
                           : 'text-slate-500',
                       )}
                     >
@@ -332,7 +332,7 @@ export function DashboardTables({ data }: { data: DashboardData }) {
                     <td
                       className={cn(
                         'text-right font-mono font-medium',
-                        invoice.status === 'overdue' && 'text-rose-600',
+                        invoice.status === 'overdue' && 'text-danger-text',
                       )}
                     >
                       {formatCurrency(invoice.amount, data.currency)}
@@ -377,13 +377,13 @@ export function DashboardTables({ data }: { data: DashboardData }) {
                     `« ${label} » sera disponible avec le module correspondant.`,
                   )
                 }
-                className="rounded border border-[#e4e9f2] bg-white px-2 py-3 text-center hover:border-blue-200 hover:bg-blue-50/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                className="rounded border border-[var(--border)] bg-surface px-2 py-3 text-center hover:border-primary-border hover:bg-primary-soft/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-focus"
               >
                 <Icon
-                  className="mx-auto mb-1.5 size-3.5 text-blue-600"
+                  className="mx-auto mb-1.5 size-3.5 text-primary-text"
                   aria-hidden="true"
                 />
-                <span className="block text-[9px] font-semibold text-[#3e5273]">
+                <span className="block text-[9px] font-semibold text-[color:var(--text-secondary)]">
                   {label}
                 </span>
                 <span className="mt-0.5 block text-[8px] text-slate-400">
@@ -394,7 +394,7 @@ export function DashboardTables({ data }: { data: DashboardData }) {
           </div>
           <Link
             to="/ai/control-center"
-            className="mt-2 flex min-h-8 items-center justify-center gap-2 rounded border border-indigo-100 bg-indigo-50/60 px-2 py-2 text-[9px] font-medium text-indigo-600 hover:bg-indigo-50 focus-visible:ring-2 focus-visible:ring-indigo-500"
+            className="mt-2 flex min-h-8 items-center justify-center gap-2 rounded border border-primary-border bg-primary-soft/60 px-2 py-2 text-[9px] font-medium text-primary-text hover:bg-primary-soft focus-visible:ring-2 focus-visible:ring-primary-focus"
           >
             <Sparkles className="size-3.5" aria-hidden="true" />
             Demander à SmartERP AI

@@ -24,14 +24,14 @@ export function KpiCard({
     <article
       className={cn(
         'dashboard-card flex min-h-[126px] flex-col justify-between p-4',
-        status === 'critical' && 'border-rose-200',
+        status === 'critical' && 'border-danger-border',
       )}
     >
       <div className="flex items-center justify-between gap-2">
         <h2
           className={cn(
             'text-[9px] font-semibold tracking-[0.06em] uppercase',
-            status === 'critical' ? 'text-rose-500' : 'text-slate-500',
+            status === 'critical' ? 'text-danger-text' : 'text-slate-500',
           )}
         >
           {title}
@@ -40,9 +40,9 @@ export function KpiCard({
           className={cn(
             'size-3.5 shrink-0',
             status === 'critical'
-              ? 'text-rose-500'
+              ? 'text-danger-text'
               : status === 'warning'
-                ? 'text-amber-500'
+                ? 'text-warning-text'
                 : 'text-slate-400',
           )}
           aria-hidden="true"
@@ -52,7 +52,7 @@ export function KpiCard({
         <p
           className={cn(
             'text-[26px] leading-none font-semibold tracking-[-0.045em] tabular-nums',
-            status === 'critical' ? 'text-rose-600' : 'text-navy-950',
+            status === 'critical' ? 'text-foreground' : 'text-foreground',
           )}
         >
           {format === 'percentage'
@@ -60,7 +60,7 @@ export function KpiCard({
             : formatNumber(value)}
         </p>
         {format === 'currency' && (
-          <span className="text-[10px] text-slate-400">{currency}</span>
+          <span className="text-[10px] text-secondary">{currency}</span>
         )}
       </div>
       <div className="mt-2.5 flex flex-wrap items-center gap-x-1.5 gap-y-1">

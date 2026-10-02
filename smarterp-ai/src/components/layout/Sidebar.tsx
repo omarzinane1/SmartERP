@@ -98,7 +98,7 @@ export function Sidebar({
       {open && (
         <button
           type="button"
-          className="fixed inset-0 z-30 bg-slate-950/20 lg:hidden"
+          className="fixed inset-0 z-30 bg-overlay lg:hidden"
           aria-label="Fermer la navigation"
           onClick={onClose}
         />
@@ -107,13 +107,13 @@ export function Sidebar({
         id="app-sidebar"
         aria-label="Menu principal"
         className={cn(
-          'fixed inset-y-0 left-0 z-40 w-[232px] flex-col border-r border-[#e1e6f0] bg-[#f8faff] px-3 py-4 lg:flex',
+          'fixed inset-y-0 left-0 z-40 w-[232px] flex-col border-r border-[var(--border)] bg-[var(--surface-1)] px-3 py-4 lg:flex',
           open ? 'flex' : 'hidden',
         )}
       >
-        <div className="flex items-center gap-1 rounded-md border border-[#e3e8f1] bg-white px-3 py-3">
+        <div className="flex items-center gap-1 rounded-md border border-[var(--border)] bg-surface px-3 py-3">
           <div className="min-w-0 flex-1">
-            <BrandLogo className="gap-2 text-navy-950 [&>span:first-child]:size-7 [&>span:first-child]:rounded-md [&>span:first-child]:bg-blue-600 [&>span:first-child]:text-white [&>span:first-child>svg]:size-5 [&>span:last-child]:text-[15px]" />
+            <BrandLogo className="gap-2 text-navy-950 [&>span:first-child]:size-7 [&>span:first-child]:rounded-md [&>span:first-child]:bg-primary [&>span:first-child]:text-white [&>span:first-child>svg]:size-5 [&>span:last-child]:text-[15px]" />
             <p className="mt-1 truncate pl-9 text-[9px] text-slate-500">
               {company?.name || 'Votre société'}
             </p>
@@ -137,7 +137,7 @@ export function Sidebar({
           }
         >
           <span className="flex items-center gap-2">
-            <CirclePlus className="size-3.5 text-blue-600" aria-hidden="true" />
+            <CirclePlus className="size-3.5 text-primary-text" aria-hidden="true" />
             Nouvel enregistrement
           </span>
           <ArrowUpRight className="size-3 text-slate-400" aria-hidden="true" />
@@ -156,7 +156,7 @@ export function Sidebar({
           >
             <LayoutDashboard className="size-4" aria-hidden="true" />
             <span className="flex-1">Tableau de bord</span>
-            <span className="size-1.5 rounded-full bg-blue-600" />
+            <span className="size-1.5 rounded-full bg-primary" />
           </NavLink>
           {(!company?.enabledModules || company.enabledModules.includes('ai_control_center')) && <NavLink
             to="/ai/control-center"
@@ -167,7 +167,7 @@ export function Sidebar({
           >
             <Bot className="size-4" aria-hidden="true" />
             <span className="flex-1">AI Control Center</span>
-            <span className="rounded bg-indigo-50 px-1 text-[8px] text-indigo-600">
+            <span className="rounded bg-primary-soft px-1 text-[8px] text-primary-text">
               IA
             </span>
           </NavLink>}
@@ -192,7 +192,7 @@ export function Sidebar({
                   <Icon className="size-4" aria-hidden="true" />
                   <span className="flex-1">{label}</span>
                   {index === 4 && (
-                    <span className="rounded bg-indigo-600 px-1 py-0.5 text-[8px] font-semibold text-white">
+                    <span className="rounded bg-primary px-1 py-0.5 text-[8px] font-semibold text-white">
                       AI PRO
                     </span>
                   )}
@@ -236,14 +236,14 @@ export function Sidebar({
             </div>
           ))}
         </nav>
-        <div className="border-t border-[#e4e9f2] pt-3">
-          <div className="flex items-center justify-between rounded bg-[#edf3ff] px-2 py-1.5 text-[9px] text-slate-500">
+        <div className="border-t border-[var(--border)] pt-3">
+          <div className="flex items-center justify-between rounded bg-[var(--surface-2)] px-2 py-1.5 text-[9px] text-slate-500">
             <span className="flex items-center gap-1.5">
-              <Activity className="size-3 text-blue-500" aria-hidden="true" />
+              <Activity className="size-3 text-primary-text" aria-hidden="true" />
               Espace de travail
             </span>
-            <span className="flex items-center gap-1 text-emerald-600">
-              <span className="size-1 rounded-full bg-emerald-500" />
+            <span className="flex items-center gap-1 text-success-text">
+              <span className="size-1 rounded-full bg-success" />
               Connecté
             </span>
           </div>

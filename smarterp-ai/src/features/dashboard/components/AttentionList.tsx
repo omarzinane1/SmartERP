@@ -34,9 +34,9 @@ export function AttentionList({
       : alerts.filter((alert) => alert.severity === filter)
   return (
     <section aria-labelledby="attention-title" className="dashboard-card p-4">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#edf0f6] pb-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border)] pb-4">
         <div className="flex flex-wrap items-center gap-2">
-          <BellRing className="size-4 text-rose-500" aria-hidden="true" />
+          <BellRing className="size-4 text-danger-text" aria-hidden="true" />
           <h2 id="attention-title" className="dashboard-title">
             Nécessite votre attention
           </h2>
@@ -48,7 +48,7 @@ export function AttentionList({
             aria-label="Filtrer les alertes par criticité"
             value={filter}
             onChange={(event) => setFilter(event.target.value)}
-            className="rounded border border-[#e4e9f2] bg-[#f8faff] px-2 py-1 text-[10px] text-slate-600 outline-none focus:ring-2 focus:ring-blue-500"
+            className="rounded border border-[var(--border)] bg-[var(--surface-1)] px-2 py-1 text-[10px] text-slate-600 outline-none focus:ring-2 focus:ring-primary-focus"
           >
             <option value="all">Toutes ({alerts.length})</option>
             {Object.entries(severityLabels).map(([value, label]) => (
@@ -59,7 +59,7 @@ export function AttentionList({
           </select>
         </label>
       </div>
-      <ul aria-live="polite" className="divide-y divide-[#edf0f6]">
+      <ul aria-live="polite" className="divide-y divide-[var(--chart-purple)]">
         {visible.map((alert) => (
           <li
             key={alert.id}
@@ -81,7 +81,7 @@ export function AttentionList({
               <Badge className="text-[8px]">{alert.category}</Badge>
             </div>
             <div className="min-w-0">
-              <h3 className="text-[11px] font-semibold text-[#354c70]">
+              <h3 className="text-[11px] font-semibold text-[color:var(--text-primary)]">
                 {alert.title}
               </h3>
               <p className="mt-1 text-[10px] leading-4 text-slate-500">
@@ -90,7 +90,7 @@ export function AttentionList({
               <span
                 className={cn(
                   'mt-1 inline-block text-[8px] font-medium',
-                  alert.kind === 'fact' ? 'text-slate-400' : 'text-indigo-500',
+                  alert.kind === 'fact' ? 'text-slate-400' : 'text-primary-text',
                 )}
               >
                 {kindLabels[alert.kind]}
@@ -100,10 +100,10 @@ export function AttentionList({
               className={cn(
                 'font-mono text-[9px] font-medium lg:text-right',
                 alert.severity === 'critical'
-                  ? 'text-rose-600'
+                  ? 'text-danger-text'
                   : alert.severity === 'opportunity'
-                    ? 'text-indigo-600'
-                    : 'text-amber-700',
+                    ? 'text-primary-text'
+                    : 'text-warning-text',
               )}
             >
               {alert.severity === 'opportunity' ? 'Potentiel' : 'Impact'} :
@@ -120,7 +120,7 @@ export function AttentionList({
               className={cn(
                 'min-h-7 justify-self-start rounded px-2.5 text-[9px] lg:justify-self-end',
                 alert.severity === 'opportunity' &&
-                  'bg-blue-600 hover:bg-blue-700',
+                  'bg-primary hover:bg-primary-hover',
               )}
               onClick={() =>
                 toast.info(

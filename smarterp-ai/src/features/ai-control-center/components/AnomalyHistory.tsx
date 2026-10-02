@@ -9,10 +9,10 @@ import {
 import type { AIControlCenterData } from '../types/aiControlCenter.types'
 
 const series = [
-  { key: 'critical', label: 'Critiques', color: '#f43f68' },
-  { key: 'high', label: 'Élevées', color: '#fbbf24' },
-  { key: 'medium', label: 'Moyennes', color: '#60a5fa' },
-  { key: 'resolved', label: 'Résolues', color: '#34cda0' },
+  { key: 'critical', label: 'Critiques', color: 'var(--chart-red)' },
+  { key: 'high', label: 'Élevées', color: 'var(--chart-amber-soft)' },
+  { key: 'medium', label: 'Moyennes', color: 'var(--chart-purple)' },
+  { key: 'resolved', label: 'Résolues', color: 'var(--chart-green)' },
 ]
 
 export function AnomalyHistory({
@@ -61,20 +61,20 @@ export function AnomalyHistory({
             barCategoryGap="9%"
             margin={{ top: 5, bottom: 0, left: 0, right: 0 }}
           >
-            <CartesianGrid vertical={false} stroke="#edf1f8" />
+            <CartesianGrid vertical={false} stroke="var(--border)" />
             <XAxis
               dataKey="day"
               tickLine={false}
               axisLine={false}
-              tick={{ fontSize: 9, fill: '#94a3b8' }}
+              tick={{ fontSize: 9, fill: 'var(--text-muted)' }}
             />
             <Tooltip
               contentStyle={{
                 fontSize: 11,
                 borderRadius: 5,
-                border: '1px solid #e2e8f0',
+                border: '1px solid var(--border)',
               }}
-              cursor={{ fill: '#f1f5f9' }}
+              cursor={{ fill: 'var(--chart-purple)' }}
               labelFormatter={(value) => `Septembre · ${value}`}
             />
             {series.map((item) => (
@@ -101,7 +101,7 @@ export function AnomalyHistory({
         </span>
       </div>
       <details className="mt-3 text-[9px] text-slate-500">
-        <summary className="cursor-pointer text-blue-600">
+        <summary className="cursor-pointer text-ai-text">
           Voir les données du graphique
         </summary>
         <div className="mt-2 overflow-x-auto">

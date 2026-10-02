@@ -31,13 +31,13 @@ export function OnboardingStepper({
   return (
     <nav
       aria-label="Étapes de configuration"
-      className="rounded-lg border border-[#e4e9f2] bg-white p-3 lg:p-4"
+      className="rounded-lg border border-[var(--border)] bg-surface p-3 lg:p-4"
     >
       <div className="mb-4 hidden items-center justify-between px-2 lg:flex">
         <span className="text-[10px] font-semibold tracking-[0.12em] text-slate-500 uppercase">
           Votre parcours
         </span>
-        <span className="text-[10px] font-medium text-blue-600">7 étapes</span>
+        <span className="text-[10px] font-medium text-primary-text">7 étapes</span>
       </div>
       <ol
         ref={listRef}
@@ -56,20 +56,20 @@ export function OnboardingStepper({
                 aria-current={active ? 'step' : undefined}
                 onClick={() => onStepChange(number)}
                 className={cn(
-                  'relative flex w-full items-start gap-3 rounded-md px-3 py-3 text-left outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-60',
-                  active ? 'bg-[#edf3ff]' : 'hover:bg-slate-50',
+                  'relative flex w-full items-start gap-3 rounded-md px-3 py-3 text-left outline-none focus-visible:ring-2 focus-visible:ring-primary-focus disabled:opacity-60',
+                  active ? 'bg-[var(--surface-2)]' : 'hover:bg-slate-50',
                 )}
               >
                 {active && (
-                  <span className="absolute inset-y-2 left-0 w-[3px] rounded-full bg-blue-600" />
+                  <span className="absolute inset-y-2 left-0 w-[3px] rounded-full bg-primary" />
                 )}
                 <span
                   className={cn(
                     'mt-0.5 grid size-6 shrink-0 place-items-center rounded-full border text-[11px] font-semibold',
                     active
-                      ? 'border-blue-600 bg-blue-600 text-white'
+                      ? 'border-primary-border bg-primary text-white'
                       : completed
-                        ? 'border-emerald-200 bg-emerald-50 text-emerald-600'
+                        ? 'border-success-border bg-success-bg text-success-text'
                         : 'border-slate-200 text-slate-400',
                   )}
                 >
@@ -83,7 +83,7 @@ export function OnboardingStepper({
                   <span
                     className={cn(
                       'block text-xs font-semibold',
-                      active ? 'text-blue-800' : 'text-slate-600',
+                      active ? 'text-primary-text' : 'text-slate-600',
                     )}
                   >
                     {step.title}

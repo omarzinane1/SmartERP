@@ -17,7 +17,7 @@ export function FeaturePlaceholder({
       <p className="mt-3 text-slate-600">{description}</p>
       <Link
         to={backTo}
-        className="mt-6 inline-block rounded text-sm font-medium text-blue-800 underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600"
+        className="mt-6 inline-block rounded text-sm font-medium text-primary-text underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-focus"
       >
         {backLabel}
       </Link>

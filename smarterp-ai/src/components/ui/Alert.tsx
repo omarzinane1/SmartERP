@@ -20,8 +20,8 @@ export function Alert({
       className={cn(
         'flex items-start gap-2.5 rounded-lg border px-3.5 py-3 text-sm leading-5',
         variant === 'error'
-          ? 'border-red-200 bg-red-50 text-red-700'
-          : 'border-blue-200 bg-blue-50 text-blue-800',
+          ? 'border-danger-border bg-danger-bg text-danger-text'
+          : 'border-info-border bg-info-bg text-info-text',
         className,
       )}
       {...props}

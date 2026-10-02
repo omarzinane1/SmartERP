@@ -254,11 +254,11 @@ export const dashboardMock: DashboardData = {
     dso: 42,
     overdueCount: 18,
     buckets: [
-      { label: 'Non échues', amount: 160800, color: '#10b981' },
-      { label: '1–30 jours', amount: 49600, color: '#fbbf24' },
-      { label: '31–60 jours', amount: 38400, color: '#f59e0b' },
-      { label: '61–90 jours', amount: 21000, color: '#fb7185' },
-      { label: '90+ jours', amount: 14500, color: '#e11d48' },
+      { label: 'Non échues', amount: 160800, color: 'var(--chart-green)' },
+      { label: '1–30 jours', amount: 49600, color: 'var(--chart-amber-soft)' },
+      { label: '31–60 jours', amount: 38400, color: 'var(--chart-amber)' },
+      { label: '61–90 jours', amount: 21000, color: 'var(--chart-red)' },
+      { label: '90+ jours', amount: 14500, color: 'var(--chart-red-strong)' },
     ],
   },
   inventory: {
@@ -266,11 +266,11 @@ export const dashboardMock: DashboardData = {
     turnover: 5.2,
     dormantValue: 34000,
     segments: [
-      { label: 'Stock sain', count: 184, color: '#10b981' },
-      { label: 'Stock faible', count: 14, color: '#fbbf24' },
-      { label: 'Stock critique', count: 7, color: '#f97316' },
-      { label: 'Rupture', count: 3, color: '#f43f5e' },
-      { label: 'Stock dormant', count: 9, color: '#94a3b8' },
+      { label: 'Stock sain', count: 184, color: 'var(--chart-green)' },
+      { label: 'Stock faible', count: 14, color: 'var(--chart-amber-soft)' },
+      { label: 'Stock critique', count: 7, color: 'var(--chart-red)' },
+      { label: 'Rupture', count: 3, color: 'var(--chart-red)' },
+      { label: 'Stock dormant', count: 9, color: 'var(--chart-aubergine)' },
     ],
   },
   alerts: [

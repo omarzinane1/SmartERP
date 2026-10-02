@@ -7,32 +7,32 @@ const cards = [
     title: 'Alertes critiques',
     caption: 'Intervention requise',
     icon: Radar,
-    style: 'border-rose-100 text-rose-600',
-    iconStyle: 'bg-rose-50',
+    style: 'border-danger-border text-danger-text',
+    iconStyle: 'bg-danger-bg',
   },
   {
     key: 'warnings',
     title: 'Avertissements',
     caption: 'À surveiller sous 48 h',
     icon: BellRing,
-    style: 'border-amber-100 text-amber-600',
-    iconStyle: 'bg-amber-50',
+    style: 'border-warning-border text-warning-text',
+    iconStyle: 'bg-warning-bg',
   },
   {
     key: 'forecasts',
     title: 'Risques prévisionnels',
     caption: 'Horizon 7–30 jours',
     icon: TrendingUp,
-    style: 'border-indigo-100 text-blue-600',
-    iconStyle: 'bg-blue-50',
+    style: 'border-ai-border text-ai-text',
+    iconStyle: 'bg-ai-soft',
   },
   {
     key: 'opportunities',
     title: 'Opportunités',
     caption: 'Croissance & marge détectées',
     icon: Rocket,
-    style: 'border-emerald-100 text-emerald-600',
-    iconStyle: 'bg-emerald-50',
+    style: 'border-success-border text-success-text',
+    iconStyle: 'bg-success-bg',
   },
   {
     key: 'resolved',
@@ -57,7 +57,7 @@ export function IntelligenceStats({
       {cards.map(({ key, title, caption, icon: Icon, style, iconStyle }) => (
         <article
           key={key}
-          className={`flex items-center justify-between gap-2 rounded-md border bg-white px-4 py-3 ${style}`}
+          className={`flex items-center justify-between gap-2 rounded-md border bg-surface px-4 py-3 ${style}`}
         >
           <div>
             <h2 className="text-[9px] font-medium uppercase tracking-wide text-slate-500">

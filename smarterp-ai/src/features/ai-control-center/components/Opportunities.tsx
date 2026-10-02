@@ -20,7 +20,7 @@ export function Opportunities({
         id="opportunities-title"
         className="dashboard-title flex items-center gap-2"
       >
-        <Rocket className="size-3.5 text-emerald-600" />
+        <Rocket className="size-3.5 text-success-text" />
         Opportunités de croissance
       </h2>
       <p className="dashboard-caption">
@@ -30,10 +30,10 @@ export function Opportunities({
         {opportunities.map((opportunity) => (
           <article
             key={opportunity.id}
-            className="rounded border border-emerald-100 bg-emerald-50/20 p-3"
+            className="rounded border border-success-border bg-success-bg/20 p-3"
           >
             <div className="flex justify-between gap-2">
-              <h3 className="text-[11px] font-semibold text-teal-700">
+              <h3 className="text-[11px] font-semibold text-success-text">
                 {opportunity.company}
               </h3>
               <span className="text-[8px] text-slate-400">
@@ -43,14 +43,14 @@ export function Opportunities({
             <p className="mt-1 text-[9px] text-slate-500">
               {opportunity.title} · {opportunity.detail}
             </p>
-            <p className="mt-2 text-[10px] font-semibold text-emerald-600">
+            <p className="mt-2 text-[10px] font-semibold text-success-text">
               {opportunity.potential}
               <span className="ml-1 text-[7px] font-normal">ESTIMATE</span>
             </p>
             <button
               type="button"
               onClick={() => onReview(opportunity.action)}
-              className="mt-2 flex items-center gap-1 text-[9px] font-medium text-teal-700"
+              className="mt-2 flex items-center gap-1 text-[9px] font-medium text-success-text"
             >
               Examiner la recommandation
               <ArrowUpRight className="size-3" />
@@ -58,7 +58,7 @@ export function Opportunities({
           </article>
         ))}
       </div>
-      <p className="mt-3 text-[8px] text-emerald-600">
+      <p className="mt-3 text-[8px] text-success-text">
         RECOMMENDATION · À valider avec votre équipe.
       </p>
     </section>

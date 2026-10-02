@@ -32,8 +32,8 @@ export function CustomersSummary({
         customers.length - active
       } non actifs`,
       icon: Users,
-      tone: 'text-blue-600 bg-blue-50',
-      valueTone: 'text-blue-700',
+      tone: 'text-primary-text bg-primary-soft',
+      valueTone: 'text-foreground',
     },
     {
       title: 'Encours total clients',
@@ -41,31 +41,31 @@ export function CustomersSummary({
       caption: 'Solde des factures non réglées',
       icon: Banknote,
       tone: 'text-slate-600 bg-slate-100',
-      valueTone: 'text-navy-950',
+      valueTone: 'text-foreground',
     },
     {
       title: 'Factures en retard',
       value: formatCurrency(overdue),
       caption: 'À prioriser dans les relances',
       icon: CircleDollarSign,
-      tone: 'text-amber-600 bg-amber-50',
-      valueTone: 'text-amber-700',
+      tone: 'text-warning-text bg-warning-bg',
+      valueTone: 'text-foreground',
     },
     {
       title: 'Chiffre d’affaires annuel',
       value: formatCurrency(revenue),
       caption: data.revenueGrowth === null ? 'Comparaison indisponible' : `+${formatNumber(data.revenueGrowth, 1)} % vs N−1`,
       icon: TrendingUp,
-      tone: 'text-emerald-600 bg-emerald-50',
-      valueTone: 'text-navy-950',
+      tone: 'text-success-text bg-success-bg',
+      valueTone: 'text-foreground',
     },
     {
       title: 'Délai moyen de paiement',
       value: data.dsoDays === null ? '—' : `${data.dsoDays} jours`,
       caption: data.dsoTarget === null ? 'Objectif non configuré' : `Objectif : moins de ${data.dsoTarget} jours`,
       icon: Clock3,
-      tone: 'text-indigo-600 bg-indigo-50',
-      valueTone: 'text-navy-950',
+      tone: 'text-primary-text bg-primary-soft',
+      valueTone: 'text-foreground',
     },
   ]
   return (
@@ -76,7 +76,7 @@ export function CustomersSummary({
       {cards.map(({ title, value, caption, icon: Icon, tone, valueTone }) => (
         <article
           key={title}
-          className="flex min-w-0 items-center justify-between gap-2 rounded border border-[#e5eaf4] bg-white px-3.5 py-3.5"
+          className="flex min-w-0 items-center justify-between gap-2 rounded border border-[var(--border)] bg-surface px-3.5 py-3.5"
         >
           <div className="min-w-0">
             <h2 className="text-[9px] font-semibold uppercase tracking-[.04em] text-slate-500">

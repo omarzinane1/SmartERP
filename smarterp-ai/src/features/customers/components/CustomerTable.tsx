@@ -119,10 +119,10 @@ export function CustomerTable({
                     <span
                       className={`customers-avatar ${
                         customer.type === 'individual'
-                          ? 'bg-violet-100 text-violet-700'
+                          ? 'bg-primary-soft text-primary-text'
                           : customer.status === 'vip'
-                          ? 'bg-indigo-700 text-white'
-                          : 'bg-[#18263e] text-white'
+                          ? 'bg-primary-hover text-white'
+                          : 'bg-[var(--primary)] text-white'
                       }`}
                     >
                       {customerInitials(customer.name)}
@@ -131,7 +131,7 @@ export function CustomerTable({
                       <Link
                         to={`/customers/${customer.id}`}
                         onClick={(event) => event.stopPropagation()}
-                        className="font-semibold leading-4 text-navy-950 hover:text-blue-600 hover:underline"
+                        className="font-semibold leading-4 text-navy-950 hover:text-primary-text hover:underline"
                       >
                         {customer.name}
                       </Link>
@@ -156,7 +156,7 @@ export function CustomerTable({
                   <a
                     href={`mailto:${customer.email}`}
                     onClick={(event) => event.stopPropagation()}
-                    className="block max-w-[132px] truncate text-[9px] text-slate-500 hover:text-blue-600"
+                    className="block max-w-[132px] truncate text-[9px] text-slate-500 hover:text-primary-text"
                     title={customer.email}
                   >
                     {customer.email}
@@ -170,7 +170,7 @@ export function CustomerTable({
                 </td>
                 <td>
                   <span className="flex items-center gap-1.5">
-                    <span className="grid size-5 shrink-0 place-items-center rounded-full bg-violet-50 text-[7px] font-semibold text-violet-600">
+                    <span className="grid size-5 shrink-0 place-items-center rounded-full bg-primary-soft text-[7px] font-semibold text-primary-text">
                       {customerInitials(customer.salesperson)}
                     </span>
                     <span className="max-w-20 text-[9px]">
@@ -183,12 +183,12 @@ export function CustomerTable({
                 </td>
                 <td
                   className={`text-right font-mono text-[9px] ${
-                    customer.outstanding ? 'text-amber-700' : 'text-emerald-600'
+                    customer.outstanding ? 'text-warning-text' : 'text-success-text'
                   }`}
                 >
                   {formatCurrency(customer.outstanding)}
                   {customer.overdue > 0 && (
-                    <p className="mt-1 text-[8px] text-rose-500">
+                    <p className="mt-1 text-[8px] text-danger-text">
                       {formatCurrency(customer.overdue)} en retard
                     </p>
                   )}

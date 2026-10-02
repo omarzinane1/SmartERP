@@ -77,14 +77,14 @@ export function Topbar({
   }, [])
 
   return (
-    <header className="sticky top-0 z-20 flex h-[62px] min-w-0 items-center gap-3 border-b border-[#e4e9f2] bg-white px-4 lg:px-6">
+    <header className="sticky top-0 z-20 flex h-[62px] min-w-0 items-center gap-3 border-b border-[var(--border)] bg-surface px-4 lg:px-6">
       <button
         type="button"
         aria-label="Ouvrir le menu"
         aria-expanded={sidebarOpen}
         aria-controls="app-sidebar"
         onClick={onToggleSidebar}
-        className="rounded p-1.5 text-slate-500 focus-visible:ring-2 focus-visible:ring-blue-500 lg:hidden"
+        className="rounded p-1.5 text-slate-500 focus-visible:ring-2 focus-visible:ring-primary-focus lg:hidden"
       >
         <Menu className="size-5" />
       </button>
@@ -142,7 +142,7 @@ export function Topbar({
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           placeholder="Rechercher clients, factures, produits…"
-          className="h-8 rounded-md border-[#e4e9f2] pl-8 text-[10px] shadow-none [&::placeholder]:text-slate-400"
+          className="h-8 rounded-md border-[var(--border)] pl-8 text-[10px] shadow-none [&::placeholder]:text-slate-400"
           leadingIcon={<Search className="size-3" />}
           trailingContent={
             <kbd className="hidden rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[8px] text-slate-400 xl:block">
@@ -166,7 +166,7 @@ export function Topbar({
         {canAssistant && <button
           type="button"
           aria-label="SmartERP AI"
-          className="topbar-icon hidden text-blue-600 sm:grid"
+          className="topbar-icon hidden text-primary-text sm:grid"
           onClick={() => { void navigate('/ai/assistant') }}
         >
           <Sparkles className="size-4" />
@@ -196,13 +196,13 @@ export function Topbar({
       </div>
       <div className="relative" ref={profileMenuRef}><button
         type="button"
-        className="flex min-w-0 shrink-0 items-center gap-2 rounded-md py-1 text-left focus-visible:ring-2 focus-visible:ring-blue-500"
+        className="flex min-w-0 shrink-0 items-center gap-2 rounded-md py-1 text-left focus-visible:ring-2 focus-visible:ring-primary-focus"
         aria-label={`Profil de ${user?.name || 'l’utilisateur'}`}
         aria-expanded={profileMenu}
         aria-controls="profile-menu"
         onClick={() => setProfileMenu((value) => !value)}
       >
-        <span className="grid size-7 shrink-0 place-items-center rounded-full bg-[#18345e] text-[10px] font-semibold text-white">
+        <span className="grid size-7 shrink-0 place-items-center rounded-full bg-[var(--primary)] text-[10px] font-semibold text-white">
           {initials}
         </span>
         <span className="hidden min-w-0 lg:block">
@@ -217,7 +217,7 @@ export function Topbar({
           className="hidden size-3 text-slate-400 lg:block"
           aria-hidden="true"
         />
-      </button>{profileMenu && <nav id="profile-menu" aria-label="Menu utilisateur" className="absolute right-0 top-full mt-3 w-52 rounded-lg border border-slate-200 bg-white p-2 text-xs text-slate-600 shadow-lg"><Link className="block rounded px-3 py-2 hover:bg-slate-50" to="/profile" onClick={() => setProfileMenu(false)}>Mon profil</Link><Link className="block rounded px-3 py-2 hover:bg-slate-50" to="/profile?tab=preferences" onClick={() => setProfileMenu(false)}>Paramètres personnels</Link><button type="button" className="block w-full rounded px-3 py-2 text-left hover:bg-slate-50" disabled={logoutPending} onClick={() => void signOut()}>Se déconnecter</button></nav>}</div>
+      </button>{profileMenu && <nav id="profile-menu" aria-label="Menu utilisateur" className="absolute right-0 top-full mt-3 w-52 rounded-lg border border-slate-200 bg-surface p-2 text-xs text-slate-600 shadow-lg"><Link className="block rounded px-3 py-2 hover:bg-slate-50" to="/profile" onClick={() => setProfileMenu(false)}>Mon profil</Link><Link className="block rounded px-3 py-2 hover:bg-slate-50" to="/profile?tab=preferences" onClick={() => setProfileMenu(false)}>Paramètres personnels</Link><button type="button" className="block w-full rounded px-3 py-2 text-left hover:bg-slate-50" disabled={logoutPending} onClick={() => void signOut()}>Se déconnecter</button></nav>}</div>
     </header>
   )
 }

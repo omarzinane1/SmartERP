@@ -14,7 +14,7 @@ export function RiskMatrix({
         id="risk-matrix-title"
         className="dashboard-title flex items-center gap-2"
       >
-        <Grid2X2 className="size-3.5 text-blue-600" />
+        <Grid2X2 className="size-3.5 text-ai-text" />
         Matrice des risques{' '}
         <span className="ml-auto text-[9px] font-normal text-slate-400">
           {risks.length} périmètres
@@ -27,13 +27,13 @@ export function RiskMatrix({
         <span className="text-[8px] text-slate-400 [writing-mode:vertical-rl] rotate-180">
           Impact →
         </span>
-        <div className="relative h-[210px] flex-1 overflow-hidden rounded border border-[#dce3f3] bg-[#f0f4ff]">
-          <div className="absolute inset-x-0 top-1/2 border-t border-[#dce3f3]" />
-          <div className="absolute inset-y-0 left-1/2 border-l border-[#dce3f3]" />
+        <div className="relative h-[210px] flex-1 overflow-hidden rounded border border-[var(--border)] bg-[var(--surface-2)]">
+          <div className="absolute inset-x-0 top-1/2 border-t border-[var(--border)]" />
+          <div className="absolute inset-y-0 left-1/2 border-l border-[var(--border)]" />
           <span className="absolute left-2 top-2 text-[7px] text-slate-500">
             MODÉRÉ (SURVEILLER)
           </span>
-          <span className="absolute right-2 top-2 text-[7px] text-rose-500">
+          <span className="absolute right-2 top-2 text-[7px] text-danger-text">
             CRITIQUE (ACTION IMMÉDIATE)
           </span>
           <span className="absolute bottom-2 left-2 text-[7px] text-slate-500">
@@ -51,10 +51,10 @@ export function RiskMatrix({
               title={`${risk.label} · Impact ${risk.impact} % · Probabilité ${risk.probability} %`}
               className={`acc-risk-dot ${
                 risk.severity === 'critical'
-                  ? 'border-rose-500 bg-rose-100 text-rose-600'
+                  ? 'border-danger-border bg-danger-bg text-danger-text'
                   : risk.severity === 'high'
-                  ? 'border-amber-500 bg-amber-100 text-amber-700'
-                  : 'border-blue-500 bg-blue-100 text-blue-600'
+                  ? 'border-warning-border bg-warning-bg text-warning-text'
+                  : 'border-ai-border bg-ai-soft text-ai-text'
               }`}
               style={{
                 left: `${risk.probability}%`,
@@ -69,15 +69,15 @@ export function RiskMatrix({
       <p className="mt-1 text-right text-[8px] text-slate-400">Probabilité →</p>
       <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-[8px] text-slate-400">
         <span>
-          <i className="mr-1 inline-block size-1.5 rounded-full bg-rose-500" />
+          <i className="mr-1 inline-block size-1.5 rounded-full bg-danger" />
           Trésorerie
         </span>
         <span>
-          <i className="mr-1 inline-block size-1.5 rounded-full bg-amber-500" />
+          <i className="mr-1 inline-block size-1.5 rounded-full bg-warning" />
           Risque commercial
         </span>
         <span>
-          <i className="mr-1 inline-block size-1.5 rounded-full bg-blue-500" />
+          <i className="mr-1 inline-block size-1.5 rounded-full bg-ai-button" />
           Fournisseurs / clients
         </span>
       </div>

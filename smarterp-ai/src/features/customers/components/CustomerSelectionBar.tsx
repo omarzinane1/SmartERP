@@ -37,7 +37,7 @@ export function CustomerSelectionBar({
       className="customers-selection-bar"
     >
       <div className="flex min-w-0 flex-1 items-center gap-2" role="status">
-        <span className="grid size-5 shrink-0 place-items-center rounded-full bg-blue-600 text-[10px] font-semibold">
+        <span className="grid size-5 shrink-0 place-items-center rounded-full bg-primary text-[10px] font-semibold">
           {selected.length}
         </span>
         <div className="min-w-0">
@@ -70,7 +70,7 @@ export function CustomerSelectionBar({
           type="button"
           onClick={onArchive}
           disabled={!canEdit}
-          className="text-amber-300"
+          className="text-warning-text"
         >
           <Archive className="size-3" />
           Archiver

@@ -25,7 +25,7 @@ export function InvoicingStep() {
         ].map(([label, value]) => (
           <div
             key={label}
-            className="min-w-0 rounded-md border border-[#e4e9f2] bg-[#f8f9fd] p-4"
+            className="min-w-0 rounded-md border border-[var(--border)] bg-[var(--surface-2)] p-4"
           >
             <p className="flex items-center gap-2 text-[10px] text-slate-500">
               <FileText className="size-3.5" aria-hidden="true" />

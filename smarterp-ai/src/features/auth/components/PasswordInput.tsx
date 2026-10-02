@@ -27,7 +27,7 @@ export function PasswordInput({ disabled, id, ...props }: PasswordInputProps) {
           aria-pressed={isVisible}
           disabled={disabled}
           onClick={() => setIsVisible((visible) => !visible)}
-          className="inline-flex size-9 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex size-9 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-focus disabled:cursor-not-allowed disabled:opacity-50"
         >
           <VisibilityIcon aria-hidden="true" className="size-[18px]" strokeWidth={1.7} />
         </button>

@@ -22,21 +22,21 @@ export function IntelligenceSummary({
       title: 'Priorités',
       items: summary.priorities,
       icon: TriangleAlert,
-      color: 'text-rose-600',
+      color: 'text-danger-text',
       label: 'AI ANALYSIS',
     },
     {
       title: 'Impact estimé',
       items: summary.impacts,
       icon: ClipboardList,
-      color: 'text-blue-600',
+      color: 'text-ai-text',
       label: 'FORECAST / ESTIMATE',
     },
     {
       title: 'Actions recommandées',
       items: summary.recommendations,
       icon: ListChecks,
-      color: 'text-emerald-600',
+      color: 'text-success-text',
       label: 'RECOMMENDATION',
     },
   ]
@@ -45,11 +45,11 @@ export function IntelligenceSummary({
       id="ai-summary"
       tabIndex={-1}
       aria-labelledby="ai-summary-title"
-      className="dashboard-card scroll-mt-20 border-l-[3px] border-l-blue-600 p-4 outline-none"
+      className="dashboard-card scroll-mt-20 border-l-[3px] border-l-ai-border p-4 outline-none"
     >
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded bg-blue-600 p-1.5 text-white">
+          <span className="rounded bg-ai-button p-1.5 text-white">
             <BrainCircuit className="size-4" />
           </span>
           <h2 id="ai-summary-title" className="dashboard-title uppercase">
@@ -70,7 +70,7 @@ export function IntelligenceSummary({
         {columns.map(({ title, items, icon: Icon, color, label }) => (
           <div
             key={title}
-            className="rounded border border-[#e2e8f8] bg-[#f3f6ff] px-3 py-3"
+            className="rounded border border-[var(--border)] bg-[var(--surface-2)] px-3 py-3"
           >
             <h3
               className={`flex items-center gap-1.5 text-[11px] font-semibold uppercase ${color}`}

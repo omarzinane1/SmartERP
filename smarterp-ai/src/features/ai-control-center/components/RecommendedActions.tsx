@@ -24,7 +24,7 @@ export function RecommendedActions({
       <h2 className="dashboard-title flex items-center gap-2">
         <Icon
           className={`size-3.5 ${
-            governance ? 'text-rose-500' : 'text-blue-600'
+            governance ? 'text-danger-text' : 'text-ai-text'
           }`}
         />
         {governance ? 'Décisions sous gouvernance' : 'Actions recommandées'}
@@ -43,7 +43,7 @@ export function RecommendedActions({
         {actions.map((action, index) => (
           <article
             key={action.id}
-            className="flex flex-col items-start rounded border border-slate-200 bg-[#fafbff] p-3"
+            className="flex flex-col items-start rounded border border-slate-200 bg-[var(--surface-1)] p-3"
           >
             <h3 className="text-[11px] font-semibold">
               {!governance && `${index + 1}. `}
@@ -61,7 +61,7 @@ export function RecommendedActions({
             <button
               type="button"
               onClick={() => onReview(action)}
-              className="mt-auto text-[10px] font-medium text-blue-600 hover:underline"
+              className="mt-auto text-[10px] font-medium text-ai-text hover:underline"
             >
               {action.button} →
             </button>
@@ -103,7 +103,7 @@ export function ActionReview({
         event.preventDefault()
         onClose()
       }}
-      className="acc-review m-auto w-[calc(100%-32px)] max-w-lg rounded-lg border border-slate-200 bg-white p-6 text-[#35465f] shadow-xl backdrop:bg-slate-950/30"
+      className="acc-review m-auto w-[calc(100%-32px)] max-w-lg rounded-lg border border-slate-200 bg-surface p-6 text-[color:var(--text-primary)] shadow-xl backdrop:bg-slate-950/30"
     >
       <div className="flex items-center justify-between">
         <Badge tone="indigo">RECOMMENDATION</Badge>
@@ -129,12 +129,12 @@ export function ActionReview({
         ))}
       </ul>
       {action.approvalRequired && (
-        <div className="rounded border border-amber-200 bg-amber-50 p-3">
+        <div className="rounded border border-warning-border bg-warning-bg p-3">
           <Badge tone="warning">
             <ShieldCheck className="size-3" />
             Approval Required
           </Badge>
-          <p className="mt-2 text-xs leading-5 text-amber-800">
+          <p className="mt-2 text-xs leading-5 text-warning-text">
             Cette proposition nécessite la validation d’un responsable.
             Enregistrer un brouillon ne déclenche aucune opération ERP.
           </p>
@@ -146,7 +146,7 @@ export function ActionReview({
           : 'La création de brouillons sera disponible après connexion de l’API d’action Django.'}
       </p>
       {saved && (
-        <p role="status" className="mt-3 text-xs font-medium text-emerald-700">
+        <p role="status" className="mt-3 text-xs font-medium text-success-text">
           Brouillon enregistré dans cette session · en attente de validation.
         </p>
       )}

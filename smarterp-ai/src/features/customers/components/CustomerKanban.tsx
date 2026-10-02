@@ -29,7 +29,7 @@ export function CustomerKanban({
   return (
     <section
       aria-label="Vue Kanban des clients"
-      className="customers-kanban-scroll border-t border-slate-100 bg-[#f6f8fc] p-4"
+      className="customers-kanban-scroll border-t border-slate-100 bg-[var(--surface-2)] p-4"
     >
       {groupCustomers(customers, groupBy).map((group) => (
         <div key={group.label} className="mb-4 last:mb-0">
@@ -46,7 +46,7 @@ export function CustomerKanban({
               <article
                 key={customer.id}
                 data-selected={selectedIds.includes(customer.id)}
-                className="customers-kanban-card rounded-md border border-slate-200 bg-white p-3.5"
+                className="customers-kanban-card rounded-md border border-slate-200 bg-surface p-3.5"
               >
                 <div className="flex items-start gap-2">
                   <Checkbox
@@ -55,13 +55,13 @@ export function CustomerKanban({
                     onChange={() => onSelect(customer.id)}
                     className="mt-1 size-3.5"
                   />
-                  <span className="customers-avatar bg-[#18263e] text-white">
+                  <span className="customers-avatar bg-[var(--primary)] text-white">
                     {customerInitials(customer.name)}
                   </span>
                   <div className="min-w-0 flex-1">
                     <Link
                       to={`/customers/${customer.id}`}
-                      className="text-[11px] font-semibold text-navy-950 hover:text-blue-600"
+                      className="text-[11px] font-semibold text-navy-950 hover:text-primary-text"
                     >
                       {customer.name}
                     </Link>
@@ -108,8 +108,8 @@ export function CustomerKanban({
                     <dd
                       className={`mt-1 text-[11px] font-semibold ${
                         customer.outstanding
-                          ? 'text-amber-700'
-                          : 'text-emerald-600'
+                          ? 'text-warning-text'
+                          : 'text-success-text'
                       }`}
                     >
                       {formatCurrency(customer.outstanding)}

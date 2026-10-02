@@ -19,7 +19,7 @@ export function CustomerSelector({ disabled, onChange }: { disabled: boolean; on
     <label htmlFor="quote-customer-search">Rechercher un client</label>
     <Input id="quote-customer-search" placeholder="Nom, référence, e-mail ou ville…" leadingIcon={<Search className="size-3.5" />}
       value={search} disabled={disabled || !canView} onChange={(event) => setSearch(event.target.value)} />
-    <label htmlFor="quote-customer" className="mt-3">Client <span className="text-rose-500">*</span></label>
+    <label htmlFor="quote-customer" className="mt-3">Client <span className="text-danger-text">*</span></label>
     <select id="quote-customer" value={customerId} disabled={disabled || !canView} aria-invalid={!!errors.customerId} aria-describedby="quote-customer-error"
       onChange={(event) => {
         const id = Number(event.target.value)
@@ -36,7 +36,7 @@ export function CustomerSelector({ disabled, onChange }: { disabled: boolean; on
     {query.isPending && <p role="status" className="quote-field-help">Chargement des clients…</p>}
     {query.isError && <p role="alert" className="quote-field-error">Impossible de charger les clients. <button type="button" disabled={query.isFetching} onClick={() => void query.refetch()} className="underline">Réessayer</button></p>}
     {(query.isForbidden || (query.data && !canView)) && <p className="quote-field-help">La sélection des clients nécessite la permission de consultation des clients.</p>}
-    {selected && <div className="quote-customer-card"><Building2 className="size-5 text-blue-500" /><div>
+    {selected && <div className="quote-customer-card"><Building2 className="size-5 text-primary-text" /><div>
       <strong>{selected.name}</strong><p>{selected.reference} · {selected.city}</p><p>{selected.email}</p>
     </div></div>}
     {canView && !filtered.length && <p className="quote-field-help">Aucun client trouvé.</p>}

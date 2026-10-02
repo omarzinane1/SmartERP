@@ -71,7 +71,7 @@ export function AlertsTable({
         </span>
       </div>
       <div
-        className="flex overflow-x-auto border-y border-slate-100 bg-[#fafbff] px-3"
+        className="flex overflow-x-auto border-y border-slate-100 bg-[var(--surface-1)] px-3"
         aria-label="Départements"
       >
         {['all', ...departments].map((department) => (
@@ -83,8 +83,8 @@ export function AlertsTable({
             className={cn(
               'shrink-0 border-b-2 px-2.5 py-2.5 text-[10px]',
               filters.department === department
-                ? 'border-blue-600 font-semibold text-blue-600'
-                : 'border-transparent text-slate-500 hover:text-blue-600',
+                ? 'border-ai-border font-semibold text-ai-text'
+                : 'border-transparent text-slate-500 hover:text-ai-text',
             )}
           >
             {department === 'all' ? 'Tous' : department}{' '}
@@ -170,7 +170,7 @@ export function AlertsTable({
             <button
               type="button"
               onClick={onLoadView}
-              className="text-[10px] text-blue-600"
+              className="text-[10px] text-ai-text"
             >
               Vue enregistrée
             </button>
@@ -265,7 +265,7 @@ export function AlertsTable({
                           event.stopPropagation()
                           onSelect(alert.id)
                         }}
-                        className="text-left font-semibold leading-4 text-[#2c456d] hover:text-blue-600"
+                        className="text-left font-semibold leading-4 text-[color:var(--text-primary)] hover:text-ai-text"
                       >
                         {alert.title}
                       </button>
@@ -299,8 +299,8 @@ export function AlertsTable({
                     <td
                       className={
                         alert.severity === 'opportunity'
-                          ? 'text-emerald-600'
-                          : 'text-rose-600'
+                          ? 'text-success-text'
+                          : 'text-danger-text'
                       }
                     >
                       {alert.deviation}
@@ -309,8 +309,8 @@ export function AlertsTable({
                       className={cn(
                         'font-mono',
                         alert.severity === 'opportunity'
-                          ? 'text-emerald-600'
-                          : 'text-rose-600',
+                          ? 'text-success-text'
+                          : 'text-danger-text',
                       )}
                     >
                       {alert.impact}
@@ -351,8 +351,8 @@ export function AlertsTable({
                         className={cn(
                           'rounded border px-2 py-1 text-[9px]',
                           selectedId === alert.id
-                            ? 'border-blue-600 bg-blue-600 text-white'
-                            : 'border-slate-200 bg-white text-slate-600',
+                            ? 'border-ai-border bg-ai-button text-white'
+                            : 'border-slate-200 bg-surface text-slate-600',
                         )}
                       >
                         {selectedId === alert.id ? 'Sélectionnée' : 'Examiner'}
@@ -389,9 +389,9 @@ export function AlertsTable({
           )}
         </div>
       )}
-      <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 bg-[#fafbff] px-3 py-2.5 text-[9px] text-slate-400">
+      <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 bg-[var(--surface-1)] px-3 py-2.5 text-[9px] text-slate-400">
         <span>
-          <span className="mr-1.5 inline-block size-1.5 rounded-full bg-emerald-400" />
+          <span className="mr-1.5 inline-block size-1.5 rounded-full bg-success" />
           Faits, analyses et prévisions identifiés séparément
         </span>
         <span>{alerts.length} alertes affichées</span>

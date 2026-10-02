@@ -53,10 +53,10 @@ export function LoginForm() {
     <div className="mx-auto w-full max-w-[420px]">
       <header className="mb-9">
         <div className="mb-5 flex items-center gap-2.5 text-[11px] font-semibold tracking-[0.17em] text-slate-500 uppercase">
-          <span aria-hidden="true" className="h-px w-6 bg-[#8797b4]" />
+          <span aria-hidden="true" className="h-px w-6 bg-[var(--primary-text)]" />
           Votre espace professionnel
         </div>
-        <h1 className="text-[28px] leading-tight font-semibold tracking-[-0.035em] text-[#172c50] sm:text-[32px]">
+        <h1 className="text-[28px] leading-tight font-semibold tracking-[-0.035em] text-[color:var(--text-primary)] sm:text-[32px]">
           Bon retour parmi nous
         </h1>
         <p className="mt-3 text-sm leading-6 text-slate-500">
@@ -77,7 +77,7 @@ export function LoginForm() {
           <div>
             <label
               htmlFor="login-email"
-              className="mb-2 block text-[13px] font-semibold text-[#34435d]"
+              className="mb-2 block text-[13px] font-semibold text-[color:var(--text-primary)]"
             >
               Adresse e-mail
             </label>
@@ -96,7 +96,7 @@ export function LoginForm() {
               {...register('email')}
             />
             {errors.email && (
-              <p id="login-email-error" role="alert" className="mt-2 text-xs text-red-600">
+              <p id="login-email-error" role="alert" className="mt-2 text-xs text-danger-text">
                 {errors.email.message}
               </p>
             )}
@@ -105,7 +105,7 @@ export function LoginForm() {
           <div>
             <label
               htmlFor="login-password"
-              className="mb-2 block text-[13px] font-semibold text-[#34435d]"
+              className="mb-2 block text-[13px] font-semibold text-[color:var(--text-primary)]"
             >
               Mot de passe
             </label>
@@ -120,7 +120,7 @@ export function LoginForm() {
               {...register('password')}
             />
             {errors.password && (
-              <p id="login-password-error" role="alert" className="mt-2 text-xs text-red-600">
+              <p id="login-password-error" role="alert" className="mt-2 text-xs text-danger-text">
                 {errors.password.message}
               </p>
             )}
@@ -130,7 +130,7 @@ export function LoginForm() {
         <div className="mt-5 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
           <label
             htmlFor="remember-email"
-            className="inline-flex cursor-pointer items-center gap-2 text-xs text-[#66748a]"
+            className="inline-flex cursor-pointer items-center gap-2 text-xs text-[color:var(--text-secondary)]"
           >
             <Checkbox
               id="remember-email"
@@ -145,7 +145,7 @@ export function LoginForm() {
             type="button"
             disabled={isPending}
             onClick={() => toast.info('Contactez votre administrateur pour réinitialiser votre mot de passe.')}
-            className="rounded-sm py-1 text-xs font-semibold text-[#304d79] underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:opacity-50"
+            className="rounded-sm py-1 text-xs font-semibold text-[color:var(--text-secondary)] underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-focus focus-visible:ring-offset-2 disabled:opacity-50"
           >
             Mot de passe oublié ?
           </button>
@@ -179,7 +179,7 @@ export function LoginForm() {
         </Button>
       </form>
 
-      <div className="mt-8 border-t border-[#edf0f5] pt-7 text-center">
+      <div className="mt-8 border-t border-[var(--border)] pt-7 text-center">
         <p className="text-xs text-slate-500">
           Votre espace de travail, en toute confiance.
         </p>

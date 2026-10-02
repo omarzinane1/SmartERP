@@ -47,7 +47,7 @@ export function QuotesPage() {
   }, [])
 
   if (isForbidden || (data && !data.permissions.includes('quotes.view'))) return <main className="dashboard-page quotes-page">
-    <div className="dashboard-card mx-auto mt-14 max-w-xl p-8 text-center"><ShieldAlert className="mx-auto size-9 text-amber-500" />
+    <div className="dashboard-card mx-auto mt-14 max-w-xl p-8 text-center"><ShieldAlert className="mx-auto size-9 text-warning-text" />
       <h1 className="mt-4 text-xl font-semibold">Accès non autorisé</h1><p className="mt-3 text-sm text-slate-500">Vous ne disposez pas des permissions nécessaires pour consulter les devis.</p></div>
   </main>
   if (isPending) return <main className="dashboard-page quotes-page" aria-busy="true"><h1 className="text-2xl font-semibold">Devis</h1>
@@ -152,7 +152,7 @@ export function QuotesPage() {
         <button type="button" aria-label="Effacer la sélection" onClick={() => setSelectedIds([])}><X /></button>
       </section>}
       {actionError && !sendTargets.length && <div className="px-4 py-2"><Alert variant="error">{actionError}</Alert></div>}
-      {busy && <p role="status" className="flex items-center gap-2 px-4 py-2 text-[11px] text-blue-600"><Spinner />{send.isPending ? 'Envoi en cours…' : 'Duplication en cours…'}</p>}
+      {busy && <p role="status" className="flex items-center gap-2 px-4 py-2 text-[11px] text-primary-text"><Spinner />{send.isPending ? 'Envoi en cours…' : 'Duplication en cours…'}</p>}
       {filtered.length === 0 ? <div role="status" className="px-4 py-16 text-center"><FileText className="mx-auto size-9 text-slate-300" />
         <h2 className="mt-4 text-sm font-semibold text-slate-600">{data.quotes.length === 0 ? 'Aucun devis pour le moment.' : 'Aucun devis ne correspond à vos critères.'}</h2>
         {data.quotes.length > 0 ? <Button className="quotes-button mt-4" variant="secondary" onClick={() => applyFilters({ ...defaultQuoteFilters, period: 'all' })}>Réinitialiser les filtres</Button>

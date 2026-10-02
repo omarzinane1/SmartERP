@@ -2,12 +2,12 @@ import type { ComponentProps } from 'react'
 import { cn } from '../../lib/cn'
 
 const tones = {
-  positive: 'border-emerald-100 bg-emerald-50 text-emerald-700',
-  warning: 'border-amber-100 bg-amber-50 text-amber-700',
-  critical: 'border-rose-100 bg-rose-50 text-rose-600',
-  neutral: 'border-slate-100 bg-slate-100 text-slate-500',
-  info: 'border-blue-100 bg-blue-50 text-blue-700',
-  indigo: 'border-indigo-100 bg-indigo-50 text-indigo-600',
+  positive: 'border-success-border bg-success-bg text-success-text',
+  warning: 'border-warning-border bg-warning-bg text-warning-text',
+  critical: 'border-danger-border bg-danger-bg text-danger-text',
+  neutral: 'border-neutral-border bg-neutral-bg text-neutral-text',
+  info: 'border-info-border bg-info-bg text-info-text',
+  indigo: 'border-primary-border bg-primary-soft text-primary-text',
 }
 
 export function Badge({

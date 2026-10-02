@@ -146,7 +146,7 @@ export function CustomersPage() {
     return (
       <main className="dashboard-page">
         <div className="dashboard-card mx-auto mt-14 max-w-xl p-8 text-center">
-          <ShieldAlert className="mx-auto size-9 text-amber-500" />
+          <ShieldAlert className="mx-auto size-9 text-warning-text" />
           <h1 className="mt-4 text-xl font-semibold text-navy-950">
             Accès non autorisé
           </h1>
@@ -395,7 +395,7 @@ export function CustomersPage() {
         <div className="text-[10px] sm:text-right">
           <p className="font-semibold text-slate-600">
             {formatNumber(active)} clients actifs{' '}
-            <span className="font-normal text-emerald-600">
+            <span className="font-normal text-success-text">
               · +{newThisMonth} nouveaux ce mois
             </span>
           </p>

@@ -182,16 +182,16 @@ export function ReviewStep({ onEdit }: { onEdit: (step: number) => void }) {
 
   return (
     <div>
-      <div className="mb-6 flex items-start gap-3 rounded-md border border-emerald-100 bg-emerald-50/70 p-4">
+      <div className="mb-6 flex items-start gap-3 rounded-md border border-success-border bg-success-bg/70 p-4">
         <CircleCheck
-          className="mt-0.5 size-5 shrink-0 text-emerald-600"
+          className="mt-0.5 size-5 shrink-0 text-success-text"
           aria-hidden="true"
         />
         <div>
-          <p className="text-xs font-semibold text-emerald-800">
+          <p className="text-xs font-semibold text-success-text">
             Tout est prêt pour la dernière étape
           </p>
-          <p className="mt-1 text-xs leading-5 text-emerald-700">
+          <p className="mt-1 text-xs leading-5 text-success-text">
             Vérifiez ces informations, puis cliquez sur « Terminer la
             configuration » pour les enregistrer.
           </p>
@@ -202,16 +202,16 @@ export function ReviewStep({ onEdit }: { onEdit: (step: number) => void }) {
           <section
             key={title}
             aria-label={`Résumé ${title}`}
-            className="min-w-0 rounded-lg border border-[#e4e9f2]"
+            className="min-w-0 rounded-lg border border-[var(--border)]"
           >
-            <div className="flex items-center justify-between gap-2 border-b border-[#edf0f5] bg-[#fafbfe] px-4 py-2.5">
+            <div className="flex items-center justify-between gap-2 border-b border-[var(--border)] bg-[var(--surface-1)] px-4 py-2.5">
               <h3 className="flex items-center gap-2 text-xs font-semibold text-navy-950">
                 <Icon className="size-4 text-slate-500" aria-hidden="true" />
                 {title}
               </h3>
               <Button
                 variant="ghost"
-                className="min-h-7 gap-1 px-2 text-[10px] text-blue-600"
+                className="min-h-7 gap-1 px-2 text-[10px] text-primary-text"
                 onClick={() => onEdit(index + 1)}
                 aria-label={`Modifier ${title}`}
               >

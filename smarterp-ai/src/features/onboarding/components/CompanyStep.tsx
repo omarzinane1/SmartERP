@@ -40,8 +40,8 @@ export function CompanyStep() {
 
   return (
     <div className="onboarding-fields">
-      <div className="mb-6 flex flex-wrap items-center gap-4 rounded-md border border-[#e4e9f2] bg-[#f8f9fd] p-4">
-        <div className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-md border border-slate-200 bg-white text-[#172c50]">
+      <div className="mb-6 flex flex-wrap items-center gap-4 rounded-md border border-[var(--border)] bg-[var(--surface-2)] p-4">
+        <div className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-md border border-slate-200 bg-surface text-[color:var(--text-primary)]">
           {logo ? (
             <img
               src={logo}
@@ -103,7 +103,7 @@ export function CompanyStep() {
         </div>
       </div>
       {logoError && (
-        <p role="alert" className="mb-4 text-xs text-red-600">
+        <p role="alert" className="mb-4 text-xs text-danger-text">
           {logoError}
         </p>
       )}

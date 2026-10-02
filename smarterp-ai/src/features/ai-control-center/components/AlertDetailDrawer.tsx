@@ -119,7 +119,7 @@ export function AlertDetailDrawer({
       role={mobile ? 'dialog' : 'complementary'}
       aria-modal={mobile || undefined}
       aria-labelledby="alert-detail-title"
-      className="acc-drawer dashboard-card min-w-0 border-blue-100 p-4 outline-none"
+      className="acc-drawer dashboard-card min-w-0 border-ai-border p-4 outline-none"
     >
       <header>
         <div className="flex flex-wrap items-center gap-1.5">
@@ -172,7 +172,7 @@ export function AlertDetailDrawer({
           </Button>
           <Button
             variant="secondary"
-            className="acc-button text-emerald-700"
+            className="acc-button text-success-text"
             onClick={onResolve}
             disabled={!isDemo || alert.status === 'resolved'}
           >
@@ -181,7 +181,7 @@ export function AlertDetailDrawer({
           </Button>
           <Button
             variant="secondary"
-            className="acc-button text-blue-600"
+            className="acc-button text-ai-text"
             onClick={() => {
               analysisRef.current?.scrollIntoView({
                 block: 'center',
@@ -236,7 +236,7 @@ export function AlertDetailDrawer({
       </header>
 
       <section
-        className="mt-4 rounded border border-slate-200 bg-[#fafbff] p-3"
+        className="mt-4 rounded border border-slate-200 bg-[var(--surface-1)] p-3"
         aria-labelledby="alert-facts-title"
       >
         <h3 id="alert-facts-title" className="acc-section-label text-slate-600">
@@ -264,16 +264,16 @@ export function AlertDetailDrawer({
       <div
         ref={analysisRef}
         tabIndex={-1}
-        className="mt-3 scroll-mt-20 rounded border border-indigo-200 bg-indigo-50/60 p-3 focus-visible:ring-2 focus-visible:ring-indigo-400"
+        className="mt-3 scroll-mt-20 rounded border border-ai-border bg-ai-soft/60 p-3 focus-visible:ring-2 focus-visible:ring-ai-border"
       >
-        <h3 className="acc-section-label flex items-center gap-1 text-indigo-600">
+        <h3 className="acc-section-label flex items-center gap-1 text-ai-text">
           <BrainCircuit className="size-3" />
           AI ANALYSIS · Diagnostic
         </h3>
         <p className="mt-2 text-[10px] leading-[1.7] text-slate-600">
           {alert.analysis}
         </p>
-        <p className="mt-2 text-[9px] font-medium text-indigo-600">
+        <p className="mt-2 text-[9px] font-medium text-ai-text">
           Confiance {alert.confidence} % · Hypothèse à vérifier
         </p>
       </div>
@@ -281,7 +281,7 @@ export function AlertDetailDrawer({
       <section className="mt-4" aria-label="Causes probables">
         <h3 className="acc-section-label">
           Causes probables hiérarchisées{' '}
-          <span className="font-normal text-indigo-500">· AI ANALYSIS</span>
+          <span className="font-normal text-ai-text">· AI ANALYSIS</span>
         </h3>
         <ol className="mt-2 space-y-2">
           {alert.causes.map((cause, index) => (
@@ -289,7 +289,7 @@ export function AlertDetailDrawer({
               key={cause.title}
               className="flex gap-2 rounded border border-slate-100 bg-slate-50/60 p-2.5"
             >
-              <span className="grid size-4 shrink-0 place-items-center rounded bg-indigo-100 text-[9px] text-indigo-600">
+              <span className="grid size-4 shrink-0 place-items-center rounded bg-ai-soft text-[9px] text-ai-text">
                 {index + 1}
               </span>
               <div>
@@ -304,16 +304,16 @@ export function AlertDetailDrawer({
       </section>
 
       <section className="mt-4" aria-label="Impact prévisionnel">
-        <h3 className="acc-section-label text-amber-700">
+        <h3 className="acc-section-label text-warning-text">
           FORECAST / ESTIMATE · Impact potentiel
         </h3>
-        <dl className="mt-2 grid grid-cols-2 gap-2 rounded border border-slate-200 bg-[#fafbff] p-3">
+        <dl className="mt-2 grid grid-cols-2 gap-2 rounded border border-slate-200 bg-[var(--surface-1)] p-3">
           {alert.estimates.map((estimate) => (
             <div key={estimate.label}>
               <dt className="text-[9px] leading-4 text-slate-400">
                 {estimate.label}
               </dt>
-              <dd className="mt-1 font-mono text-[11px] font-semibold text-rose-600">
+              <dd className="mt-1 font-mono text-[11px] font-semibold text-danger-text">
                 {estimate.value}
               </dd>
             </div>
@@ -322,7 +322,7 @@ export function AlertDetailDrawer({
       </section>
 
       <section className="mt-4" aria-label="Recommandations pour cette alerte">
-        <h3 className="acc-section-label text-emerald-700">
+        <h3 className="acc-section-label text-success-text">
           RECOMMENDATION · Actions proposées
         </h3>
         <ol className="mt-2 space-y-2">
@@ -331,7 +331,7 @@ export function AlertDetailDrawer({
               <button
                 type="button"
                 onClick={() => onReview(action)}
-                className="w-full rounded border border-blue-100 bg-blue-50/40 p-2.5 text-left hover:border-blue-300"
+                className="w-full rounded border border-ai-border bg-ai-soft/40 p-2.5 text-left hover:border-ai-border"
               >
                 <span className="block text-[10px] font-semibold">
                   {index + 1}. {action.title}
@@ -366,7 +366,7 @@ export function AlertDetailDrawer({
               key={item.id}
               aria-label={`Ouvrir ${item.id}`}
               onClick={() => setEvidence(item)}
-              className="rounded border border-slate-200 bg-slate-50 px-1.5 py-1 font-mono text-[9px] text-slate-600 hover:border-blue-300 hover:text-blue-600"
+              className="rounded border border-slate-200 bg-slate-50 px-1.5 py-1 font-mono text-[9px] text-slate-600 hover:border-ai-border hover:text-ai-text"
             >
               {item.id}
             </button>
@@ -375,7 +375,7 @@ export function AlertDetailDrawer({
         {evidence && (
           <div
             role="status"
-            className="mt-2 rounded border border-blue-100 bg-blue-50 p-3 text-[10px]"
+            className="mt-2 rounded border border-ai-border bg-ai-soft p-3 text-[10px]"
           >
             <p className="font-semibold">
               {evidence.kind} · {evidence.id}

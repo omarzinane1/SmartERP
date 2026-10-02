@@ -12,16 +12,16 @@
 .acc-select {
   min-width: 0;
   height: 32px;
-  border: 1px solid #e1e6f0;
+  border: 1px solid var(--input-border);
   border-radius: 4px;
   padding: 4px 7px;
-  background: #fafbff;
-  color: #536680;
+  background: var(--input-bg);
+  color: var(--input-text);
   font-family: inherit;
   font-size: 10px !important;
 }
 .acc-select:focus-visible {
-  outline: 2px solid #93c5fd;
+  outline: 2px solid var(--primary-focus);
   outline-offset: 2px;
 }
 .acc-health-grid {
@@ -46,16 +46,16 @@
 }
 .acc-drawer {
   scroll-margin-top: 78px;
-  box-shadow: 0 2px 4px #2447820a;
+  box-shadow: 0 2px 4px color-mix(in srgb, var(--shadow-color) 3.9%, transparent);
 }
 .acc-table-scroll {
   width: 100%;
   overflow-x: auto;
   scrollbar-width: thin;
-  scrollbar-color: #c5d1e4 #f6f8fd;
+  scrollbar-color: var(--border) var(--border);
 }
 .acc-table-scroll:focus-visible {
-  outline: 2px solid #93c5fd;
+  outline: 2px solid var(--primary-focus);
   outline-offset: -2px;
 }
 .acc-table {
@@ -66,8 +66,8 @@
 }
 .acc-table th {
   padding: 9px 8px;
-  background: #f3f6fc;
-  color: #8391a8;
+  background: var(--table-header-bg);
+  color: var(--table-header-text);
   text-align: left;
   font-size: 8px;
   font-weight: 600;
@@ -76,7 +76,7 @@
 }
 .acc-table td {
   padding: 11px 8px;
-  border-bottom: 1px solid #edf0f7;
+  border-bottom: 1px solid var(--table-row-border);
   line-height: 1.45;
 }
 .acc-table th:nth-child(3) {
@@ -89,16 +89,16 @@
   border-left: 2px solid transparent;
 }
 .acc-table tr[data-selected='true'] {
-  background: #edf3ff;
+  background: var(--table-row-selected);
 }
 .acc-table tr[data-selected='true'] td {
-  border-bottom-color: #d8e4fe;
+  border-bottom-color: var(--primary-border);
 }
 .acc-table tbody tr:hover {
-  background: #f3f6fe;
+  background: var(--table-row-hover);
 }
 .acc-table tr[data-selected='true'] td:first-child {
-  border-left-color: #3b73ed;
+  border-left-color: var(--primary-border);
 }
 .acc-table td button {
   font-size: 10px;
@@ -116,7 +116,7 @@
   font-weight: 600;
 }
 .acc-risk-dot:hover {
-  outline: 3px solid #ffffffcc;
+  outline: 3px solid color-mix(in srgb, var(--primary-focus) 80%, transparent);
 }
 .acc-review {
   max-height: calc(100svh - 32px);

@@ -80,11 +80,11 @@ export function CustomerDialog({
         event.preventDefault()
         onClose()
       }}
-      className="customers-dialog m-auto w-[calc(100%-32px)] max-w-lg rounded-lg border border-slate-200 bg-white p-6 text-slate-600 shadow-xl backdrop:bg-slate-950/30"
+      className="customers-dialog m-auto w-[calc(100%-32px)] max-w-lg rounded-lg border border-slate-200 bg-surface p-6 text-slate-600 shadow-xl backdrop:bg-slate-950/30"
     >
       <header className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-[9px] font-semibold uppercase tracking-wider text-blue-600">
+          <p className="text-[9px] font-semibold uppercase tracking-wider text-primary-text">
             Sales / CRM
           </p>
           <h2
@@ -103,7 +103,7 @@ export function CustomerDialog({
           <X className="size-5" />
         </button>
       </header>
-      {error && <p role="alert" className="mt-3 text-sm text-rose-600">{error}</p>}
+      {error && <p role="alert" className="mt-3 text-sm text-danger-text">{error}</p>}
       {editing ? (
         <form
           className="mt-5"
@@ -121,7 +121,7 @@ export function CustomerDialog({
         >
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="customers-filter-label sm:col-span-2">
-              Nom ou raison sociale <span className="text-rose-500">*</span>
+              Nom ou raison sociale <span className="text-danger-text">*</span>
               <Input
                 required
                 maxLength={120}
@@ -153,7 +153,7 @@ export function CustomerDialog({
               </select>
             </label>
             <label className="customers-filter-label">
-              Ville <span className="text-rose-500">*</span>
+              Ville <span className="text-danger-text">*</span>
               <Input
                 required
                 maxLength={60}
@@ -167,7 +167,7 @@ export function CustomerDialog({
               />
             </label>
             <label className="customers-filter-label">
-              E-mail <span className="text-rose-500">*</span>
+              E-mail <span className="text-danger-text">*</span>
               <Input
                 required
                 type="email"
@@ -250,7 +250,7 @@ export function CustomerDialog({
                 }}
                 className={`flex items-center gap-2 rounded border px-4 py-2 text-xs ${
                   format === value
-                    ? 'border-blue-300 bg-blue-50 text-blue-700'
+                    ? 'border-primary-border bg-primary-soft text-primary-text'
                     : 'border-slate-200'
                 }`}
               >

@@ -13,7 +13,7 @@ export function QuoteGeneralInformation({ quote, editable, busy, onCustomerChang
     <div className="quote-section-title"><SlidersHorizontal className="size-4" /><h2>Informations générales</h2><span>Client et conditions de l’offre</span></div>
     <fieldset disabled={!editable || busy} className="quote-general-grid">
       <div className="quote-general-customer">
-        {editable ? <CustomerSelector disabled={busy} onChange={onCustomerChange} /> : <div className="quote-customer-card"><Building2 className="size-5 text-blue-500" /><div>
+        {editable ? <CustomerSelector disabled={busy} onChange={onCustomerChange} /> : <div className="quote-customer-card"><Building2 className="size-5 text-primary-text" /><div>
           <strong>{quote?.customerName}</strong><p>CUS-{String(quote?.customerId).padStart(6, '0')}</p><p>{quote?.customerEmail}</p>
         </div></div>}
         <label htmlFor="quote-address" className="mt-4">Adresse de facturation</label>

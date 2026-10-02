@@ -77,7 +77,7 @@ export function CustomersFilters({
           <Filter className="size-3" />
           Filtres
           {chips.length > 0 && (
-            <span className="text-blue-600">({chips.length})</span>
+            <span className="text-primary-text">({chips.length})</span>
           )}
         </summary>
         <div className="customers-menu-panel w-64 space-y-3 p-3">
@@ -189,7 +189,7 @@ export function CustomersFilters({
         onClick={onSave}
         title="Enregistrer la vue pour cette session"
         aria-label="Enregistrer la vue"
-        className="rounded border border-slate-200 p-1.5 text-slate-400 hover:text-blue-600"
+        className="rounded border border-slate-200 p-1.5 text-slate-400 hover:text-primary-text"
       >
         <Bookmark className="size-3.5" />
       </button>
@@ -200,7 +200,7 @@ export function CustomersFilters({
             type="button"
             onClick={chip.clear}
             aria-label={`Retirer le filtre ${chip.label}`}
-            className="flex items-center gap-1 rounded border border-blue-100 bg-blue-50 px-2 py-1 text-[9px] text-blue-700"
+            className="flex items-center gap-1 rounded border border-primary-border bg-primary-soft px-2 py-1 text-[9px] text-primary-text"
           >
             {chip.label}
             <X className="size-2.5" />

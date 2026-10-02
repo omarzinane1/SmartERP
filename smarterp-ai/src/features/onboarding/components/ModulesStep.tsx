@@ -108,7 +108,7 @@ export function ModulesStep() {
           Un espace adapté à votre façon de travailler.
         </p>
         <span
-          className="rounded-md bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-700"
+          className="rounded-md bg-primary-soft px-2.5 py-1 text-[11px] font-semibold text-primary-text"
           aria-live="polite"
         >
           {selected.length} modules actifs
@@ -139,16 +139,16 @@ export function ModulesStep() {
                   ? 'cursor-not-allowed border-slate-100 bg-slate-50 opacity-60'
                   : active
                     ? ai
-                      ? 'border-indigo-200 bg-indigo-50/40'
-                      : 'border-blue-200 bg-blue-50/30'
-                    : 'border-slate-200 bg-white',
+                      ? 'border-primary-border bg-primary-soft/40'
+                      : 'border-primary-border bg-primary-soft/30'
+                    : 'border-slate-200 bg-surface',
               )}
             >
               <span
                 className={cn(
                   'mt-0.5 grid size-8 shrink-0 place-items-center rounded-md',
                   ai
-                    ? 'bg-indigo-100/70 text-indigo-600'
+                    ? 'bg-primary-soft/70 text-primary-text'
                     : 'bg-slate-100 text-slate-500',
                 )}
               >
@@ -166,8 +166,8 @@ export function ModulesStep() {
                     'mt-2 block text-[10px]',
                     active
                       ? ai
-                        ? 'text-indigo-600'
-                        : 'text-blue-600'
+                        ? 'text-primary-text'
+                        : 'text-primary-text'
                       : 'text-slate-400',
                   )}
                 >
@@ -195,7 +195,7 @@ export function ModulesStep() {
         })}
       </div>
       {errors.modules && (
-        <p role="alert" className="mt-4 text-xs text-red-600">
+        <p role="alert" className="mt-4 text-xs text-danger-text">
           {errors.modules.message}
         </p>
       )}

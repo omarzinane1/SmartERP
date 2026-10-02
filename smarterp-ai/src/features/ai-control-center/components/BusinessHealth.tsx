@@ -30,7 +30,7 @@ export function BusinessHealth({
       <article className="dashboard-card p-4">
         <div className="flex items-center justify-between gap-2">
           <h2 className="dashboard-title flex items-center gap-2">
-            <Hexagon className="size-4 text-blue-600" />
+            <Hexagon className="size-4 text-ai-text" />
             Business Health Score
           </h2>
           <Badge tone={tone}>{status}</Badge>
@@ -44,7 +44,7 @@ export function BusinessHealth({
           </p>
           <span
             className={`flex items-center gap-1 text-[10px] ${
-              health.trend < 0 ? 'text-rose-600' : 'text-emerald-600'
+              health.trend < 0 ? 'text-danger-text' : 'text-success-text'
             }`}
           >
             <ArrowUp
@@ -64,10 +64,10 @@ export function BusinessHealth({
           className="relative mt-1.5 flex h-1.5 gap-0.5"
           aria-label={`Score de santé : ${health.score} sur 100`}
         >
-          <span className="w-[40%] rounded-l bg-rose-200" />
-          <span className="w-[30%] bg-amber-200" />
-          <span className="w-[15%] bg-blue-500" />
-          <span className="w-[15%] rounded-r bg-emerald-200" />
+          <span className="w-[40%] rounded-l bg-danger-bg" />
+          <span className="w-[30%] bg-warning-bg" />
+          <span className="w-[15%] bg-ai-button" />
+          <span className="w-[15%] rounded-r bg-success-bg" />
           <span
             className="absolute -top-1 h-3.5 w-0.5 bg-navy-950"
             style={{ left: `${health.score}%` }}
@@ -78,7 +78,7 @@ export function BusinessHealth({
             Confiance :{' '}
             <strong className="text-slate-600">{health.confidence} %</strong>
           </span>
-          <span className="text-blue-600">
+          <span className="text-ai-text">
             {health.departments.length} flux analysés
           </span>
         </div>
@@ -100,10 +100,10 @@ export function BusinessHealth({
               <Icon
                 className={`size-3 ${
                   department.tone === 'critical'
-                    ? 'text-rose-500'
+                    ? 'text-danger-text'
                     : department.tone === 'warning'
-                    ? 'text-amber-500'
-                    : 'text-emerald-500'
+                    ? 'text-warning-text'
+                    : 'text-success-text'
                 }`}
               />
             </div>
@@ -116,7 +116,7 @@ export function BusinessHealth({
               </p>
               <p
                 className={`mt-2 text-[8px] ${
-                  department.trend < 0 ? 'text-rose-500' : 'text-emerald-600'
+                  department.trend < 0 ? 'text-danger-text' : 'text-success-text'
                 }`}
               >
                 {department.trend > 0 ? '+' : ''}

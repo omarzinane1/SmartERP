@@ -51,7 +51,7 @@ export function DashboardPage() {
             </div>
           ))}
         </div>
-        <div aria-hidden="true" className="dashboard-card mt-5 h-64 bg-white" />
+        <div aria-hidden="true" className="dashboard-card mt-5 h-64 bg-surface" />
       </main>
     )
 
@@ -129,7 +129,7 @@ export function DashboardPage() {
           </p>
           {isDemo && (
             <p className="mt-2 text-[9px] text-slate-400">
-              <span className="mr-1.5 inline-block size-1.5 rounded-full bg-blue-400" />
+              <span className="mr-1.5 inline-block size-1.5 rounded-full bg-primary" />
               Données de démonstration · {data.period.label}
             </p>
           )}
@@ -173,7 +173,7 @@ export function DashboardPage() {
           </div>
           <Link
             to="/ai/control-center"
-            className="inline-flex min-h-8 items-center gap-2 rounded border border-indigo-600 bg-indigo-600 px-3 text-[10px] font-medium text-white hover:bg-indigo-700 focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2"
+            className="inline-flex min-h-8 items-center gap-2 rounded border border-primary-border bg-primary px-3 text-[10px] font-medium text-white hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-primary-focus focus-visible:ring-offset-2"
           >
             <Sparkles className="size-3.5" aria-hidden="true" />
             Demander à SmartERP AI
@@ -202,7 +202,7 @@ export function DashboardPage() {
         <AttentionList alerts={data.alerts} currency={data.currency} />
         <DashboardTables data={data} />
       </div>
-      <footer className="mt-5 flex flex-wrap justify-between gap-2 border-t border-[#e4e9f2] pt-4 text-[9px] text-slate-400">
+      <footer className="mt-5 flex flex-wrap justify-between gap-2 border-t border-[var(--border)] pt-4 text-[9px] text-slate-400">
         <span>SmartERP AI · Votre activité, en perspective.</span>
         <span>
           {isDemo

@@ -71,7 +71,7 @@ export function InventoryHealth({
         ))}
       </ul>
       <div className="mt-auto pt-6">
-        <div className="flex flex-wrap justify-between gap-2 border-t border-[#edf0f6] pt-3 text-[9px]">
+        <div className="flex flex-wrap justify-between gap-2 border-t border-[var(--border)] pt-3 text-[9px]">
           <span className="text-slate-500">
             Rotation :{' '}
             <strong className="font-semibold text-slate-600">
@@ -80,7 +80,7 @@ export function InventoryHealth({
           </span>
           <button
             type="button"
-            className="text-blue-600 hover:underline"
+            className="text-primary-text hover:underline"
             onClick={() =>
               toast.info(
                 'Le suivi détaillé des stocks sera disponible avec le module Inventaire.',

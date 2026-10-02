@@ -24,7 +24,7 @@ export function Input({
       )}
       <input
         className={cn(
-          'h-12 w-full rounded-lg border border-[#dce2eb] bg-white px-3.5 text-sm text-slate-900 shadow-[0_1px_2px_rgb(15_23_42/0.025)] outline-none transition placeholder:text-slate-500 hover:border-slate-300 focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/10 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500 aria-invalid:border-red-400 aria-invalid:focus:ring-red-500/10 motion-reduce:transition-none',
+          'h-12 w-full rounded-lg border border-input-border bg-input px-3.5 text-sm text-input-text shadow-[0_1px_2px_color-mix(in_srgb,var(--shadow-color)_2.5%,transparent)] outline-none transition placeholder:text-placeholder hover:border-slate-300 focus:border-primary-border focus:ring-3 focus:ring-primary-focus/10 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500 aria-invalid:border-danger-border aria-invalid:focus:ring-danger-border/10 motion-reduce:transition-none',
           leadingIcon && 'pl-11',
           trailingContent && 'pr-12',
           className,

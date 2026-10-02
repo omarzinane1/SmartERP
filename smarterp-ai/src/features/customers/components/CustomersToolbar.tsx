@@ -121,7 +121,7 @@ export function CustomersToolbar({
           value={search}
           onChange={(event) => onSearch(event.target.value)}
           leadingIcon={<Search className="size-3.5" />}
-          className="h-8 rounded border-[#e1e7f2] pl-9 text-[10px] shadow-none"
+          className="h-8 rounded border-[var(--border)] pl-9 text-[10px] shadow-none"
         />
       </div>
       <div
@@ -135,7 +135,7 @@ export function CustomersToolbar({
           onClick={() => onView('list')}
           className={cn(
             'rounded px-2 py-1.5',
-            viewMode === 'list' ? 'bg-blue-50 text-blue-600' : 'text-slate-400',
+            viewMode === 'list' ? 'bg-primary-soft text-primary-text' : 'text-slate-400',
           )}
         >
           <List className="size-4" />
@@ -148,7 +148,7 @@ export function CustomersToolbar({
           className={cn(
             'rounded px-2 py-1.5',
             viewMode === 'kanban'
-              ? 'bg-blue-50 text-blue-600'
+              ? 'bg-primary-soft text-primary-text'
               : 'text-slate-400',
           )}
         >

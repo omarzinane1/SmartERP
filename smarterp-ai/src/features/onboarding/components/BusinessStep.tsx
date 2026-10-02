@@ -11,9 +11,9 @@ export function BusinessStep() {
   const error = errors.business
   return (
     <div className="onboarding-fields">
-      <div className="mb-6 flex items-center gap-3 rounded-md border border-blue-100 bg-blue-50/50 p-4">
+      <div className="mb-6 flex items-center gap-3 rounded-md border border-primary-border bg-primary-soft/50 p-4">
         <BriefcaseBusiness
-          className="size-5 shrink-0 text-blue-600"
+          className="size-5 shrink-0 text-primary-text"
           aria-hidden="true"
         />
         <p className="text-xs leading-5 text-slate-600">

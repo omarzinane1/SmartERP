@@ -28,11 +28,11 @@ export function ExecutiveSummary({
   return (
     <section
       aria-labelledby="executive-summary-title"
-      className="rounded-lg border border-indigo-100 bg-[#f3f5ff] p-4 sm:p-5"
+      className="rounded-lg border border-ai-border bg-[var(--surface-2)] p-4 sm:p-5"
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <span className="grid size-8 shrink-0 place-items-center rounded-md bg-[#325df1] text-white">
+          <span className="grid size-8 shrink-0 place-items-center rounded-md bg-ai-button text-white">
             <Lightbulb className="size-5" aria-hidden="true" />
           </span>
           <div>
@@ -61,47 +61,47 @@ export function ExecutiveSummary({
         </div>
         <Link
           to="/ai/control-center"
-          className="inline-flex min-h-7 items-center gap-1.5 rounded bg-blue-600 px-2.5 text-[9px] font-medium text-white hover:bg-blue-700 focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2"
+          className="inline-flex min-h-7 items-center gap-1.5 rounded bg-ai-button px-2.5 text-[9px] font-medium text-white hover:bg-ai-hover focus-visible:ring-2 focus-visible:ring-ai-border focus-visible:ring-offset-2"
         >
           Ouvrir AI Control Center
           <ArrowRight className="size-3" aria-hidden="true" />
         </Link>
       </div>
-      <div className="mt-4 rounded-md border border-indigo-100 bg-white/60 px-4 py-3 text-[11px] leading-6 text-[#485974]">
-        <span className="font-semibold text-blue-600">
+      <div className="mt-4 rounded-md border border-ai-border bg-surface/60 px-4 py-3 text-[11px] leading-6 text-[color:var(--text-secondary)]">
+        <span className="font-semibold text-ai-text">
           Synthèse automatique :{' '}
         </span>
         {summary.text}
       </div>
       <div className="mt-3 grid gap-3 lg:grid-cols-3">
-        <div className="rounded-md border-l-2 border-rose-400 bg-white p-3.5">
-          <h3 className="flex items-center gap-1.5 text-[10px] font-semibold text-rose-600 uppercase">
+        <div className="rounded-md border-l-2 border-danger-border bg-surface p-3.5">
+          <h3 className="flex items-center gap-1.5 text-[10px] font-semibold text-danger-text uppercase">
             <TriangleAlert className="size-3.5" aria-hidden="true" />
             Risques ({summary.risks.length})
           </h3>
-          <ul className="mt-2 space-y-2 pl-3 text-[10px] leading-4 text-slate-500 marker:text-rose-400 list-disc">
+          <ul className="mt-2 space-y-2 pl-3 text-[10px] leading-4 text-slate-500 marker:text-danger-text list-disc">
             {summary.risks.map((risk) => (
               <li key={risk}>{risk}</li>
             ))}
           </ul>
         </div>
-        <div className="rounded-md border-l-2 border-blue-500 bg-white p-3.5">
-          <h3 className="flex items-center gap-1.5 text-[10px] font-semibold text-blue-600 uppercase">
+        <div className="rounded-md border-l-2 border-ai-border bg-surface p-3.5">
+          <h3 className="flex items-center gap-1.5 text-[10px] font-semibold text-ai-text uppercase">
             <TrendingUp className="size-3.5" aria-hidden="true" />
             Opportunités
           </h3>
-          <ul className="mt-2 space-y-2 pl-3 text-[10px] leading-4 text-slate-500 marker:text-blue-400 list-disc">
+          <ul className="mt-2 space-y-2 pl-3 text-[10px] leading-4 text-slate-500 marker:text-ai-text list-disc">
             {summary.opportunities.map((opportunity) => (
               <li key={opportunity}>{opportunity}</li>
             ))}
           </ul>
         </div>
-        <div className="rounded-md border-l-2 border-indigo-500 bg-white p-3.5">
-          <h3 className="flex items-center gap-1.5 text-[10px] font-semibold text-indigo-600 uppercase">
+        <div className="rounded-md border-l-2 border-ai-border bg-surface p-3.5">
+          <h3 className="flex items-center gap-1.5 text-[10px] font-semibold text-ai-text uppercase">
             <ListChecks className="size-3.5" aria-hidden="true" />
             Recommandations
           </h3>
-          <ul className="mt-2 space-y-2 pl-3 text-[10px] leading-4 text-slate-500 marker:text-indigo-400 list-disc">
+          <ul className="mt-2 space-y-2 pl-3 text-[10px] leading-4 text-slate-500 marker:text-ai-text list-disc">
             {summary.recommendations.map((recommendation) => (
               <li key={recommendation}>{recommendation}</li>
             ))}

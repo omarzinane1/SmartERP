@@ -141,8 +141,8 @@ export function OnboardingPage() {
   ]
 
   return (
-    <div className="onboarding-page min-h-svh bg-[#f6f8fd] text-[#34435d]">
-      <header className="border-b border-[#e4e9f2] bg-white">
+    <div className="onboarding-page min-h-svh bg-[var(--surface-2)] text-[color:var(--text-primary)]">
+      <header className="border-b border-[var(--border)] bg-surface">
         <div className="mx-auto flex max-w-[1600px] flex-wrap items-center gap-x-6 gap-y-4 px-5 py-5 lg:flex-nowrap lg:px-8">
           <BrandLogo className="shrink-0 text-navy-950 [&>span:first-child]:size-9 [&>span:first-child]:rounded-lg [&>span:last-child]:text-lg" />
           <button type="button" className="text-xs text-slate-500" onClick={() => void signOut()}>Se déconnecter</button>
@@ -151,7 +151,7 @@ export function OnboardingPage() {
               <h1 className="text-sm font-semibold text-navy-950">
                 Configurer votre société
               </h1>
-              <span className="rounded bg-blue-50 px-1.5 py-0.5 text-[8px] font-semibold tracking-wider text-blue-600 uppercase">
+              <span className="rounded bg-primary-soft px-1.5 py-0.5 text-[8px] font-semibold tracking-wider text-primary-text uppercase">
                 Guide de démarrage
               </span>
             </div>
@@ -160,19 +160,19 @@ export function OnboardingPage() {
               utiliser SmartERP AI.
             </p>
           </div>
-          <div className="hidden max-w-44 items-center gap-2 rounded-md border border-blue-100 bg-[#f1f5fd] px-3 py-2.5 xl:flex">
+          <div className="hidden max-w-44 items-center gap-2 rounded-md border border-primary-border bg-[var(--surface-2)] px-3 py-2.5 xl:flex">
             <Building2
-              className="size-4 shrink-0 text-blue-600"
+              className="size-4 shrink-0 text-primary-text"
               aria-hidden="true"
             />
-            <span className="truncate text-[10px] font-semibold text-[#425575]">
+            <span className="truncate text-[10px] font-semibold text-[color:var(--text-secondary)]">
               {values.company?.name || 'Votre société'}
             </span>
           </div>
           <div className="w-full sm:w-48 lg:w-40">
             <div className="mb-2 flex justify-between text-[10px] font-medium">
               <span>Étape {currentStep} sur 7</span>
-              <span className="text-blue-600">{progress} %</span>
+              <span className="text-primary-text">{progress} %</span>
             </div>
             <div
               role="progressbar"
@@ -184,7 +184,7 @@ export function OnboardingPage() {
             >
               <div
                 style={{ width: `${progress}%` }}
-                className="h-full rounded-full bg-blue-600"
+                className="h-full rounded-full bg-primary"
               />
             </div>
           </div>
@@ -246,10 +246,10 @@ export function OnboardingPage() {
                 onStepChange={(number) => void goToStep(number)}
                 disabled={busy}
               />
-              <div className="hidden rounded-lg border border-[#e4e9f2] bg-white p-4 lg:block">
+              <div className="hidden rounded-lg border border-[var(--border)] bg-surface p-4 lg:block">
                 <p className="flex items-center gap-2 text-xs font-semibold text-navy-950">
                   <Headphones
-                    className="size-4 text-blue-600"
+                    className="size-4 text-primary-text"
                     aria-hidden="true"
                   />
                   Besoin d’un coup de main ?
@@ -260,7 +260,7 @@ export function OnboardingPage() {
                 </p>
                 <Button
                   variant="ghost"
-                  className="mt-2 min-h-7 gap-1.5 px-0 text-[10px] text-blue-600 hover:bg-transparent"
+                  className="mt-2 min-h-7 gap-1.5 px-0 text-[10px] text-primary-text hover:bg-transparent"
                   onClick={() =>
                     toast.info(
                       'Contactez votre administrateur pour obtenir de l’aide sur la configuration.',
@@ -275,12 +275,12 @@ export function OnboardingPage() {
             </aside>
             <section
               aria-labelledby="onboarding-step-title"
-              className="min-w-0 rounded-lg border border-[#e4e9f2] bg-white shadow-[0_2px_4px_#172c5002]"
+              className="min-w-0 rounded-lg border border-[var(--border)] bg-surface shadow-[0_2px_4px_color-mix(in_srgb,_var(--shadow-color)_0.8%,_transparent)]"
             >
-              <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[#edf0f5] px-5 py-5 sm:px-7">
+              <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[var(--border)] px-5 py-5 sm:px-7">
                 <div>
                   <div className="flex flex-wrap items-center gap-2.5">
-                    <span className="rounded bg-blue-50 px-2 py-1 text-[9px] font-semibold text-blue-600">
+                    <span className="rounded bg-primary-soft px-2 py-1 text-[9px] font-semibold text-primary-text">
                       Étape {currentStep}
                     </span>
                     <h2
@@ -296,7 +296,7 @@ export function OnboardingPage() {
                     {step.subtitle}
                   </p>
                 </div>
-                <span className="inline-flex items-center gap-1.5 rounded border border-emerald-100 bg-emerald-50 px-2 py-1 text-[9px] font-medium text-emerald-700">
+                <span className="inline-flex items-center gap-1.5 rounded border border-success-border bg-success-bg px-2 py-1 text-[9px] font-medium text-success-text">
                   <ShieldCheck className="size-3" aria-hidden="true" />
                   Configuration initiale
                 </span>
@@ -312,11 +312,11 @@ export function OnboardingPage() {
                   <ReviewStep onEdit={(number) => void goToStep(number)} />
                 )}
                 {currentStep === 1 && (
-                  <div className="mt-6 border-t border-[#edf0f5] pt-5">
+                  <div className="mt-6 border-t border-[var(--border)] pt-5">
                     <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                      <p className="flex items-center gap-1.5 text-[11px] font-semibold text-[#425575]">
+                      <p className="flex items-center gap-1.5 text-[11px] font-semibold text-[color:var(--text-secondary)]">
                         <Sparkles
-                          className="size-3.5 text-blue-500"
+                          className="size-3.5 text-primary-text"
                           aria-hidden="true"
                         />
                         Vos prochains paramètres
@@ -331,13 +331,13 @@ export function OnboardingPage() {
                           type="button"
                           key={preview.number}
                           onClick={() => void goToStep(preview.number)}
-                          className="min-w-0 rounded-md border border-[#e4e9f2] bg-[#f8f9fd] p-3 text-left outline-none hover:border-blue-200 focus-visible:ring-2 focus-visible:ring-blue-500"
+                          className="min-w-0 rounded-md border border-[var(--border)] bg-[var(--surface-2)] p-3 text-left outline-none hover:border-primary-border focus-visible:ring-2 focus-visible:ring-primary-focus"
                         >
                           <span className="flex items-center justify-between text-[9px] text-slate-500">
                             Étape {preview.number} · {preview.title}
                             <ArrowRight className="size-3" aria-hidden="true" />
                           </span>
-                          <span className="mt-1.5 block truncate text-[10px] font-semibold text-[#344c71]">
+                          <span className="mt-1.5 block truncate text-[10px] font-semibold text-[color:var(--text-primary)]">
                             {preview.value}
                           </span>
                           <span className="mt-1 block text-[9px] leading-4 text-slate-500">
@@ -357,7 +357,7 @@ export function OnboardingPage() {
             </section>
           </main>
 
-          <footer className="sticky bottom-0 z-10 border-t border-[#e4e9f2] bg-white/95 backdrop-blur-sm">
+          <footer className="sticky bottom-0 z-10 border-t border-[var(--border)] bg-surface/95 backdrop-blur-sm">
             <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-3 px-5 py-3.5 lg:px-8">
               <div
                 className="flex items-center gap-2 text-[10px] text-slate-500"
@@ -367,7 +367,7 @@ export function OnboardingPage() {
                   <Spinner className="size-3.5" />
                 ) : onboarding.isSuccess ? (
                   <Check
-                    className="size-3.5 text-emerald-600"
+                    className="size-3.5 text-success-text"
                     aria-hidden="true"
                   />
                 ) : (

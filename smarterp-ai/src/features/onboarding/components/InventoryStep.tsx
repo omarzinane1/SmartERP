@@ -16,9 +16,9 @@ export function InventoryStep() {
   const error = errors.inventory
   return (
     <div className="onboarding-fields">
-      <label className="mb-6 flex! cursor-pointer items-center gap-4 rounded-md border border-[#e4e9f2] bg-[#f8f9fd] p-5">
+      <label className="mb-6 flex! cursor-pointer items-center gap-4 rounded-md border border-[var(--border)] bg-[var(--surface-2)] p-5">
         <PackageCheck
-          className="size-6 shrink-0 text-blue-600"
+          className="size-6 shrink-0 text-primary-text"
           aria-hidden="true"
         />
         <span className="flex-1 text-slate-700!">

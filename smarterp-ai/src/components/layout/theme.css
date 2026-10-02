@@ -1,2 +1,423 @@
-html[data-theme=dark]{color-scheme:dark;--color-slate-950:#e8edf7;--color-slate-900:#e1e9f6;--color-slate-800:#d1dced;--color-slate-700:#bdcbe1;--color-slate-600:#aebfd8;--color-slate-500:#97a8c3;--color-slate-400:#8498b7;--color-slate-300:#455879;--color-slate-200:#314465;--color-slate-100:#223453;--color-slate-50:#1c2c46;--color-navy-950:#e1e9f7}
-html[data-theme=dark] .erp-shell{background:#101b2c;color:#c7d5e9}html[data-theme=dark] .erp-shell header.sticky,html[data-theme=dark] #app-sidebar{background:#17263b;border-color:#2c3d59}html[data-theme=dark] .erp-shell .business-card,html[data-theme=dark] .erp-shell .bg-white,html[data-theme=dark] dialog{background:#1a2940;color:#c7d5e9;border-color:#2c405e}html[data-theme=dark] .erp-shell h1,html[data-theme=dark] .erp-shell h2,html[data-theme=dark] .erp-shell h3,html[data-theme=dark] .erp-shell strong{color:#dce7f8}html[data-theme=dark] .erp-shell input,html[data-theme=dark] .erp-shell select,html[data-theme=dark] .erp-shell textarea,html[data-theme=dark] dialog input,html[data-theme=dark] dialog select,html[data-theme=dark] dialog textarea{background:#142238;color:#d1ddef;border-color:#3b4f71}html[data-theme=dark] .business-table th,html[data-theme=dark] .business-table td{border-color:#30415d;background:transparent;color:#bbcbe2}html[data-theme=dark] .business-table th{background:#203149}html[data-theme=dark] .config-save-bar,html[data-theme=dark] .config-security-secret,html[data-theme=dark] .intel-message.user,html[data-theme=dark] .intel-sources article,html[data-theme=dark] .intel-action{background:#243654;border-color:#3a4d70;color:#c4d4ed}html[data-theme=dark] .config-sidebar button[aria-current=true],html[data-theme=dark] .sidebar-link-active{background:#2b4268;color:#c6d8f7}html[data-theme=dark] .erp-shell p,html[data-theme=dark] .erp-shell small,html[data-theme=dark] .erp-shell label{color:#a1b4cf}html[data-theme=dark] .erp-shell .business-info,html[data-theme=dark] .erp-shell .ops-insight{background:#243653;color:#bfcfed}html[data-theme=dark] .intel-document-page{color:#26364e}html[data-theme=dark] .intel-document-page p,html[data-theme=dark] .intel-document-page h2{color:#26364e}
+/* SmartERP enterprise palette. All application colors live here. */
+:root {
+  color-scheme: light;
+  --primary: #714B67;
+  --primary-hover: #5F3F57;
+  --primary-active: #52364B;
+  --primary-soft: #F3EDF2;
+  --primary-text: #714B67;
+  --primary-border: #C4AFBE;
+  --primary-focus: #946387;
+  --on-primary: #FFFFFF;
+  --ai-primary: #7C5CFC;
+  --ai-hover: #6848EA;
+  --ai-button: #7353EE;
+  --ai-soft: #F1EEFF;
+  --ai-text: #6545CE;
+  --ai-border: #C9BDF3;
+  --bg-app: #F8F7F8;
+  --bg-sidebar: #F3F1F3;
+  --bg-topbar: #FFFFFF;
+  --surface-1: #FFFFFF;
+  --surface-2: #F3F1F3;
+  --surface-3: #EBE7EB;
+  --surface-hover: #EDE8ED;
+  --surface-selected: #EEE3EC;
+  --card-bg: #FFFFFF;
+  --card-border: #DDD8DC;
+  --card-hover: #F8F5F8;
+  --text-primary: #2F292E;
+  --text-secondary: #6F656C;
+  --text-muted: #70656D;
+  --text-disabled: #9C9299;
+  --border: #DDD8DC;
+  --border-strong: #B9AEB6;
+  --table-bg: #FFFFFF;
+  --table-border: #DDD8DC;
+  --table-header-bg: #F0ECF0;
+  --table-header-text: #6F626B;
+  --table-header-border: #D8CFD6;
+  --table-row-bg: #FFFFFF;
+  --table-row-hover: #F6F1F5;
+  --table-row-selected: #EFE2EC;
+  --table-row-border: #E4DEE3;
+  --success: #2E7D5B;
+  --success-bg: #EAF5EF;
+  --success-text: #276848;
+  --success-border: #B5D4C3;
+  --warning: #C18435;
+  --warning-bg: #FCF2E2;
+  --warning-text: #815716;
+  --warning-border: #DEC79E;
+  --danger: #C75555;
+  --danger-bg: #FBECEE;
+  --danger-text: #A53D46;
+  --danger-border: #E4B7BE;
+  --info: #567A9F;
+  --info-bg: #EAF0F6;
+  --info-text: #456480;
+  --info-border: #BACCDD;
+  --neutral-bg: #EEE9EE;
+  --neutral-text: #6D626A;
+  --neutral-border: #D6CDD4;
+  --sidebar-border: #DDD8DC;
+  --sidebar-text: #665B63;
+  --sidebar-muted: #766A73;
+  --sidebar-hover: #EAE3E9;
+  --sidebar-active-bg: #E7DAE3;
+  --sidebar-active-text: #57364E;
+  --sidebar-active-icon: #714B67;
+  --topbar-border: #DDD8DC;
+  --input-bg: #FFFFFF;
+  --input-border: #CFC4CD;
+  --input-text: #2F292E;
+  --input-placeholder: #796D76;
+  --input-focus: #946387;
+  --button-secondary-bg: #F3EFF3;
+  --button-secondary-border: #D2C8D0;
+  --button-secondary-text: #51464E;
+  --button-ghost-hover: #EDE7ED;
+  --popover-bg: #FFFFFF;
+  --popover-border: #D8CED6;
+  --modal-bg: #FFFFFF;
+  --modal-border: #D8CED6;
+  --overlay: #17151A99;
+  --shadow-color: #231B22;
+  --chart-aubergine: #714B67;
+  --chart-purple: #A78DAD;
+  --chart-green: #5D947A;
+  --chart-amber: #BE904D;
+  --chart-amber-soft: #D8B776;
+  --chart-teal: #5B9493;
+  --chart-red: #BD747B;
+  --chart-red-strong: #A75060;
+  --chart-neutral: #9B919A;
+  --brand-bg: #30212D;
+  --brand-glow: #5B3D53;
+  --brand-text: #FFFFFF;
+  --brand-secondary: #D8CDD5;
+  --brand-accent: #C9A8C0;
+  --brand-grid: #FFFFFF04;
+  --form-bg: var(--input-bg);
+  --form-border: var(--input-border);
+  --form-text: var(--input-text);
+  --form-placeholder: var(--input-placeholder);
+}
+
+/* Authentication follows the OS until an authenticated preference is available. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+  --primary-soft: #3B303A;
+  --primary-text: #D0A6C5;
+  --primary-border: #73596B;
+  --primary-focus: #B48BA9;
+  --ai-soft: #302744;
+  --ai-text: #BAAAFF;
+  --ai-border: #63528C;
+  --bg-app: #17151A;
+  --bg-sidebar: #211D23;
+  --bg-topbar: #1D1A20;
+  --surface-1: #242126;
+  --surface-2: #2B272D;
+  --surface-3: #332E35;
+  --surface-hover: #39333B;
+  --surface-selected: #433744;
+  --card-bg: #262227;
+  --card-border: #3A343B;
+  --card-hover: #2D282F;
+  --text-primary: #F4F1F3;
+  --text-secondary: #C7BEC5;
+  --text-muted: #AA9EA7;
+  --text-disabled: #6E656C;
+  --border: #3A343B;
+  --border-strong: #6F626C;
+  --table-bg: #242126;
+  --table-border: #3A343B;
+  --table-header-bg: #2D282F;
+  --table-header-text: #BFB5BC;
+  --table-header-border: #403941;
+  --table-row-bg: #242126;
+  --table-row-hover: #302A31;
+  --table-row-selected: #3B303A;
+  --table-row-border: #393239;
+  --success-bg: #18392E;
+  --success-text: #88D3AD;
+  --success-border: #35644F;
+  --warning-bg: #3D2E18;
+  --warning-text: #EFC27A;
+  --warning-border: #755630;
+  --danger-bg: #442324;
+  --danger-text: #F09A9A;
+  --danger-border: #824C51;
+  --info-bg: #202F3D;
+  --info-text: #9DBBD5;
+  --info-border: #455E76;
+  --neutral-bg: #343036;
+  --neutral-text: #B8AEB5;
+  --neutral-border: #50464E;
+  --sidebar-border: #383138;
+  --sidebar-text: #C4BBC2;
+  --sidebar-muted: #A89BA5;
+  --sidebar-hover: #302A31;
+  --sidebar-active-bg: #40343F;
+  --sidebar-active-text: #FFFFFF;
+  --sidebar-active-icon: #A67899;
+  --topbar-border: #373138;
+  --input-bg: #28242A;
+  --input-border: #655A64;
+  --input-text: #F1EDF0;
+  --input-placeholder: #AA9CA6;
+  --input-focus: #B48BA9;
+  --button-secondary-bg: #2E2930;
+  --button-secondary-border: #655A64;
+  --button-secondary-text: #D8D1D6;
+  --button-ghost-hover: #312B32;
+  --popover-bg: #2A262C;
+  --popover-border: #413A42;
+  --modal-bg: #262227;
+  --modal-border: #403940;
+  --overlay: #17151AB8;
+  --shadow-color: #110E12;
+  --chart-aubergine: #B483A5;
+  --chart-purple: #9987B0;
+  --chart-green: #79AD91;
+  --chart-amber: #C6A064;
+  --chart-amber-soft: #E0C18A;
+  --chart-teal: #77AAA7;
+  --chart-red: #CE8990;
+  --chart-red-strong: #BA6376;
+  --chart-neutral: #AAA0A8;
+  }
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --primary-soft: #3B303A;
+  --primary-text: #D0A6C5;
+  --primary-border: #73596B;
+  --primary-focus: #B48BA9;
+  --ai-soft: #302744;
+  --ai-text: #BAAAFF;
+  --ai-border: #63528C;
+  --bg-app: #17151A;
+  --bg-sidebar: #211D23;
+  --bg-topbar: #1D1A20;
+  --surface-1: #242126;
+  --surface-2: #2B272D;
+  --surface-3: #332E35;
+  --surface-hover: #39333B;
+  --surface-selected: #433744;
+  --card-bg: #262227;
+  --card-border: #3A343B;
+  --card-hover: #2D282F;
+  --text-primary: #F4F1F3;
+  --text-secondary: #C7BEC5;
+  --text-muted: #AA9EA7;
+  --text-disabled: #6E656C;
+  --border: #3A343B;
+  --border-strong: #6F626C;
+  --table-bg: #242126;
+  --table-border: #3A343B;
+  --table-header-bg: #2D282F;
+  --table-header-text: #BFB5BC;
+  --table-header-border: #403941;
+  --table-row-bg: #242126;
+  --table-row-hover: #302A31;
+  --table-row-selected: #3B303A;
+  --table-row-border: #393239;
+  --success-bg: #18392E;
+  --success-text: #88D3AD;
+  --success-border: #35644F;
+  --warning-bg: #3D2E18;
+  --warning-text: #EFC27A;
+  --warning-border: #755630;
+  --danger-bg: #442324;
+  --danger-text: #F09A9A;
+  --danger-border: #824C51;
+  --info-bg: #202F3D;
+  --info-text: #9DBBD5;
+  --info-border: #455E76;
+  --neutral-bg: #343036;
+  --neutral-text: #B8AEB5;
+  --neutral-border: #50464E;
+  --sidebar-border: #383138;
+  --sidebar-text: #C4BBC2;
+  --sidebar-muted: #A89BA5;
+  --sidebar-hover: #302A31;
+  --sidebar-active-bg: #40343F;
+  --sidebar-active-text: #FFFFFF;
+  --sidebar-active-icon: #A67899;
+  --topbar-border: #373138;
+  --input-bg: #28242A;
+  --input-border: #655A64;
+  --input-text: #F1EDF0;
+  --input-placeholder: #AA9CA6;
+  --input-focus: #B48BA9;
+  --button-secondary-bg: #2E2930;
+  --button-secondary-border: #655A64;
+  --button-secondary-text: #D8D1D6;
+  --button-ghost-hover: #312B32;
+  --popover-bg: #2A262C;
+  --popover-border: #413A42;
+  --modal-bg: #262227;
+  --modal-border: #403940;
+  --overlay: #17151AB8;
+  --shadow-color: #110E12;
+  --chart-aubergine: #B483A5;
+  --chart-purple: #9987B0;
+  --chart-green: #79AD91;
+  --chart-amber: #C6A064;
+  --chart-amber-soft: #E0C18A;
+  --chart-teal: #77AAA7;
+  --chart-red: #CE8990;
+  --chart-red-strong: #BA6376;
+  --chart-neutral: #AAA0A8;
+}
+
+@theme inline {
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-active: var(--primary-active);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-text: var(--primary-text);
+  --color-primary-border: var(--primary-border);
+  --color-primary-focus: var(--primary-focus);
+  --color-on-primary: var(--on-primary);
+  --color-surface: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-foreground: var(--text-primary);
+  --color-secondary: var(--text-secondary);
+  --color-muted: var(--text-muted);
+  --color-disabled: var(--text-disabled);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-app: var(--bg-app);
+  --color-overlay: var(--overlay);
+  --color-input: var(--input-bg);
+  --color-input-border: var(--input-border);
+  --color-input-text: var(--input-text);
+  --color-placeholder: var(--input-placeholder);
+  --color-button-secondary: var(--button-secondary-bg);
+  --color-button-secondary-border: var(--button-secondary-border);
+  --color-button-secondary-text: var(--button-secondary-text);
+  --color-ghost-hover: var(--button-ghost-hover);
+  --color-neutral-bg: var(--neutral-bg);
+  --color-neutral-text: var(--neutral-text);
+  --color-neutral-border: var(--neutral-border);
+  --color-success: var(--success);
+  --color-success-bg: var(--success-bg);
+  --color-success-text: var(--success-text);
+  --color-success-border: var(--success-border);
+  --color-warning: var(--warning);
+  --color-warning-bg: var(--warning-bg);
+  --color-warning-text: var(--warning-text);
+  --color-warning-border: var(--warning-border);
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
+  --color-danger-text: var(--danger-text);
+  --color-danger-border: var(--danger-border);
+  --color-info: var(--info);
+  --color-info-bg: var(--info-bg);
+  --color-info-text: var(--info-text);
+  --color-info-border: var(--info-border);
+  --color-ai-primary: var(--ai-primary);
+  --color-ai-button: var(--ai-button);
+  --color-ai-hover: var(--ai-hover);
+  --color-ai-soft: var(--ai-soft);
+  --color-ai-text: var(--ai-text);
+  --color-ai-border: var(--ai-border);
+  --color-chart-aubergine: var(--chart-aubergine);
+  --color-chart-purple: var(--chart-purple);
+  --color-chart-green: var(--chart-green);
+  --color-chart-amber: var(--chart-amber);
+  --color-chart-amber-soft: var(--chart-amber-soft);
+  --color-chart-teal: var(--chart-teal);
+  --color-chart-red: var(--chart-red);
+  --color-chart-red-strong: var(--chart-red-strong);
+  --color-chart-neutral: var(--chart-neutral);
+  --color-navy-950: var(--text-primary);
+  --color-slate-50: var(--surface-2);
+  --color-slate-100: var(--surface-3);
+  --color-slate-200: var(--border);
+  --color-slate-300: var(--border-strong);
+  --color-slate-400: var(--text-muted);
+  --color-slate-500: var(--text-muted);
+  --color-slate-600: var(--text-secondary);
+  --color-slate-700: var(--text-secondary);
+  --color-slate-800: var(--text-primary);
+  --color-slate-900: var(--text-primary);
+  --color-slate-950: var(--text-primary);
+}
+
+/* Shared color treatments; geometry and component structure stay in their existing styles. */
+html, .erp-shell { background-color: var(--bg-app); color: var(--text-primary); }
+.erp-shell header.sticky { background-color: var(--bg-topbar); border-color: var(--topbar-border); }
+#app-sidebar { background-color: var(--bg-sidebar); border-color: var(--sidebar-border); }
+#app-sidebar .sidebar-section-title { color: var(--sidebar-muted); }
+#app-sidebar .sidebar-link { color: var(--sidebar-text); }
+#app-sidebar .sidebar-link:hover { background-color: var(--sidebar-hover); }
+#app-sidebar .sidebar-link-active { background-color: var(--sidebar-active-bg); color: var(--sidebar-active-text); }
+#app-sidebar .sidebar-link-active svg { color: var(--sidebar-active-icon); }
+:where(input, select, textarea) { accent-color: var(--primary); caret-color: var(--text-primary); }
+:where(input:not([type=checkbox]):not([type=radio]), select, textarea) { background-color: var(--input-bg); color: var(--input-text); border-color: var(--input-border); }
+:where(input, textarea)::placeholder { color: var(--input-placeholder); }
+:where(input, select, textarea):focus { border-color: var(--input-focus); }
+:where(input, select, textarea)[aria-invalid=true] { border-color: var(--danger); }
+.erp-shell :is(.dashboard-card, .business-card, .ops-card, .customer-card, .quote-card, .sales-card, .invoice-card) { background-color: var(--card-bg); border-color: var(--card-border); }
+.erp-shell table { background-color: var(--table-bg); border-color: var(--table-border); }
+.erp-shell table th { background-color: var(--table-header-bg); color: var(--table-header-text); border-color: var(--table-header-border); }
+.erp-shell table td { border-color: var(--table-row-border); }
+.erp-shell table tbody tr { background-color: var(--table-row-bg); }
+.erp-shell table tbody tr:hover { background-color: var(--table-row-hover); }
+.erp-shell table tbody tr:is([data-selected=true], [aria-selected=true]) { background-color: var(--table-row-selected); }
+.erp-shell table td strong { color: var(--text-primary); }
+.erp-shell table td small { color: var(--text-muted); }
+.erp-shell table .group th { background-color: var(--surface-3); color: var(--text-secondary); }
+.erp-shell :is(.business-kpi, .ops-kpis, .invoice-kpi, .customer-kpi) strong { color: var(--text-primary); }
+.erp-shell :is(.business-kpi, .ops-kpis) small { color: var(--text-muted); }
+.erp-shell :is(.business-search, .ops-search), .erp-shell :is(.business-search, .ops-search) input { background-color: var(--input-bg); color: var(--input-text); border-color: var(--input-border); }
+:is(dialog, [role=dialog]) { background-color: var(--modal-bg); border-color: var(--modal-border); color: var(--text-secondary); }
+dialog::backdrop { background-color: var(--overlay); }
+#profile-menu, [role=listbox] { background-color: var(--popover-bg); border-color: var(--popover-border); color: var(--text-secondary); }
+.recharts-default-tooltip { background-color: var(--popover-bg) !important; border-color: var(--popover-border) !important; color: var(--text-primary) !important; }
+.recharts-tooltip-label { color: var(--text-primary); }
+.recharts-cartesian-axis-tick-value { fill: var(--text-muted); }
+.recharts-cartesian-grid line { stroke: var(--border); }
+.recharts-tooltip-cursor { fill: var(--surface-hover); }
+[data-sonner-toast] { background-color: var(--popover-bg) !important; color: var(--text-primary) !important; border-color: var(--popover-border) !important; }
+[data-sonner-toast] [data-description] { color: var(--text-secondary) !important; }
+
+.invoice-create-link:hover { background-color: var(--primary-hover); }
+.invoice-create-link:active { background-color: var(--primary-active); }
+:where(progress) { accent-color: var(--chart-teal); }
+.ops-capacity progress::-webkit-progress-value { background-color: var(--chart-teal); }
+.ops-capacity[data-level=warning] progress::-webkit-progress-value { background-color: var(--warning); }
+.ops-capacity[data-level=critical] progress::-webkit-progress-value { background-color: var(--danger); }
+
+.erp-shell table tbody tr:is([data-selected=true], [aria-selected=true]):hover { background-color: var(--table-row-selected); }
+
+/* Printed commercial documents retain dark ink on light paper in either UI theme. */
+@media print {
+  :is(.quote-preview, .invoice-preview) {
+    color-scheme: light;
+    --surface-1: #FFFFFF;
+    --surface-2: #F3F1F3;
+    --surface-3: #EBE7EB;
+    --surface-selected: #EEE3EC;
+    --text-primary: #2F292E;
+    --text-secondary: #6F656C;
+    --text-muted: #70656D;
+    --primary-text: #714B67;
+    --primary-soft: #F3EDF2;
+    --border: #DDD8DC;
+    --border-strong: #B9AEB6;
+    --table-bg: #FFFFFF;
+    --table-header-bg: #F0ECF0;
+    --table-header-text: #6F626B;
+    --table-row-bg: #FFFFFF;
+    --table-row-border: #E4DEE3;
+    --card-bg: #FFFFFF;
+    --modal-bg: #FFFFFF;
+  }
+}

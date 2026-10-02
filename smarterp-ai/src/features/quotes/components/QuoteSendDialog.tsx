@@ -20,7 +20,7 @@ export function QuoteSendDialog({ quotes, isDemo, sending, error, onClose, onCon
   return <dialog ref={ref} className="quotes-send-dialog" aria-labelledby="quote-send-title" aria-busy={sending}
     onCancel={(event) => { event.preventDefault(); if (!sending) onClose() }}>
     <header className="flex items-start gap-3">
-      <span className="rounded bg-blue-50 p-2 text-blue-600"><Mail className="size-4" /></span>
+      <span className="rounded bg-primary-soft p-2 text-primary-text"><Mail className="size-4" /></span>
       <div className="flex-1"><h2 id="quote-send-title" className="text-sm font-semibold text-navy-950">
         {quotes.length === 1 ? `Envoyer le devis ${quotes[0].reference} ?` : `Envoyer ${quotes.length} devis ?`}
       </h2><p className="mt-1 text-[11px] text-slate-500">Vérifiez les devis avant de confirmer.</p></div>
@@ -36,7 +36,7 @@ export function QuoteSendDialog({ quotes, isDemo, sending, error, onClose, onCon
     <p className="text-[11px] leading-relaxed text-slate-500">{isDemo
       ? 'Mode démonstration : seul le statut local sera mis à jour. Aucun e-mail ne sera envoyé.'
       : 'Le devis sera marqué comme envoyé. Cette action enregistre un envoi effectué séparément ; elle ne transmet pas d’e-mail.'}</p>
-    {error && <p role="alert" className="mt-3 text-xs text-rose-600">{error}</p>}
+    {error && <p role="alert" className="mt-3 text-xs text-danger-text">{error}</p>}
     <footer className="mt-5 flex justify-end gap-2">
       <Button className="quotes-button" variant="secondary" disabled={sending} onClick={onClose}>Annuler</Button>
       <Button className="quotes-button quotes-primary" disabled={sending} onClick={onConfirm}>{sending ? <Spinner /> : <Send className="size-3.5" />}

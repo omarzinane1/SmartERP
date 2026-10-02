@@ -32,33 +32,33 @@ export function CashFlowChart({
             Historique et projection à 30 jours
           </p>
         </div>
-        <Landmark className="size-4 text-blue-500" aria-hidden="true" />
+        <Landmark className="size-4 text-primary-text" aria-hidden="true" />
       </div>
       <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-        <div className="rounded bg-blue-50 p-2.5">
+        <div className="rounded bg-primary-soft p-2.5">
           <p className="text-[8px] text-slate-500 uppercase">Cash actuel</p>
-          <p className="mt-1 font-mono text-[10px] font-semibold text-blue-700">
+          <p className="mt-1 font-mono text-[10px] font-semibold text-primary-text">
             {formatNumber(data.current)}
           </p>
         </div>
-        <div className="rounded bg-emerald-50 p-2.5">
-          <p className="text-[8px] text-emerald-600 uppercase">
+        <div className="rounded bg-success-bg p-2.5">
+          <p className="text-[8px] text-success-text uppercase">
             Entrées prévues
           </p>
-          <p className="mt-1 font-mono text-[10px] font-semibold text-emerald-700">
+          <p className="mt-1 font-mono text-[10px] font-semibold text-success-text">
             +{formatNumber(data.inflows)}
           </p>
         </div>
-        <div className="rounded bg-rose-50 p-2.5">
-          <p className="text-[8px] text-rose-500 uppercase">Sorties prévues</p>
-          <p className="mt-1 font-mono text-[10px] font-semibold text-rose-600">
+        <div className="rounded bg-danger-bg p-2.5">
+          <p className="text-[8px] text-danger-text uppercase">Sorties prévues</p>
+          <p className="mt-1 font-mono text-[10px] font-semibold text-danger-text">
             −{formatNumber(data.outflows)}
           </p>
         </div>
       </div>
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[10px]">
         <Badge tone="indigo">Prévision à J+30</Badge>
-        <span className="font-mono font-semibold text-emerald-600">
+        <span className="font-mono font-semibold text-success-text">
           {formatCurrency(data.projected, currency)}
         </span>
       </div>
@@ -82,14 +82,14 @@ export function CashFlowChart({
               dataKey="date"
               axisLine={false}
               tickLine={false}
-              tick={{ fontSize: 8, fill: '#8b9ab1' }}
+              tick={{ fontSize: 8, fill: 'var(--text-muted)' }}
               interval="preserveStartEnd"
               minTickGap={12}
             />
             <YAxis hide domain={['dataMin - 30000', 'dataMax + 10000']} />
             <Tooltip
               contentStyle={{
-                border: '1px solid #e3e9f3',
+                border: '1px solid var(--border)',
                 borderRadius: 6,
                 fontSize: 10,
               }}
@@ -102,7 +102,7 @@ export function CashFlowChart({
               name="Réalisé"
               type="monotone"
               dataKey="actual"
-              stroke="#1760e8"
+              stroke="var(--chart-aubergine)"
               strokeWidth={2.5}
               dot={false}
               isAnimationActive={false}
@@ -111,7 +111,7 @@ export function CashFlowChart({
               name="Prévision"
               type="monotone"
               dataKey="forecast"
-              stroke="#818cf8"
+              stroke="var(--chart-purple)"
               strokeWidth={2.5}
               strokeDasharray="5 4"
               dot={false}
@@ -120,18 +120,18 @@ export function CashFlowChart({
           </LineChart>
         </ResponsiveContainer>
       </div>
-      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#edf0f6] pt-3 text-[9px]">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--border)] pt-3 text-[9px]">
         <div className="flex gap-3 text-slate-500">
           <span className="flex items-center gap-1">
-            <span className="h-0.5 w-4 bg-blue-600" />
+            <span className="h-0.5 w-4 bg-primary" />
             Réalisé
           </span>
           <span className="flex items-center gap-1">
-            <span className="w-4 border-t-2 border-dashed border-indigo-400" />
+            <span className="w-4 border-t-2 border-dashed border-primary-border" />
             Prévision
           </span>
         </div>
-        <span className="text-emerald-600">{data.status}</span>
+        <span className="text-success-text">{data.status}</span>
       </div>
     </section>
   )
@@ -179,14 +179,14 @@ export function ReceivablesCard({
           </div>
         ))}
       </div>
-      <p className="mt-4 flex flex-wrap justify-between gap-1 border-t border-[#edf0f6] pt-3 text-[9px] text-slate-500">
+      <p className="mt-4 flex flex-wrap justify-between gap-1 border-t border-[var(--border)] pt-3 text-[9px] text-slate-500">
         <span>
           Délai moyen :{' '}
           <strong className="font-semibold text-slate-600">
             {data.dso} jours
           </strong>
         </span>
-        <span className="text-rose-500">
+        <span className="text-danger-text">
           {data.overdueCount} factures à relancer
         </span>
       </p>

@@ -41,7 +41,7 @@ export function LineItemsEditor({ products, disabled }: { products: QuoteProduct
           })}</tbody>
         </table>
       </div>
-      <div className="quote-lines-footer"><Button variant="ghost" className="quotes-button text-blue-600" disabled={disabled || fields.length >= 100} onClick={() => append(newQuoteLine())}><Plus className="size-3.5" />Ajouter une ligne</Button>
+      <div className="quote-lines-footer"><Button variant="ghost" className="quotes-button text-primary-text" disabled={disabled || fields.length >= 100} onClick={() => append(newQuoteLine())}><Plus className="size-3.5" />Ajouter une ligne</Button>
         <span>Prix en MAD · TVA définie par produit ou saisie manuellement</span></div>
     </fieldset>
     <p role={errors.lines?.root || errors.lines?.message ? 'alert' : undefined} className="quote-field-error px-4 pb-2">{errors.lines?.root?.message ?? errors.lines?.message}</p>

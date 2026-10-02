@@ -16,7 +16,7 @@ export function ForecastRisks({
         id="forecast-title"
         className="dashboard-title flex items-center gap-2"
       >
-        <TrendingUp className="size-3.5 text-blue-600" />
+        <TrendingUp className="size-3.5 text-ai-text" />
         Risques prévisionnels
         <Badge tone="info" className="ml-auto text-[8px]">
           7–30 jours
@@ -29,7 +29,7 @@ export function ForecastRisks({
         {forecasts.map((forecast) => (
           <article
             key={forecast.id}
-            className="rounded border border-slate-200 bg-[#f9faff] p-2.5"
+            className="rounded border border-slate-200 bg-[var(--surface-1)] p-2.5"
           >
             <div className="flex items-start justify-between gap-2">
               <div>
@@ -47,7 +47,7 @@ export function ForecastRisks({
                 {forecast.confidence} %
               </Badge>
             </div>
-            <p className="mt-1 text-[7px] font-medium tracking-wide text-indigo-500">
+            <p className="mt-1 text-[7px] font-medium tracking-wide text-ai-text">
               FORECAST
             </p>
             {expanded && (
@@ -62,7 +62,7 @@ export function ForecastRisks({
         type="button"
         onClick={() => setExpanded(!expanded)}
         aria-expanded={expanded}
-        className="mt-3 flex w-full items-center justify-center gap-1 rounded border border-blue-100 bg-blue-50/40 py-2 text-[10px] font-medium text-blue-600"
+        className="mt-3 flex w-full items-center justify-center gap-1 rounded border border-ai-border bg-ai-soft/40 py-2 text-[10px] font-medium text-ai-text"
       >
         {expanded
           ? 'Masquer les hypothèses'

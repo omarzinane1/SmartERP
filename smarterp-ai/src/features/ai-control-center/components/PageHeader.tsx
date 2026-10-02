@@ -49,7 +49,7 @@ export function PageHeader({
               AI Control Center
             </h1>
             <Badge tone="info">
-              <span className="size-1.5 rounded-full bg-blue-500" />
+              <span className="size-1.5 rounded-full bg-ai-button" />
               {isDemo ? 'Modèle privé local · Démo' : 'Analyse ERP'}
             </Badge>
           </div>
@@ -76,7 +76,7 @@ export function PageHeader({
             Exporter
           </Button>
           <Button
-            className="acc-button bg-blue-600 hover:bg-blue-700"
+            className="acc-button bg-ai-button hover:bg-ai-hover"
             onClick={() => {
               const summary = document.getElementById('ai-summary')
               summary?.scrollIntoView({ behavior: 'smooth', block: 'center' })

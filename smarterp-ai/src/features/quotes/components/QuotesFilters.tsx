@@ -48,12 +48,12 @@ export function QuotesFilters({ filters, group, view, quotes, currentSalesperson
         </select>
       </label>
       <details className="quotes-menu">
-        <summary className="quotes-menu-trigger text-amber-700"><Star className="size-3" />Favoris<ChevronDown className="size-3" /></summary>
+        <summary className="quotes-menu-trigger text-warning-text"><Star className="size-3" />Favoris<ChevronDown className="size-3" /></summary>
         <div className="quotes-menu-panel">
           {favorites.map((favorite) => <button key={favorite.label} type="button" onClick={(event) => {
             onChange({ ...defaultQuoteFilters, period: filters.period, ...favorite.filters })
             event.currentTarget.closest('details')?.removeAttribute('open')
-          }}><Star className="size-3 text-amber-500" />{favorite.label}</button>)}
+          }}><Star className="size-3 text-warning-text" />{favorite.label}</button>)}
         </div>
       </details>
       <div className="quotes-quick-filters" role="group" aria-label="Filtres rapides">
@@ -69,7 +69,7 @@ export function QuotesFilters({ filters, group, view, quotes, currentSalesperson
       {chips.map((chip) => <button className="quotes-filter-chip" type="button" key={chip.label} onClick={() => onChange(chip.reset)} aria-label={`Retirer ${chip.label}`}>
         {chip.label}<X className="size-3 shrink-0" />
       </button>)}
-      <button className="ml-1 text-slate-500 hover:text-blue-600" type="button" onClick={onReset}>Effacer tous les filtres</button>
+      <button className="ml-1 text-slate-500 hover:text-primary-text" type="button" onClick={onReset}>Effacer tous les filtres</button>
     </div>}
   </div>
 }

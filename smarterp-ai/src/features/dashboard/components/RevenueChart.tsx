@@ -58,7 +58,7 @@ export function RevenueChart({
           </p>
         </div>
         <div
-          className="flex rounded border border-[#e1e8f6] bg-[#eef3fc] p-0.5"
+          className="flex rounded border border-[var(--border)] bg-[var(--surface-2)] p-0.5"
           role="group"
           aria-label="Indicateur du graphique"
         >
@@ -71,8 +71,8 @@ export function RevenueChart({
               className={cn(
                 'rounded px-2 py-1 text-[9px] font-medium',
                 metric === key
-                  ? 'bg-white text-[#294570] shadow-sm'
-                  : 'text-slate-500 hover:bg-white/50',
+                  ? 'bg-surface text-[color:var(--text-primary)] shadow-sm'
+                  : 'text-slate-500 hover:bg-surface/50',
               )}
             >
               {metrics[key].label}
@@ -100,22 +100,22 @@ export function RevenueChart({
           >
             <CartesianGrid
               vertical={false}
-              stroke="#eef2f8"
+              stroke="var(--border)"
               strokeDasharray="3 4"
             />
             <XAxis
               dataKey="month"
               axisLine={false}
               tickLine={false}
-              tick={{ fontSize: 9, fill: '#7b8ba5' }}
+              tick={{ fontSize: 9, fill: 'var(--text-muted)' }}
               interval={0}
               tickMargin={9}
             />
             <YAxis hide domain={metric === 'margin' ? [0, 40] : [0, 'auto']} />
             <Tooltip
-              cursor={{ fill: '#f4f7fe' }}
+              cursor={{ fill: 'var(--chart-purple)' }}
               contentStyle={{
-                border: '1px solid #e3e9f3',
+                border: '1px solid var(--border)',
                 borderRadius: 6,
                 fontSize: 11,
               }}
@@ -127,7 +127,7 @@ export function RevenueChart({
             <Bar
               dataKey={selected.previous}
               name={`Année précédente (${period.previousYear})`}
-              fill="#b5c6ff"
+              fill="var(--chart-purple)"
               radius={[2, 2, 0, 0]}
               maxBarSize={12}
               isAnimationActive={false}
@@ -135,7 +135,7 @@ export function RevenueChart({
             <Bar
               dataKey={metric}
               name={`Année courante (${period.currentYear})`}
-              fill="#1760e8"
+              fill="var(--chart-aubergine)"
               radius={[2, 2, 0, 0]}
               maxBarSize={12}
               isAnimationActive={false}
@@ -143,14 +143,14 @@ export function RevenueChart({
           </BarChart>
         </ResponsiveContainer>
       </div>
-      <div className="mt-3 flex flex-wrap justify-between gap-x-3 gap-y-2 border-t border-[#edf0f6] pt-3 text-[9px] text-slate-500">
+      <div className="mt-3 flex flex-wrap justify-between gap-x-3 gap-y-2 border-t border-[var(--border)] pt-3 text-[9px] text-slate-500">
         <span className="flex items-center gap-1.5">
-          <span className="size-2 rounded-sm bg-blue-600" />
+          <span className="size-2 rounded-sm bg-primary" />
           {period.currentYear} ·{' '}
           {lastPoint ? formatValue(lastPoint[metric]) : '—'}
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="size-2 rounded-sm bg-[#b5c6ff]" />
+          <span className="size-2 rounded-sm bg-[var(--primary-soft)]" />
           {period.previousYear} ·{' '}
           {lastPoint ? formatValue(lastPoint[selected.previous]) : '—'}
         </span>
@@ -188,7 +188,7 @@ export function RevenueBreakdown({
       <dl className="mt-7 space-y-4 text-[10px]">
         <div className="flex items-center justify-between gap-2">
           <dt className="flex items-center gap-1.5 text-slate-500">
-            <span className="size-1.5 rounded-full bg-blue-600" />
+            <span className="size-1.5 rounded-full bg-primary" />
             Revenus bruts
           </dt>
           <dd className="font-mono font-semibold text-navy-950">
@@ -226,32 +226,32 @@ export function RevenueBreakdown({
             <Bar
               dataKey="expenses"
               stackId="total"
-              fill="#1760e8"
+              fill="var(--chart-aubergine)"
               isAnimationActive={false}
             />
             <Bar
               dataKey="grossProfit"
               stackId="total"
-              fill="#10b981"
+              fill="var(--chart-green)"
               isAnimationActive={false}
             />
           </BarChart>
         </ResponsiveContainer>
       </div>
-      <div className="flex flex-wrap justify-between gap-2 border-t border-[#edf0f6] pt-3 text-[11px] font-semibold">
+      <div className="flex flex-wrap justify-between gap-2 border-t border-[var(--border)] pt-3 text-[11px] font-semibold">
         <span>Bénéfice brut</span>
-        <span className="font-mono text-emerald-600">
+        <span className="font-mono text-success-text">
           {formatCurrency(data.grossProfit, currency)}
         </span>
       </div>
       <div className="mt-auto pt-5">
-        <div className="flex gap-2 rounded bg-[#f1f5ff] p-3">
+        <div className="flex gap-2 rounded bg-[var(--surface-2)] p-3">
           <Lightbulb
-            className="mt-0.5 size-4 shrink-0 text-blue-500"
+            className="mt-0.5 size-4 shrink-0 text-primary-text"
             aria-hidden="true"
           />
           <div>
-            <p className="text-[8px] font-semibold tracking-wide text-indigo-500 uppercase">
+            <p className="text-[8px] font-semibold tracking-wide text-primary-text uppercase">
               Recommandation IA
             </p>
             <p className="mt-1 text-[10px] leading-4 text-slate-500">
