@@ -12,6 +12,7 @@ from .models import (
 
 @transaction.atomic
 def complete_onboarding(*, company, membership, data):
+    from apps.accounts.services import sync_system_role_permissions
     # Serializes concurrent onboarding requests for this company.
     company = Company.objects.select_for_update().get(pk=company.pk)
     if not company.is_active or not Membership.objects.filter(
@@ -21,6 +22,7 @@ def complete_onboarding(*, company, membership, data):
         raise PermissionDenied("Aucun contexte de société actif.")
     if company.onboarding_completed:
         raise OnboardingAlreadyCompleted()
+    sync_system_role_permissions(company=company)
 
     inventory = dict(data["inventory"])
     if inventory["enabled"] and Warehouse.objects.filter(

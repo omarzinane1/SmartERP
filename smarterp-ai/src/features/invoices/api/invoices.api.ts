@@ -1,5 +1,6 @@
 import { env } from '../../../config/env'
 import { apiClient } from '../../../lib/axios'
+import { getCollection } from '../../../lib/collectionApi'
 import { getInvoiceInsightMock, getInvoiceMock, getInvoicesAgingMock, getInvoicesMock, invoiceActionMock, saveInvoiceMock } from '../data/invoices.mock'
 import type { AgingBucket, InvoiceAction, InvoiceDetail, InvoiceInput, InvoicePaymentInput, InvoicesData } from '../types/invoices.types'
 
@@ -9,7 +10,7 @@ const capabilities = { canEdit: false, canPost: false, canSend: false, canPay: f
 function fromAPI(invoice: InvoiceDetail): InvoiceDetail { return { ...invoice, capabilities: { ...capabilities, ...invoice.capabilities } } }
 export async function getInvoices(scope: string, signal?: AbortSignal): Promise<InvoicesData> {
   if (env.invoicesUseMock) return getInvoicesMock(scope)
-  const { data } = await apiClient.get<InvoicesData>(INVOICES_ENDPOINT, { signal })
+  const data = await getCollection<InvoicesData, 'invoices'>(INVOICES_ENDPOINT, 'invoices', signal)
   return { ...data, invoices: data.invoices.map((invoice) => ({ ...invoice, capabilities: { ...capabilities, ...invoice.capabilities } })) }
 }
 export async function getInvoicesAging(scope: string, signal?: AbortSignal): Promise<AgingBucket[]> {

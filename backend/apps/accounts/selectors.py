@@ -1,4 +1,12 @@
-from .models import Permission, Role
+from .models import Membership, MembershipStatus, Permission, Role
+
+
+def membership_is_active(*, membership):
+    return membership is not None and Membership.objects.filter(
+        pk=membership.pk, company_id=membership.company_id,
+        user_id=membership.user_id, status=MembershipStatus.ACTIVE,
+        user__is_active=True, company__is_active=True,
+    ).exists()
 
 
 def get_membership_roles(*, membership):
@@ -6,6 +14,8 @@ def get_membership_roles(*, membership):
     Return all active roles assigned to a membership.
     """
 
+    if not membership_is_active(membership=membership):
+        return Role.objects.none()
     return (
         Role.objects
         .filter(
@@ -39,6 +49,8 @@ def get_effective_permission_codes(*, membership):
     granted through the membership's active roles.
     """
 
+    if not membership_is_active(membership=membership):
+        return []
     return list(
         Permission.objects
         .filter(
@@ -61,7 +73,7 @@ def membership_has_permission(*, membership, permission_code):
     through at least one active role.
     """
 
-    if membership is None:
+    if not permission_code or not membership_is_active(membership=membership):
         return False
 
     return Permission.objects.filter(

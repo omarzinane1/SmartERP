@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises'
 import { env } from 'node:process'
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from './fixtures'
 import { dashboardMock } from '../src/features/dashboard/data/dashboard.mock'
 
 const apiMode = env.VITE_DASHBOARD_USE_MOCK === 'false'

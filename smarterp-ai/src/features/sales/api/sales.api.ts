@@ -1,5 +1,6 @@
 import { env } from '../../../config/env'
 import { apiClient } from '../../../lib/axios'
+import { getCollection } from '../../../lib/collectionApi'
 import { confirmSalesOrderMock, getSalesInsightMock, getSalesOrderMock, getSalesOrdersMock } from '../data/sales.mock'
 import type { SalesActionResult, SalesDeliveryInput, SalesInvoiceInput, SalesOrderDetail, SalesOrdersData } from '../types/sales.types'
 
@@ -14,8 +15,7 @@ function fromAPI(order: Omit<SalesOrderDetail, 'capabilities'> & { capabilities?
 // Contrat initial camelCase, adapté ici lorsque le contrat Django sera finalisé.
 export async function getSalesOrders(scope: string, signal?: AbortSignal): Promise<SalesOrdersData> {
   if (env.salesUseMock) return getSalesOrdersMock(scope)
-  const { data } = await apiClient.get<SalesOrdersData>(SALES_ENDPOINT, { signal })
-  return data
+  return getCollection<SalesOrdersData, 'orders'>(SALES_ENDPOINT, 'orders', signal)
 }
 export async function getSalesOrderById(scope: string, id: number, signal?: AbortSignal): Promise<SalesOrderDetail> {
   if (env.salesUseMock) {
@@ -48,4 +48,10 @@ export async function requestSalesOrderInsight(scope: string, id: number) {
   if (env.salesUseMock) return getSalesInsightMock(scope, id)
   // Aucun endpoint IA de commande ni d'annulation n'est défini : aucun appel inventé.
   throw new Error('Service d’analyse de commande non connecté')
+}
+
+export async function cancelSalesOrder(id: number): Promise<SalesActionResult> {
+  if (env.salesUseMock) throw new Error('Annulation disponible avec le serveur')
+  const { data } = await apiClient.post<SalesOrderDetail>(`${SALES_ENDPOINT}${id}/cancel/`)
+  return { simulated: false, order: fromAPI(data) }
 }

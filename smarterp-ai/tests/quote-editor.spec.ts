@@ -1,5 +1,5 @@
 import { env } from 'node:process'
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from './fixtures'
 
 const apiMode = env.VITE_QUOTES_USE_MOCK === 'false'
 async function openQuotes(page: Page) {

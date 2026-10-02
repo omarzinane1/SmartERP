@@ -8,6 +8,7 @@ import { Button } from '../../../components/ui/Button'
 import { formatDate } from '../../../lib/format'
 import { useAuthStore } from '../../../store/auth.store'
 import { useCustomerDetail } from '../hooks/useCustomerDetail'
+import { updateCustomer } from '../api/customers.api'
 import { CustomerRecordHeader } from '../components/CustomerRecordHeader'
 import { CustomerSmartButtons } from '../components/CustomerSmartButtons'
 import { CustomerKPIGrid } from '../components/CustomerKPIGrid'
@@ -49,6 +50,12 @@ function CustomerRecord({ data, query }: { data: CustomerDetail; query: ReturnTy
   const activities = [...localActivity, ...(query.activity.data ?? [])]
   const canEdit = customer.permissions.includes('customers.edit')
   const openRecord = (title: string, content: string) => setDialog({ title, content })
+  async function persist(update: Parameters<typeof updateCustomer>[1]) {
+    await updateCustomer(customer.id, update)
+    await Promise.all([query.customer.refetch(), query.summary.refetch(), query.activity.refetch()])
+    setForm(null)
+    toast.success('Fiche client enregistrée.')
+  }
   function navigate(tab: CustomerTab, showQuotes = false) {
     setActiveTab(tab)
     if (tab === 'sales') setQuotes(showQuotes)
@@ -59,7 +66,7 @@ function CustomerRecord({ data, query }: { data: CustomerDetail; query: ReturnTy
     if (value === 'edit' || value === 'tag') { if (canEdit) setForm(value); return }
     if (value === 'archive') {
       if (!canEdit) return
-      if (!isDemo) { toast.info('L’archivage sera disponible avec le service CRM.'); return }
+      if (!isDemo) { void persist({ status: customer.status === 'archived' ? customer.previousStatus ?? 'active' : 'archived' }).catch(() => toast.error('Modification refusée.')); return }
       setPatch({ ...patch, status: customer.status === 'archived' ? customer.previousStatus ?? 'active' : 'archived', previousStatus: customer.status === 'archived' ? undefined : customer.status })
       toast.success(customer.status === 'archived' ? 'Client désarchivé (démo).' : 'Client archivé (démo).')
       return
@@ -96,7 +103,7 @@ function CustomerRecord({ data, query }: { data: CustomerDetail; query: ReturnTy
         <div className="customer-recent-activity">{query.activity.isPending ? <p role="status" className="customer-detail-empty">Chargement de l’activité…</p> : query.activity.isError ? <div className="customer-detail-inline-error" role="alert">L’activité est indisponible.<button onClick={() => void query.activity.refetch()}>Réessayer l’activité</button></div> : <CustomerActivityTimeline activities={activities} permissions={customer.permissions} compact />}<button className="customer-detail-link customer-activity-all" onClick={() => setActiveTab('activity')}>Voir tout l’historique <ChevronRight size={11} /></button></div>
       </aside>
     </div>
-    {form && <CustomerDialog action={form} customer={customer} selectedCount={1} salespeople={customer.salespeople} isDemo={isDemo} onClose={() => setForm(null)} onSave={(input) => { setPatch({ ...patch, ...input }); setForm(null); toast.success('Coordonnées mises à jour (démo).') }} onAssign={() => {}} onTag={(tag) => { setPatch({ ...patch, tags: Array.from(new Set([...customer.tags, tag])) }); setForm(null) }} />}
+    {form && <CustomerDialog action={form} customer={customer} selectedCount={1} salespeople={customer.salespeople} isDemo={isDemo} onClose={() => setForm(null)} onSave={(input) => { if (!isDemo) return persist(input); setPatch({ ...patch, ...input }); setForm(null); toast.success('Coordonnées mises à jour (démo).') }} onAssign={() => {}} onTag={(tag) => { const tags = Array.from(new Set([...customer.tags, tag])); if (!isDemo) return persist({ tags }); setPatch({ ...patch, tags }); setForm(null) }} />}
     {dialog && <CustomerRecordDialog title={dialog.title} onClose={() => setDialog(null)}><p className="customer-record-dialog-copy">{dialog.content}</p>{dialog.contact && <div className="customer-dialog-contacts">{[customer.primaryContact, { name: customer.name, role: 'Entreprise', phone: customer.phone, email: customer.email }].filter((contact) => contact !== null).map((contact) => <article key={contact.email}><h3>{contact.name}</h3><p>{contact.role}</p><a href={`tel:${contact.phone.replace(/\s/g, '')}`}><Phone size={12} />{contact.phone}</a><a href={`mailto:${contact.email}`}><Mail size={12} />{contact.email}</a></article>)}</div>}</CustomerRecordDialog>}
   </main>
 }

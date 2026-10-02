@@ -1,6 +1,11 @@
-import { expect, test, type Page, type Request } from '@playwright/test'
+import { expect, test, type Page, type Request } from './fixtures'
 
 const endpoint = '**/api/company/onboarding/'
+
+function completedResponse(payload: { company: { name: string }; modules: string[] }) {
+  return { user: { id: 1, name: 'Admin', email: 'admin@atlas.ma', role: 'admin', permissions: [] }, company: { id: 1, name: payload.company.name, onboarding_completed: true, enabled_modules: payload.modules } }
+}
+
 const next = (page: Page) =>
   page.getByRole('button', { name: 'Enregistrer et continuer' }).click()
 
@@ -257,7 +262,7 @@ test('submits once, maps the Django payload, displays success and redirects', as
   await page.route(endpoint, async (route) => {
     requests.push(route.request())
     await ready
-    await route.fulfill({ status: 201, json: { success: true } })
+    await route.fulfill({ status: 200, json: completedResponse(route.request().postDataJSON()) })
   })
   await reachReview(page)
   expect(requests).toHaveLength(0)
@@ -313,7 +318,7 @@ test('keeps data after API errors, permits retry and omits disabled stock settin
     await route.fulfill(
       attempts === 1
         ? { status: 500, json: { detail: 'SECRET_INTERNAL_ERROR' } }
-        : { status: 204 },
+        : { status: 200, json: completedResponse(route.request().postDataJSON()) },
     )
   })
   await reachReview(page, false)

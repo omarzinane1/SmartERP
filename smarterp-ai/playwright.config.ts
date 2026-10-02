@@ -5,7 +5,7 @@ import { defineConfig, devices } from '@playwright/test'
 
 // Un port distinct permet de tester le mode API sans réutiliser un serveur démo.
 const port = env.PLAYWRIGHT_PORT || '5173'
-const baseURL = `http://127.0.0.1:${port}`
+const baseURL = `http://localhost:${port}`
 
 export default defineConfig({
   testDir: './tests',
@@ -28,7 +28,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `npm run dev -- --host 127.0.0.1 --port ${port} --strictPort`,
+    command: `npm run dev -- --host localhost --port ${port} --strictPort`,
     url: `${baseURL}/login`,
     reuseExistingServer: true,
   },

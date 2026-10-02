@@ -11,6 +11,7 @@ export type CustomerPermission =
   | 'customers.edit'
   | 'customers.export'
   | 'sales.view'
+  | 'quotes.view'
   | 'invoices.view'
   | 'payments.view'
   | 'ai.use'
@@ -50,9 +51,9 @@ export interface CustomersData {
   salespeople: string[]
   currentSalesperson: string
   period: { asOf: string; syncedAt: string; label: string }
-  revenueGrowth: number
-  dsoDays: number
-  dsoTarget: number
+  revenueGrowth: number | null
+  dsoDays: number | null
+  dsoTarget: number | null
 }
 
 export interface CustomerFilters {
@@ -131,8 +132,8 @@ export interface CustomerSale {
   date: string
   salesperson: string
   amount: number
-  margin: number
-  status: 'Draft' | 'Confirmed' | 'Processing' | 'Delivered' | 'Invoiced' | 'Cancelled'
+  margin: number | null
+  status: 'Draft' | 'Confirmed' | 'Processing' | 'Delivered' | 'Invoiced' | 'Cancelled' | 'Completed' | 'Sent' | 'Viewed' | 'Accepted' | 'Rejected' | 'Expired'
   paymentStatus: 'Unpaid' | 'Partial' | 'Paid' | 'Not due'
 }
 export interface CustomerInvoice {
@@ -142,7 +143,7 @@ export interface CustomerInvoice {
   amount: number
   paid: number
   outstanding: number
-  status: 'Draft' | 'Sent' | 'Partially Paid' | 'Paid' | 'Overdue' | 'Cancelled'
+  status: 'Draft' | 'Sent' | 'Posted' | 'Partially Paid' | 'Paid' | 'Overdue' | 'Cancelled'
 }
 export interface CustomerPayment {
   reference: string
@@ -233,6 +234,7 @@ export interface CustomerDetail extends Customer {
 
 // Les tables gardent leurs statuts métier ; leur présentation est commune.
 export const recordStatusLabels = {
+  Posted: 'Comptabilisée', Completed: 'Terminée', Viewed: 'Vu', Accepted: 'Accepté', Rejected: 'Refusé', Expired: 'Expiré',
   Draft: 'Brouillon', Confirmed: 'Confirmé', Processing: 'En cours', Delivered: 'Livré',
   Invoiced: 'Facturé', Cancelled: 'Annulé', Sent: 'Envoyée', 'Partially Paid': 'Partiellement payée',
   Paid: 'Payé', Overdue: 'En retard', Unpaid: 'Non payé', Partial: 'Partiel', 'Not due': 'Non échu',

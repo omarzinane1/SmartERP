@@ -3,7 +3,7 @@ import type { MoneyLine, MoneyTotals } from '../../../lib/money'
 export type SalesOrderStatus = 'draft' | 'confirmed' | 'processing' | 'completed' | 'cancelled'
 export type SalesPermission = 'sales.view' | 'sales.edit' | 'sales.margin.view' | 'delivery.create' | 'invoices.create' | 'ai.use'
 export interface SalesOrderLine extends MoneyLine {
-  id: number; productId: number; productReference: string; productName: string; description: string
+  id: number; productId: number | null; productReference: string; productName: string; description: string
   deliveredQuantity: number; unitCost: number | null; totalExcludingTax: number
 }
 export interface SalesDelivery {
@@ -38,7 +38,7 @@ export interface SalesOrderDetail extends SalesOrderSummary {
   deliveries: SalesDelivery[]; invoices: SalesInvoice[]; payments: SalesPayment[]; activities: SalesActivity[]
   documents: { id: number; name: string; type: string }[]
   permissions: SalesPermission[]
-  capabilities: { canConfirm: boolean; canCancel: boolean; canDeliver: boolean; canInvoice: boolean; invoiceableAmount: number }
+  capabilities: { canConfirm: boolean; canCancel: boolean; canDeliver: boolean; canInvoice: boolean; invoiceableAmount: number; invoiceMode?: 'full_order' }
   warehouses: string[]; asOf: string
 }
 export interface SalesOrdersData { orders: SalesOrderSummary[]; permissions: SalesPermission[]; asOf: string }

@@ -1,5 +1,5 @@
 import { env } from 'node:process'
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from './fixtures'
 import { invoicesMock, invoiceDemoPermissions } from '../src/features/invoices/data/invoices.mock'
 import { agingKey, calculateAging, daysOverdue, filterInvoices, defaultInvoiceFilters, invoiceKPIs, presentation, remainingAmount } from '../src/features/invoices/utils/invoiceCalculations'
 import { invoiceSchema, paymentSchema, toInvoiceInput } from '../src/features/invoices/schemas/invoice.schema'

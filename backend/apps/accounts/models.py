@@ -115,6 +115,8 @@ class Membership(TimeStampedModel):
     is_default = models.BooleanField(
         default=False,
     )
+    display_name = models.CharField(max_length=120, blank=True)
+    department = models.CharField(max_length=80, blank=True)
 
     class Meta:
         db_table = "accounts_membership"

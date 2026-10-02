@@ -33,3 +33,22 @@ class CompanyInventorySetting(TimeStampedModel):
 
     class Meta:
         db_table = "inventory_company_setting"
+
+
+class Product(TimeStampedModel):
+    """Commercial catalog foundation only; no stock or movement engine."""
+    company = models.ForeignKey("companies.Company", on_delete=models.PROTECT)
+    reference = models.CharField(max_length=50)
+    name = models.CharField(max_length=255)
+    kind = models.CharField(max_length=10, choices=[("product", "Produit"), ("service", "Service")], default="product")
+    description = models.TextField(blank=True)
+    unit_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    tax_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["company", "reference"], name="unique_product_reference"),
+            models.CheckConstraint(condition=models.Q(unit_price__gte=0, unit_price__lte=1000000), name="product_price_range"),
+            models.CheckConstraint(condition=models.Q(tax_rate__gte=0, tax_rate__lte=100), name="product_tax_range"),
+        ]

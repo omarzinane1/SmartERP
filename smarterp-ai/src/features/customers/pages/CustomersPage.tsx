@@ -14,6 +14,7 @@ import { Spinner } from '../../../components/ui/Spinner'
 import { useAuthStore } from '../../../store/auth.store'
 import { formatDate, formatNumber } from '../../../lib/format'
 import { useCustomers } from '../hooks/useCustomers'
+import { createCustomer, updateCustomer } from '../api/customers.api'
 import { CustomersSummary } from '../components/CustomersSummary'
 import { CustomersToolbar } from '../components/CustomersToolbar'
 import { CustomersFilters } from '../components/CustomersFilters'
@@ -255,10 +256,14 @@ export function CustomersPage() {
         : [...new Set([...current, ...ids])],
     )
   }
-  function archiveCustomers(targets: Customer[], archive: boolean) {
+  async function archiveCustomers(targets: Customer[], archive: boolean) {
     if (!can.edit) return
     if (!isDemo) {
-      toast.info('L’archivage sera disponible dans une prochaine étape.')
+      const results = await Promise.allSettled(targets.map((customer) => updateCustomer(customer.id, { status: archive ? 'archived' : customer.previousStatus ?? 'active' })))
+      await refetch()
+      const failed = results.filter((result) => result.status === 'rejected').length
+      if (failed) toast.error(`${failed} modification(s) refusée(s). La liste a été rechargée.`)
+      else { setSelectedIds([]); toast.success('Statuts enregistrés.') }
       return
     }
     const changed = targets.filter((customer) =>
@@ -285,8 +290,17 @@ export function CustomersPage() {
       } dans la démonstration.`,
     )
   }
-  function saveCustomer(input: CustomerInput) {
-    if (!isDemo || !data || !dialog) return
+  async function saveCustomer(input: CustomerInput) {
+    if (!data || !dialog) return
+    if (!isDemo) {
+      if (dialog.action === 'edit' && dialog.customer && can.edit) await updateCustomer(dialog.customer.id, input)
+      else if (dialog.action === 'create' && can.create) await createCustomer(input)
+      else return
+      await refetch()
+      setDialog(null)
+      toast.success('Fiche client enregistrée.')
+      return
+    }
     if (dialog.action === 'edit' && dialog.customer && can.edit) {
       const id = dialog.customer.id
       setPatches((current) => ({
@@ -317,8 +331,16 @@ export function CustomersPage() {
     setDialog(null)
     toast.success('Fiche client enregistrée dans la démonstration.')
   }
-  function updateSelection(update: (customer: Customer) => Partial<Customer>) {
-    if (!isDemo || !can.edit) return
+  async function updateSelection(update: (customer: Customer) => Partial<Customer>) {
+    if (!can.edit) return
+    if (!isDemo) {
+      const results = await Promise.allSettled(selected.map((customer) => updateCustomer(customer.id, update(customer))))
+      await refetch()
+      if (results.some((result) => result.status === 'rejected')) throw new Error('Certaines modifications ont été refusées.')
+      setDialog(null)
+      toast.success('Clients mis à jour.')
+      return
+    }
     setPatches((current) => {
       const next = { ...current }
       for (const customer of selected)

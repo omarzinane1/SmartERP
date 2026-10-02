@@ -1,5 +1,5 @@
 import { env } from 'node:process'
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from './fixtures'
 import { changeModuleMock, modulesMock, modulesSnapshot } from '../src/features/modules/data/modules.mock'
 import { stockSnapshot } from '../src/features/inventory/data/inventory.mock'
 import { aiStatusMock, settingsMock, testIntegrationMock, updateSettingsMock } from '../src/features/settings/data/settings.mock'
@@ -8,8 +8,13 @@ import { changePasswordMock, deleteSessionMock, profileMock, setup2FAMock, updat
 import { passwordSchema } from '../src/features/profile/schemas/profile.schema'
 import { documentByIdMock, queryDocumentMock } from '../src/features/documents/data/documents.mock'
 import { forecastMock, opportunitiesMock } from '../src/features/ai/data/ai.mock'
-import { demoCompany, demoUser, go, openPage, signIn } from './workspace.helpers'
+import { demoCompany, demoUser, go, signIn as baseSignIn } from './workspace.helpers'
 const apiMode = env.VITE_MODULES_USE_MOCK === 'false'
+async function signIn(page: Page, permissions?: string[]) {
+  await baseSignIn(page, permissions)
+  if (!apiMode) await page.evaluate(async () => { const path = '/src/config/env.ts'; (await import(path)).env.profileUseMock = true })
+}
+async function openPage(page: Page, path: string, permissions?: string[]) { await signIn(page, permissions); await go(page, path) }
 
 test('module dependencies, plan locks, tenant isolation and stock preservation are enforced', async () => {
   const scope = 'module-safety', before = stockSnapshot(scope); expect(modulesSnapshot(scope)).toHaveLength(12); await expect(changeModuleMock(scope, 1, 'production', true)).rejects.toThrow(); await expect(changeModuleMock(scope, 1, 'maintenance', true)).rejects.toThrow(); await expect(changeModuleMock(scope, 1, 'crm', false)).rejects.toThrow(); await expect(changeModuleMock(scope, 1, 'documents', false)).rejects.toThrow()
@@ -50,10 +55,10 @@ test.describe('configuration demo', () => {
     for (const section of settingSections) { await go(page, `/settings?section=${section}`); await expect(page.locator('.config-content')).toBeVisible(); await expect(page.locator('main')).not.toContainText('Unexpected Application Error'); expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), section).toBe(true) }
     expect(errors).toEqual([])
   })
-  test('modules enforce dependencies, configure via settings, update status and navigation', async ({ page }) => {
+  test('module demo changes preserve the server-owned navigation context', async ({ page }) => {
     await openPage(page, '/modules'); const card = (name: string) => page.locator('.config-module-card').filter({ has: page.getByRole('heading', { name, exact: true }) }); await expect(card('Production')).toContainText('Premium'); await expect(card('Maintenance').getByRole('button', { name: 'Activer', exact: true })).toHaveCount(0)
     await card('CRM').getByRole('button', { name: 'Désactiver' }).click(); await expect(page.getByRole('dialog')).toContainText('Ventes'); await page.getByRole('button', { name: 'Retour aux modules' }).click(); await card('Stock').getByRole('button', { name: 'Configurer' }).click(); await expect(page.getByRole('link', { name: 'Ouvrir les paramètres' })).toHaveAttribute('href', '/settings?section=inventory'); await page.keyboard.press('Escape')
-    await card('RH').getByRole('button', { name: 'Activer', exact: true }).click(); await page.getByRole('dialog').getByRole('button', { name: 'Confirmer' }).click(); await expect(card('RH')).toContainText('Actif'); await card('Stock').getByRole('button', { name: 'Désactiver' }).click(); await page.getByRole('dialog').getByRole('button', { name: 'Confirmer' }).click(); await expect(card('Stock')).toContainText('Inactif'); await go(page, '/inventory'); await expect(page.getByRole('heading', { name: 'Module désactivé pour cette société' })).toBeVisible(); await go(page, '/modules'); await page.getByRole('searchbox', { name: 'Rechercher un module…' }).fill('Maintenance'); await expect(page.locator('.config-module-card')).toHaveCount(1)
+    await card('RH').getByRole('button', { name: 'Activer', exact: true }).click(); await page.getByRole('dialog').getByRole('button', { name: 'Confirmer' }).click(); await expect(card('RH')).toContainText('Actif'); await card('Stock').getByRole('button', { name: 'Désactiver' }).click(); await page.getByRole('dialog').getByRole('button', { name: 'Confirmer' }).click(); await expect(card('Stock')).toContainText('Inactif'); await go(page, '/inventory'); await expect(page.getByRole('heading', { level: 1, name: /stock/i })).toBeVisible(); await expect(page.getByRole('heading', { name: 'Module désactivé pour cette société' })).toHaveCount(0); await go(page, '/modules'); await page.getByRole('searchbox', { name: 'Rechercher un module…' }).fill('Maintenance'); await expect(page.locator('.config-module-card')).toHaveCount(1)
   })
   test('settings validate, warn on unsaved navigation, save, test integration and show AI status', async ({ page }) => {
     await openPage(page, '/settings?section=company'); await page.getByRole('textbox', { name: 'Nom société', exact: true }).fill(''); await page.getByRole('button', { name: 'Enregistrer', exact: true }).click(); await expect(page.getByRole('alert')).toContainText('Valeurs invalides'); await page.getByRole('textbox', { name: 'Nom société', exact: true }).fill('Atlas Paramètres Test'); await page.getByRole('navigation', { name: 'Sections des paramètres' }).getByRole('button', { name: 'Finance', exact: true }).click(); await expect(page.getByRole('dialog')).toContainText('modifications non enregistrées'); await page.getByRole('dialog').getByRole('button', { name: 'Retour' }).click(); await page.getByRole('button', { name: 'Enregistrer', exact: true }).click(); await expect(page.getByRole('button', { name: 'Enregistrer', exact: true })).toBeDisabled(); await expect(page.locator('#app-sidebar')).toContainText('Atlas Paramètres Test')

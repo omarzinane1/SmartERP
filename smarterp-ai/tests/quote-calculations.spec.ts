@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from './fixtures'
 import { calculateQuoteTotals } from '../src/features/quotes/utils/quoteCalculations'
 import { emptyQuoteInput, quoteSchema } from '../src/features/quotes/schemas/quote.schema'
 import type { QuoteLine } from '../src/features/quotes/types/quotes.types'

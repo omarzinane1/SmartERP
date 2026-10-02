@@ -28,6 +28,7 @@ import { InvoicingStep } from '../components/InvoicingStep'
 import { ModulesStep } from '../components/ModulesStep'
 import { ReviewStep } from '../components/ReviewStep'
 import { useOnboarding } from '../hooks/useOnboarding'
+import { useLogout } from '../../auth/hooks/useLogout'
 import {
   defaultOnboardingValues,
   onboardingSchema,
@@ -38,6 +39,7 @@ import { onboardingSteps, type OnboardingData } from '../types/onboarding.types'
 export function OnboardingPage() {
   // Un seul formulaire reste monté pendant les sept étapes.
   const company = useAuthStore((state) => state.company)
+  const { signOut } = useLogout()
   const form = useForm<OnboardingData>({
     resolver: zodResolver(onboardingSchema),
     defaultValues: {
@@ -143,6 +145,7 @@ export function OnboardingPage() {
       <header className="border-b border-[#e4e9f2] bg-white">
         <div className="mx-auto flex max-w-[1600px] flex-wrap items-center gap-x-6 gap-y-4 px-5 py-5 lg:flex-nowrap lg:px-8">
           <BrandLogo className="shrink-0 text-navy-950 [&>span:first-child]:size-9 [&>span:first-child]:rounded-lg [&>span:last-child]:text-lg" />
+          <button type="button" className="text-xs text-slate-500" onClick={() => void signOut()}>Se déconnecter</button>
           <div className="min-w-0 flex-1 lg:border-l lg:border-slate-200 lg:pl-6">
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-sm font-semibold text-navy-950">

@@ -54,15 +54,15 @@ export function CustomersSummary({
     {
       title: 'Chiffre d’affaires annuel',
       value: formatCurrency(revenue),
-      caption: `+${formatNumber(data.revenueGrowth, 1)} % vs N−1`,
+      caption: data.revenueGrowth === null ? 'Comparaison indisponible' : `+${formatNumber(data.revenueGrowth, 1)} % vs N−1`,
       icon: TrendingUp,
       tone: 'text-emerald-600 bg-emerald-50',
       valueTone: 'text-navy-950',
     },
     {
       title: 'Délai moyen de paiement',
-      value: `${data.dsoDays} jours`,
-      caption: `Objectif : moins de ${data.dsoTarget} jours`,
+      value: data.dsoDays === null ? '—' : `${data.dsoDays} jours`,
+      caption: data.dsoTarget === null ? 'Objectif non configuré' : `Objectif : moins de ${data.dsoTarget} jours`,
       icon: Clock3,
       tone: 'text-indigo-600 bg-indigo-50',
       valueTone: 'text-navy-950',

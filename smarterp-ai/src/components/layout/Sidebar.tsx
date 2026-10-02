@@ -158,7 +158,7 @@ export function Sidebar({
             <span className="flex-1">Tableau de bord</span>
             <span className="size-1.5 rounded-full bg-blue-600" />
           </NavLink>
-          {(!company?.enabledModules || company.enabledModules.includes('ai')) && <NavLink
+          {(!company?.enabledModules || company.enabledModules.includes('ai_control_center')) && <NavLink
             to="/ai/control-center"
             onClick={onClose}
             className={({ isActive }) =>

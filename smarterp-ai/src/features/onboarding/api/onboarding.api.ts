@@ -1,4 +1,6 @@
 import { apiClient } from '../../../lib/axios'
+import { parseAuthResponse } from '../../auth/api/auth.api'
+import type { LoginResponse } from '../../auth/types/auth.types'
 import type { OnboardingData } from '../types/onboarding.types'
 
 // Le format Django (snake_case) reste à la frontière de l’application.
@@ -63,7 +65,7 @@ export function toOnboardingPayload(data: OnboardingData) {
   }
 }
 
-export async function saveOnboarding(data: OnboardingData): Promise<void> {
-  // Modifier cet endpoint lorsque le contrat Django sera finalisé.
-  await apiClient.post('/company/onboarding/', toOnboardingPayload(data))
+export async function saveOnboarding(data: OnboardingData): Promise<LoginResponse> {
+  const response = await apiClient.post<unknown>('/company/onboarding/', toOnboardingPayload(data))
+  return parseAuthResponse(response.data)
 }

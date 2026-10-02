@@ -3,8 +3,13 @@ import { toast } from 'sonner'
 import { BrandLogo } from '../../../components/layout/BrandLogo'
 import { AuthBrandPanel } from '../components/AuthBrandPanel'
 import { LoginForm } from '../components/LoginForm'
+import { Navigate } from 'react-router-dom'
+import { useAuthStore } from '../../../store/auth.store'
+import { getPostLoginPath } from '../hooks/useLogin'
 
 export function LoginPage() {
+  const auth = useAuthStore()
+  if (auth.status === 'authenticated') return <Navigate to={getPostLoginPath(auth.company)} replace />
   return (
     <main className="grid min-h-svh bg-white p-0 lg:grid-cols-[1fr_1fr] lg:gap-2 lg:p-4">
       <AuthBrandPanel />

@@ -1,8 +1,13 @@
 from django.contrib.auth import authenticate, logout
 from django.utils import timezone
+from django.db import transaction
+from rest_framework.exceptions import NotFound, PermissionDenied, ValidationError
+from common.exceptions import BusinessConflict
+from apps.companies.models import Company
 from apps.companies.selectors import get_enabled_module_codes
 
-from .models import Membership, MembershipStatus
+from .models import Membership, MembershipStatus, MembershipRole, Permission, Role, RolePermission
+from .system_roles import SYSTEM_ROLES, system_permission_codes
 from .selectors import (
     get_effective_permission_codes,
     get_membership_role_display,
@@ -291,3 +296,133 @@ def can_all(*, membership, permission_codes):
         code in effective_permissions
         for code in codes
     )
+
+
+@transaction.atomic
+def ensure_system_roles(*, company):
+    Company.objects.select_for_update().get(pk=company.pk)
+    roles = {}
+    for code, name in SYSTEM_ROLES.items():
+        role, created = Role.objects.get_or_create(
+            company=company, code=code,
+            defaults={"name": name, "is_system": True, "is_active": True,
+                      "description": "Rôle système protégé."},
+        )
+        if not role.is_system:
+            raise BusinessConflict(f"Le code réservé {code} est utilisé par un rôle personnalisé.")
+        if not created and (role.name != name or not role.is_active):
+            role.name, role.is_active = name, True
+            role.save(update_fields=["name", "is_active", "updated_at"])
+        roles[code] = role
+    return roles
+
+
+@transaction.atomic
+def sync_system_role_permissions(*, company):
+    roles = ensure_system_roles(company=company)
+    permissions = {p.code: p for p in Permission.objects.filter(is_active=True)}
+    for code, role in roles.items():
+        for permission_code in sorted(system_permission_codes(code)):
+            if permission_code in permissions:
+                RolePermission.objects.get_or_create(role=role, permission=permissions[permission_code])
+    return roles
+
+
+def require_actor(*, company, actor, permission_code):
+    if actor is None or actor.company_id != company.pk:
+        raise PermissionDenied("Aucun contexte de société actif.")
+    if not can(membership=actor, permission_code=permission_code):
+        raise PermissionDenied("Permission insuffisante.")
+
+
+def scoped_role(*, company, role, lock=False):
+    query = Role.objects.filter(company=company)
+    if lock:
+        query = query.select_for_update()
+    result = query.filter(pk=role.pk).first()
+    if result is None:
+        raise NotFound()
+    return result
+
+
+def scoped_membership(*, company, membership, lock=False):
+    query = Membership.objects.filter(company=company)
+    if lock:
+        query = query.select_for_update()
+    result = query.filter(pk=membership.pk).first()
+    if result is None:
+        raise NotFound()
+    return result
+
+
+def assert_owner_retained(*, company, membership):
+    """Caller holds the Company row lock, serializing all ownership changes."""
+    owns = MembershipRole.objects.filter(
+        membership=membership, role__company=company, role__code="owner",
+        role__is_system=True, role__is_active=True,
+    ).exists()
+    another_owner = MembershipRole.objects.filter(
+        membership__company=company, membership__status=MembershipStatus.ACTIVE,
+        membership__user__is_active=True, role__company=company,
+        role__code="owner", role__is_system=True, role__is_active=True,
+    ).exclude(membership=membership).exists()
+    if owns and membership.status == MembershipStatus.ACTIVE and not another_owner:
+        raise BusinessConflict("Le dernier Owner actif doit être conservé.")
+
+
+@transaction.atomic
+def assign_role_to_membership(*, company, actor, membership, role):
+    Company.objects.select_for_update().get(pk=company.pk)
+    require_actor(company=company, actor=actor, permission_code="roles.assign")
+    target = scoped_membership(company=company, membership=membership, lock=True)
+    target_role = scoped_role(company=company, role=role, lock=True)
+    if not target_role.is_active or (target_role.is_system and target_role.code == "owner"):
+        raise PermissionDenied("Ce rôle ne peut pas être attribué depuis l'administration.")
+    if target.pk == actor.pk:
+        raise PermissionDenied("Votre propre rôle ne peut pas être modifié.")
+    assignment, _ = MembershipRole.objects.get_or_create(membership=target, role=target_role)
+    return assignment
+
+
+@transaction.atomic
+def remove_role_from_membership(*, company, actor, membership, role):
+    Company.objects.select_for_update().get(pk=company.pk)
+    require_actor(company=company, actor=actor, permission_code="roles.assign")
+    target = scoped_membership(company=company, membership=membership, lock=True)
+    target_role = scoped_role(company=company, role=role, lock=True)
+    if target.pk == actor.pk:
+        raise PermissionDenied("Votre propre rôle ne peut pas être modifié.")
+    if target_role.is_system and target_role.code == "owner":
+        assert_owner_retained(company=company, membership=target)
+        raise PermissionDenied("Le rôle Owner est protégé.")
+    MembershipRole.objects.filter(membership=target, role=target_role).delete()
+
+
+@transaction.atomic
+def grant_permission_to_role(*, company, actor, role, permission):
+    Company.objects.select_for_update().get(pk=company.pk)
+    require_actor(company=company, actor=actor, permission_code="roles.manage")
+    target = scoped_role(company=company, role=role, lock=True)
+    if target.is_system:
+        raise PermissionDenied("Rôle système protégé.")
+    permission = Permission.objects.select_for_update().get(pk=permission.pk)
+    if not permission.is_active or not permission.is_grantable:
+        raise ValidationError({"permission_codes": ["Permission non attribuable."]})
+    grant, created = RolePermission.objects.get_or_create(role=target, permission=permission)
+    if created:
+        target.version += 1
+        target.save(update_fields=["version", "updated_at"])
+    return grant
+
+
+@transaction.atomic
+def revoke_permission_from_role(*, company, actor, role, permission):
+    Company.objects.select_for_update().get(pk=company.pk)
+    require_actor(company=company, actor=actor, permission_code="roles.manage")
+    target = scoped_role(company=company, role=role, lock=True)
+    if target.is_system:
+        raise PermissionDenied("Rôle système protégé.")
+    deleted, _ = RolePermission.objects.filter(role=target, permission=permission).delete()
+    if deleted:
+        target.version += 1
+        target.save(update_fields=["version", "updated_at"])

@@ -63,9 +63,9 @@ function SalesOrderRecord({ order, detail }: { order: SalesOrderDetail; detail: 
         {allowed.confirm && <Button className="sales-button sales-primary" disabled={detail.busy} onClick={() => openAction('confirm')}><Check size={14} />Confirmer</Button>}
         {allowed.delivery && <Button className="sales-button sales-primary" disabled={detail.busy} onClick={() => openAction('delivery')}><Truck size={14} />Créer une livraison</Button>}
         {allowed.invoice && <Button className="sales-button" variant="secondary" disabled={detail.busy} onClick={() => openAction('invoice')}><ReceiptText size={14} />Créer une facture</Button>}
-        {allowed.cancel && <Button className="sales-button" variant="ghost" disabled title="Annulation indisponible : API et règles métier à définir">Annuler la commande</Button>}
+        {allowed.cancel && <Button className="sales-button" variant="ghost" disabled={detail.isDemo || detail.busy} onClick={() => { if (window.confirm(`Annuler la commande ${order.reference} ?`)) detail.cancel.mutate(undefined, { onSuccess: () => toast.success('Commande annulée.'), onError: () => toast.error('Annulation refusée. Rechargez la commande.') }) }}>Annuler la commande</Button>}
       </div>
-      {allowed.cancel && <p className="sales-action-note">Annulation indisponible : le service et les règles métier ne sont pas encore définis.</p>}
+      {allowed.cancel && detail.isDemo && <p className="sales-action-note">Annulation disponible en mode serveur.</p>}
     </header>
     {detail.isDemo && <p className="sales-demo-banner">Mode démonstration · Données au {formatDate(order.asOf)} · Les préparations ne créent aucun document réel.</p>}
     {!order.permissions.includes('sales.edit') && <p className="sales-muted">Lecture seule pour les informations de commande. Les opérations liées dépendent de leurs autorisations propres.</p>}

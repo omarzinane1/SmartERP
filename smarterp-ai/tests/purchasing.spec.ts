@@ -1,5 +1,5 @@
 import { env } from 'node:process'
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from './fixtures'
 import { calculateTotals, formatMoney, sumMoney } from '../src/lib/money'
 import { purchaseActionMock, purchaseById, purchaseSnapshot, purchasingDemoDate, purchasingPermissions, savePurchaseMock } from '../src/features/purchases/data/purchases.mock'
 import { billPurchaseMock, postSupplierInvoiceMock, purchaseDetailMock, recordSupplierPaymentMock, saveSupplierInvoiceMock, supplierInvoiceById, supplierInvoiceSnapshot } from '../src/features/supplier-invoices/data/supplierInvoices.mock'

@@ -35,12 +35,12 @@ export function QuoteSendDialog({ quotes, isDemo, sending, error, onClose, onCon
     </ul>
     <p className="text-[11px] leading-relaxed text-slate-500">{isDemo
       ? 'Mode démonstration : seul le statut local sera mis à jour. Aucun e-mail ne sera envoyé.'
-      : 'L’envoi sera effectué par le serveur. Les devis déjà envoyés ou vus feront l’objet d’un nouvel envoi.'}</p>
+      : 'Le devis sera marqué comme envoyé. Cette action enregistre un envoi effectué séparément ; elle ne transmet pas d’e-mail.'}</p>
     {error && <p role="alert" className="mt-3 text-xs text-rose-600">{error}</p>}
     <footer className="mt-5 flex justify-end gap-2">
       <Button className="quotes-button" variant="secondary" disabled={sending} onClick={onClose}>Annuler</Button>
       <Button className="quotes-button quotes-primary" disabled={sending} onClick={onConfirm}>{sending ? <Spinner /> : <Send className="size-3.5" />}
-        {sending ? 'Envoi en cours…' : isDemo ? 'Simuler l’envoi' : 'Confirmer l’envoi'}</Button>
+        {sending ? 'Envoi en cours…' : isDemo ? 'Simuler l’envoi' : 'Marquer comme envoyé'}</Button>
     </footer>
   </dialog>
 }

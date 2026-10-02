@@ -36,9 +36,9 @@ export function CustomerDialog({
   salespeople: string[]
   isDemo: boolean
   onClose: () => void
-  onSave: (input: CustomerInput) => void
-  onAssign: (salesperson: string) => void
-  onTag: (tag: string) => void
+  onSave: (input: CustomerInput) => void | Promise<void>
+  onAssign: (salesperson: string) => void | Promise<void>
+  onTag: (tag: string) => void | Promise<void>
 }) {
   const ref = useRef<HTMLDialogElement>(null)
   const [form, setForm] = useState<CustomerInput>({
@@ -53,6 +53,15 @@ export function CustomerDialog({
   const [tag, setTag] = useState('')
   const [format, setFormat] = useState('csv')
   const [fileName, setFileName] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  async function submit(action: () => void | Promise<void>) {
+    if (busy) return
+    setBusy(true)
+    setError(null)
+    try { await action() } catch { setError('Enregistrement refusé. Vérifiez les valeurs et vos droits, puis réessayez.') }
+    finally { setBusy(false) }
+  }
   useEffect(() => {
     const dialog = ref.current
     const previous = document.activeElement as HTMLElement | null
@@ -94,19 +103,20 @@ export function CustomerDialog({
           <X className="size-5" />
         </button>
       </header>
+      {error && <p role="alert" className="mt-3 text-sm text-rose-600">{error}</p>}
       {editing ? (
         <form
           className="mt-5"
           onSubmit={(event) => {
             event.preventDefault()
-            if (isDemo && form.name.trim() && form.city.trim())
-              onSave({
+            if (form.name.trim() && form.city.trim())
+              void submit(() => onSave({
                 ...form,
                 name: form.name.trim(),
                 city: form.city.trim(),
                 email: form.email.trim(),
                 phone: form.phone.trim(),
-              })
+              }))
           }}
         >
           <div className="grid gap-3 sm:grid-cols-2">
@@ -203,7 +213,7 @@ export function CustomerDialog({
           <p className="mt-4 text-[10px] leading-5 text-slate-400">
             {isDemo
               ? 'Démonstration : les changements sont conservés pendant votre visite de cette page.'
-              : 'L’enregistrement des fiches sera disponible dans une prochaine étape.'}
+              : 'La fiche sera enregistrée dans votre société.'}
           </p>
           <div className="mt-5 flex justify-end gap-2">
             <Button
@@ -216,7 +226,7 @@ export function CustomerDialog({
             <Button
               type="submit"
               className="customers-button"
-              disabled={!isDemo}
+              disabled={busy}
             >
               Enregistrer{isDemo ? ' (démo)' : ''}
             </Button>
@@ -288,9 +298,8 @@ export function CustomerDialog({
           className="mt-5"
           onSubmit={(event) => {
             event.preventDefault()
-            if (!isDemo) return
-            if (action === 'assign' && person) onAssign(person)
-            if (action === 'tag' && tag.trim()) onTag(tag.trim())
+            if (action === 'assign' && person) void submit(() => onAssign(person))
+            if (action === 'tag' && tag.trim()) void submit(() => onTag(tag.trim()))
           }}
         >
           <p className="mb-4 text-xs">
@@ -328,7 +337,7 @@ export function CustomerDialog({
           <p className="mt-3 text-[10px] leading-5 text-slate-400">
             {isDemo
               ? 'Modification locale de démonstration uniquement.'
-              : 'Cette action sera disponible dans une prochaine étape.'}
+              : 'Les modifications seront enregistrées pour chaque client sélectionné.'}
           </p>
           <div className="mt-5 flex justify-end gap-2">
             <Button
@@ -340,10 +349,10 @@ export function CustomerDialog({
             </Button>
             <Button
               type="submit"
-              disabled={!isDemo}
+              disabled={busy}
               className="customers-button"
             >
-              Appliquer (démo)
+              Appliquer{isDemo ? ' (démo)' : ''}
             </Button>
           </div>
         </form>

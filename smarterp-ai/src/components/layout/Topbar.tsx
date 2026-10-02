@@ -14,6 +14,7 @@ import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
 import { useAuthStore } from '../../store/auth.store'
 import { env } from '../../config/env'
+import { useLogout } from '../../features/auth/hooks/useLogout'
 
 export function Topbar({
   sidebarOpen,
@@ -23,10 +24,11 @@ export function Topbar({
   onToggleSidebar: () => void
 }) {
   const { pathname } = useLocation()
+  const { signOut, isPending: logoutPending } = useLogout()
   const navigate = useNavigate(), [profileMenu, setProfileMenu] = useState(false), profileMenuRef = useRef<HTMLDivElement>(null)
   const user = useAuthStore((state) => state.user)
   const company = useAuthStore((state) => state.company)
-  const canAssistant = (user?.permissions ? user.permissions.includes('ai.use') : env.aiWorkspaceUseMock) && (!company?.enabledModules || company.enabledModules.includes('ai'))
+  const canAssistant = (user?.permissions ? user.permissions.includes('ai.use') : env.aiWorkspaceUseMock) && (!company?.enabledModules || company.enabledModules.includes('ai_assistant'))
   const searchRef = useRef<HTMLInputElement>(null)
   const [search, setSearch] = useState('')
   const aiPage = pathname.startsWith('/ai/')
@@ -215,7 +217,7 @@ export function Topbar({
           className="hidden size-3 text-slate-400 lg:block"
           aria-hidden="true"
         />
-      </button>{profileMenu && <nav id="profile-menu" aria-label="Menu utilisateur" className="absolute right-0 top-full mt-3 w-52 rounded-lg border border-slate-200 bg-white p-2 text-xs text-slate-600 shadow-lg"><Link className="block rounded px-3 py-2 hover:bg-slate-50" to="/profile" onClick={() => setProfileMenu(false)}>Mon profil</Link><Link className="block rounded px-3 py-2 hover:bg-slate-50" to="/profile?tab=preferences" onClick={() => setProfileMenu(false)}>Paramètres personnels</Link></nav>}</div>
+      </button>{profileMenu && <nav id="profile-menu" aria-label="Menu utilisateur" className="absolute right-0 top-full mt-3 w-52 rounded-lg border border-slate-200 bg-white p-2 text-xs text-slate-600 shadow-lg"><Link className="block rounded px-3 py-2 hover:bg-slate-50" to="/profile" onClick={() => setProfileMenu(false)}>Mon profil</Link><Link className="block rounded px-3 py-2 hover:bg-slate-50" to="/profile?tab=preferences" onClick={() => setProfileMenu(false)}>Paramètres personnels</Link><button type="button" className="block w-full rounded px-3 py-2 text-left hover:bg-slate-50" disabled={logoutPending} onClick={() => void signOut()}>Se déconnecter</button></nav>}</div>
     </header>
   )
 }

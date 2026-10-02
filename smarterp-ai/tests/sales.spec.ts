@@ -1,5 +1,5 @@
 import { env } from 'node:process'
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from './fixtures'
 import { salesMock } from '../src/features/sales/data/sales.mock'
 import { remainingQuantity, salesActions, salesFinancials, orderMargin } from '../src/features/sales/sales.utils'
 import { calculateTotals, formatMoney } from '../src/lib/money'

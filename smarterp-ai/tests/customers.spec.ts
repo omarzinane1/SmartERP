@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises'
 import { env } from 'node:process'
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from './fixtures'
 import { customersMock } from '../src/features/customers/data/customers.mock'
 
 const apiMode = env.VITE_CUSTOMERS_USE_MOCK === 'false'
@@ -49,6 +49,7 @@ test.describe('Clients démo', () => {
     const requests: string[] = []
     page.on('pageerror', (error) => errors.push(error.message))
     page.on('console', (message) => {
+      if (message.location().url.includes('/api/auth/session/') && message.text().includes('401')) return
       if (message.type() === 'warning' || message.type() === 'error')
         errors.push(message.text())
     })

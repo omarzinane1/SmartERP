@@ -115,7 +115,7 @@ function QuoteEditorForm({ editor, data }: { editor: ReturnType<typeof useQuoteE
     try {
       if (action === 'send') {
         await editor.send.mutateAsync()
-        toast.success(editor.isDemo ? 'Envoi simulé. Aucun e-mail envoyé.' : 'Envoi confirmé par le serveur.')
+        toast.success(editor.isDemo ? 'Envoi simulé. Aucun e-mail envoyé.' : 'Devis marqué comme envoyé.')
       } else if (action === 'accept') {
         await editor.accept.mutateAsync(); toast.success('Acceptation confirmée par le serveur.')
       } else if (action === 'duplicate') {

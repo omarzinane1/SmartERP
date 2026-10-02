@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { useBlocker, useNavigate, useSearchParams } from 'react-router-dom'
-import { useQueryClient } from '@tanstack/react-query'
+import { useBlocker, useSearchParams } from 'react-router-dom'
+import { useLogout } from '../../auth/hooks/useLogout'
 import { toast } from 'sonner'
 import { PageHeading } from '../../../components/ui/BusinessPresentation'
 import { Badge } from '../../../components/ui/Badge'
@@ -17,7 +17,7 @@ import { useUserProfile } from '../hooks/useUserProfile'
 import '../../settings/configuration.css'
 const tabs = { profile: 'Profil', preferences: 'Préférences', security: 'Sécurité', sessions: 'Sessions', activity: 'Activité récente' }
 export function UserProfilePage() {
-  const q = useUserProfile(), [params, setParams] = useSearchParams(), tab = Object.hasOwn(tabs, params.get('tab') ?? '') ? params.get('tab') as keyof typeof tabs : 'profile', [dirty, setDirty] = useState(false), blocker = useBlocker(dirty), navigate = useNavigate(), client = useQueryClient()
+  const q = useUserProfile(), [params, setParams] = useSearchParams(), tab = Object.hasOwn(tabs, params.get('tab') ?? '') ? params.get('tab') as keyof typeof tabs : 'profile', [dirty, setDirty] = useState(false), blocker = useBlocker(dirty), { signOut } = useLogout()
   useEffect(() => { const guard = (e: BeforeUnloadEvent) => { if (dirty) e.preventDefault() }; window.addEventListener('beforeunload', guard); return () => window.removeEventListener('beforeunload', guard) }, [dirty])
   useEffect(() => { if (!q.data) return; const auth = useAuthStore.getState(); if (auth.user?.id === q.data.id && JSON.stringify(auth.user.preferences) !== JSON.stringify(q.data.preferences)) auth.setAuth({ user: { ...auth.user, preferences: q.data.preferences }, company: auth.company }) }, [q.data])
   if (q.isPending || q.isError || !q.data) return <PurchasingState loading={q.isPending} forbidden={isBusinessForbidden(q.error)} error="Impossible de charger les données." onRetry={() => { void q.refetch() }} />
@@ -26,7 +26,7 @@ export function UserProfilePage() {
     {tab === 'profile' && <ProfileForm profile={d} busy={q.update.isPending} onDirty={setDirty} onSave={async (identity) => { const result = await q.update.mutateAsync({ identity }); toast.success('Profil enregistré'); return result.identity }} />}
     {tab === 'preferences' && <PreferenceForm profile={d} busy={q.update.isPending} onDirty={setDirty} onSave={async (preferences) => { const result = await q.update.mutateAsync({ preferences }); toast.success('Préférences enregistrées'); return result.preferences }} />}
     {tab === 'security' && <SecurityPanel profile={d} demo={q.isDemo} passwordBusy={q.password.isPending} twoFactorBusy={q.twoFactor.isPending} onPassword={async (v) => { try { await q.password.mutateAsync(v) } finally { q.password.reset() } }} onTwoFactor={async (v) => { try { return await q.twoFactor.mutateAsync(v) } finally { q.twoFactor.reset() } }} />}
-    {tab === 'sessions' && <ActiveSessions sessions={d.sessions} busy={q.revoke.isPending} error={q.revoke.isError} demo={q.isDemo} onRevoke={async (id, current) => { await q.revoke.mutateAsync(id); if (current) { useAuthStore.getState().clearAuth(); client.clear(); await navigate('/login', { replace: true }) } else toast.success(q.isDemo ? 'Session distante fermée en simulation' : 'Session distante révoquée') }} />}
+    {tab === 'sessions' && <ActiveSessions sessions={d.sessions} busy={q.revoke.isPending} error={q.revoke.isError} demo={q.isDemo} onRevoke={async (id, current) => { await q.revoke.mutateAsync(id); if (current) { await signOut() } else toast.success(q.isDemo ? 'Session distante fermée en simulation' : 'Session distante révoquée') }} />}
     {tab === 'activity' && <RecentActivity activity={d.activity} />}
     {blocker.state === 'blocked' && <ActionConfirmation title="Quitter avec des modifications non enregistrées ?" busy={false} error={null} demo={false} onClose={() => blocker.reset()} onConfirm={() => { setDirty(false); blocker.proceed() }}><p>Les modifications du formulaire seront perdues.</p></ActionConfirmation>}
   </main>

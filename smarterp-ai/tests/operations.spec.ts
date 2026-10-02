@@ -1,5 +1,5 @@
 import { env } from 'node:process'
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from './fixtures'
 import { sumMoney } from '../src/lib/money'
 import { catalogSnapshot, completeTransferMock, createMovementMock, inventorySummaryMock, movementSnapshot, saveTransferMock, stockSnapshot, transferSnapshot, warehouseSummaryMock } from '../src/features/inventory/data/inventory.mock'
 import { productMargin } from '../src/features/products/products.utils'

@@ -1,4 +1,4 @@
-import { expect, test, type Page, type Request } from '@playwright/test'
+import { expect, test, type Page, type Request } from './fixtures'
 
 const loginEndpoint = '**/api/auth/login/'
 const credentials = { email: 'admin@company.com', password: 'test-password-42' }
@@ -31,7 +31,7 @@ test('validates required fields and email in French without contacting the API',
   const browserErrors: string[] = []
   page.on('pageerror', (error) => browserErrors.push(error.message))
   page.on('console', (message) => {
-    if (message.type() === 'error') browserErrors.push(message.text())
+    if (message.type() === 'error' && !message.location().url.includes('/api/auth/session/')) browserErrors.push(message.text())
   })
   await page.route(loginEndpoint, async (route) => {
     requests += 1

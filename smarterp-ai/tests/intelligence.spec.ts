@@ -1,5 +1,5 @@
 import { env } from 'node:process'
-import { expect, test } from '@playwright/test'
+import { expect, test } from './fixtures'
 import { analyticsReportMock, previousPeriod } from '../src/features/reports/data/analytics.mock'
 import { reportTypes } from '../src/features/reports/types/analytics.types'
 import { documentByIdMock, documentPagesMock, queryDocumentMock, documentSnapshot } from '../src/features/documents/data/documents.mock'

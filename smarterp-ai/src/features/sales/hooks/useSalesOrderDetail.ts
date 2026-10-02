@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { isAxiosError } from 'axios'
 import { env } from '../../../config/env'
 import { useAuthStore } from '../../../store/auth.store'
-import { confirmSalesOrder, createSalesOrderDelivery, createSalesOrderInvoice, getSalesOrderById, requestSalesOrderInsight, SalesOrderNotFoundError } from '../api/sales.api'
+import { cancelSalesOrder, confirmSalesOrder, createSalesOrderDelivery, createSalesOrderInvoice, getSalesOrderById, requestSalesOrderInsight, SalesOrderNotFoundError } from '../api/sales.api'
 import type { SalesActionResult, SalesDeliveryInput, SalesInvoiceInput, SalesOrdersData } from '../types/sales.types'
 
 export function useSalesOrderDetail(id: string | undefined) {
@@ -25,13 +25,14 @@ export function useSalesOrderDetail(id: string | undefined) {
     insight.reset()
   }
   const confirm = useMutation({ ...options, mutationFn: () => confirmSalesOrder(scope, orderId), onSuccess: refresh })
+  const cancel = useMutation({ ...options, mutationFn: () => cancelSalesOrder(orderId), onSuccess: refresh })
   const delivery = useMutation({ ...options, mutationFn: (input: SalesDeliveryInput) => createSalesOrderDelivery(orderId, input), onSuccess: refresh })
   const invoice = useMutation({ ...options, mutationFn: (input: SalesInvoiceInput) => createSalesOrderInvoice(orderId, input), onSuccess: refresh })
   const insight = useMutation({ ...options, mutationFn: () => requestSalesOrderInsight(scope, orderId) })
   const status = isAxiosError(query.error) ? query.error.response?.status : undefined
-  return { ...query, confirm, delivery, invoice, insight, isDemo: env.salesUseMock,
+  return { ...query, confirm, cancel, delivery, invoice, insight, isDemo: env.salesUseMock,
     isNotFound: !validId || status === 404 || query.error instanceof SalesOrderNotFoundError,
     isForbidden: status === 403 || (!!query.data && !query.data.permissions.includes('sales.view')),
-    busy: confirm.isPending || delivery.isPending || invoice.isPending,
+    busy: cancel.isPending || confirm.isPending || delivery.isPending || invoice.isPending,
   }
 }

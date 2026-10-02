@@ -1,5 +1,6 @@
 import { env } from '../../../config/env'
 import { apiClient } from '../../../lib/axios'
+import { getCollection } from '../../../lib/collectionApi'
 import { customersMock, getCustomerDetailMock, getCustomerSummaryMock, customerActivitiesMock, customerAIInsightMock } from '../data/customers.mock'
 import type {
   Customer,
@@ -17,11 +18,7 @@ export async function getCustomers(
   signal?: AbortSignal,
 ): Promise<CustomersData> {
   if (env.customersUseMock) return customersMock
-  // Contrat initial : portefeuille complet et permissions, pagination côté frontend.
-  const { data } = await apiClient.get<CustomersData>(CUSTOMERS_ENDPOINT, {
-    signal,
-  })
-  return data
+  return getCollection<CustomersData, 'customers'>(CUSTOMERS_ENDPOINT, 'customers', signal)
 }
 
 // Points d’entrée préparés pour Django. Les formulaires démo utilisent un état local.
