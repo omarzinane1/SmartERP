@@ -28,17 +28,17 @@ export function supplierSnapshot(scope: string) { return structuredClone(store(s
 export function changeSupplierPurchases(scope: string, id: number, amount: number, date: string) {
   const supplier = store(scope).find((row) => row.id === id)
   if (!supplier) throw new Error('Fournisseur introuvable')
-  supplier.purchaseVolume = sumMoney([supplier.purchaseVolume, amount])
+  supplier.purchaseVolume = sumMoney([supplier.purchaseVolume ?? 0, amount])
   supplier.lastPurchaseAt = date
 }
 export function changeSupplierBalance(scope: string, id: number, change: number) {
   const supplier = store(scope).find((row) => row.id === id)
-  if (!supplier || sumMoney([supplier.outstandingBalance, change]) < 0) throw new Error('Solde fournisseur invalide')
-  supplier.outstandingBalance = sumMoney([supplier.outstandingBalance, change])
+  if (!supplier || sumMoney([supplier.outstandingBalance ?? 0, change]) < 0) throw new Error('Solde fournisseur invalide')
+  supplier.outstandingBalance = sumMoney([supplier.outstandingBalance ?? 0, change])
 }
 export async function getSuppliersMock(scope: string, query: SupplierQuery): Promise<SuppliersData> {
   const all = store(scope)
-  const filtered = filterSuppliers(all, query, suppliersDemoDate).sort((a, b) => query.sort === 'balance_desc' ? b.outstandingBalance - a.outstandingBalance : query.sort === 'purchase_desc' ? b.purchaseVolume - a.purchaseVolume : query.sort === 'score_desc' ? (b.score ?? -1) - (a.score ?? -1) : a.name.localeCompare(b.name, 'fr'))
+  const filtered = filterSuppliers(all, query, suppliersDemoDate).sort((a, b) => query.sort === 'balance_desc' ? (b.outstandingBalance ?? 0) - (a.outstandingBalance ?? 0) : query.sort === 'purchase_desc' ? (b.purchaseVolume ?? 0) - (a.purchaseVolume ?? 0) : query.sort === 'score_desc' ? (b.score ?? -1) - (a.score ?? -1) : a.name.localeCompare(b.name, 'fr'))
   return structuredClone({ suppliers: filtered.slice((query.page - 1) * query.pageSize, query.page * query.pageSize), count: filtered.length, totalCount: all.length, summary: supplierSummary(filtered), permissions: supplierPermissions, asOf: suppliersDemoDate, currentBuyer: 'Amine Berrada', facets: { categories: [...new Set(all.map((row) => row.category))].sort(), countries: [...new Set(all.map((row) => row.country))].sort(), buyers: [...new Set(all.map((row) => row.buyer))].sort() } })
 }
 export async function saveSupplierMock(scope: string, input: SupplierInput | { status: 'archived' }, id?: number) {

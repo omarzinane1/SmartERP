@@ -26,10 +26,11 @@ export interface PurchaseOrder extends PurchaseInput {
   status: PurchaseOrderStatus; receiptStatus: ReceiptStatus; billingStatus: BillingStatus
   receipts: Receipt[]; invoiceIds: number[]; billedAmount: number; paidAmount: number
   documents: BusinessDocument[]; activities: Activity[]
-  capabilities: { canEdit: boolean; canSend: boolean; canConfirm: boolean; canReceive: boolean; canBill: boolean }
+  capabilities: { canEdit: boolean; canSend: boolean; canConfirm: boolean; canReceive: boolean; canBill: boolean; canCancel?: boolean }
 }
 export interface PurchaseOrdersData {
   orders: PurchaseOrder[]; permissions: PurchasingPermission[]; asOf: string
+  warehouses?: { id: number; name: string }[]
   currentBuyer: string; suppliers: Pick<Supplier, 'id' | 'name'>[]; canExport: boolean
 }
 export interface PurchaseOrderDetail extends PurchaseOrder {

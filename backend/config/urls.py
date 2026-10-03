@@ -6,6 +6,8 @@ from apps.companies.views import CompanySettingsView, CompanySettingsSectionView
 
 
 urlpatterns = [
+    path("api/", include("apps.purchasing.urls")),
+    path("api/", include("apps.finance.urls")),
     path("api/", include("apps.sales.urls")),
     path("api/", include("apps.crm.urls")),
     path("api/admin/", include("apps.accounts.admin_urls")),

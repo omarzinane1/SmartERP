@@ -68,7 +68,7 @@ export function SuppliersPage() {
     try {
       const all = await query.exportRows()
       const rows = selectedOnly ? all.filter((row) => selection.some((selected) => selected.id === row.id)) : all
-      downloadCSV(`fournisseurs${query.isDemo ? '-demo' : ''}.csv`, [['Référence', 'Nom', 'Catégorie', 'Ville', 'Pays', 'Acheteur', 'Volume achats MAD', 'Solde MAD', 'Délai jours', 'Score', 'Provenance score', 'Risque', 'Statut', 'Source'], ...rows.map((row) => [row.reference, row.name, row.category, row.city, row.country, row.buyer, row.purchaseVolume, row.outstandingBalance, row.averageLeadTimeDays ?? '', row.score ?? '', row.scoreSource, row.risk, row.status, query.isDemo ? 'Démonstration' : 'Serveur'])])
+      downloadCSV(`fournisseurs${query.isDemo ? '-demo' : ''}.csv`, [['Référence', 'Nom', 'Catégorie', 'Ville', 'Pays', 'Acheteur', 'Volume achats MAD', 'Solde MAD', 'Délai jours', 'Score', 'Provenance score', 'Risque', 'Statut', 'Source'], ...rows.map((row) => [row.reference, row.name, row.category, row.city, row.country, row.buyer, row.purchaseVolume ?? '', row.outstandingBalance ?? '', row.averageLeadTimeDays ?? '', row.score ?? '', row.scoreSource, row.risk ?? '', row.status, query.isDemo ? 'Démonstration' : 'Serveur'])])
     } catch { toast.error('Impossible d’exporter tous les fournisseurs autorisés.') }
     finally { setExporting(false) }
   }
@@ -77,7 +77,7 @@ export function SuppliersPage() {
   const canArchive = !!data?.permissions.includes('suppliers.edit') && selection.length > 0 && selection.every((row) => row.status !== 'archived' && row.capabilities.canArchive)
   const collection = data ? { suppliers: data.suppliers, permissions: data.permissions, group, selected: selectedIds, busy, onSelect: toggle, onEdit: (supplier: Supplier) => { setEditor({ supplier }); setError(null) }, onArchive: (supplier: Supplier) => { setArchives([supplier]); setError(null) }, onMore: setDetails } : null
   return <main className="dashboard-page business-page">
-    <header className="business-header"><div><small>Achats / Gestion fournisseurs</small><h1>Fournisseurs</h1><p>Gérez votre base fournisseurs et suivez leur activité, leur risque et leur performance.</p></div>{data && <span className="business-note">{data.summary.active} actifs · {data.summary.atRisk} à surveiller dans le périmètre</span>}</header>
+    <header className="business-header"><div><small>Achats / Gestion fournisseurs</small><h1>Fournisseurs</h1><p>Gérez votre base fournisseurs et suivez leur activité, leur risque et leur performance.</p></div>{data && <span className="business-note">{data.summary.active} actifs · {data.summary.atRisk ?? 'Risque non évalué'} à surveiller dans le périmètre</span>}</header>
     {query.isPending ? <><p role="status">Chargement des fournisseurs…</p><div className="business-kpis supplier-kpis">{[1, 2, 3, 4, 5].map((key) => <div key={key} className="business-card business-skeleton" />)}</div><div className="business-card business-skeleton min-h-80" /></> : !data || !collection ? <><Alert variant="error">Impossible de charger les fournisseurs.</Alert><Button className="business-button mt-4" disabled={query.isFetching} onClick={() => void query.refetch()}>Réessayer</Button></> : <>
       {query.isError && <Alert variant="error">L’actualisation a échoué. Les dernières données restent affichées.</Alert>}
       <SupplierKPIGrid summary={data.summary} />

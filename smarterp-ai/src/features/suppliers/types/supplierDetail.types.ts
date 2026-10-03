@@ -8,6 +8,6 @@ export interface SupplierDetail extends Supplier {
   contracts: { id: string; name: string; expiresAt: string; status: string }[]
   activities: Activity[]
 }
-export interface SupplierMetrics { purchaseVolume: number; outstandingBalance: number; averageLeadTimeDays: number | null; onTimeDelivery: number | null; priceChange: number | null; score: number | null }
+export interface SupplierMetrics { purchaseVolume: number | null; outstandingBalance: number | null; averageLeadTimeDays: number | null; onTimeDelivery: number | null; priceChange: number | null; score: number | null }
 export interface SupplierPriceHistory { product: string; points: { date: string; price: number }[]; source: string }
 export interface PurchasingInsight { facts: string[]; analysis: string; risk: string; opportunity?: string; recommendations: string[]; source: string }

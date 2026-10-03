@@ -108,14 +108,15 @@ class InvoiceAPITests(SalesDataMixin, TestCase):
         self.assertEqual(self.client.get("/api/invoices/?page_size=1").data["count"], 2)
         self.assertEqual(len(self.client.get("/api/invoices/?workflow=draft&search=Alpha&min_amount=60&max_amount=70").data["invoices"]), 2)
         self.assertEqual(sum(b["amount"] for b in self.client.get("/api/invoices/aging/").data), 0)
-        # Existing/imported posted data can be read, but no posting action is implemented.
+        # Imported posted data remains immutable through the draft API.
         yesterday = timezone.localdate() - timedelta(days=1)
         Invoice.objects.filter(pk=first["id"]).update(status="posted", issue_date=yesterday, due_date=yesterday)
         self.assertEqual(self.client.get("/api/invoices/?aging=1-30").data["count"], 1)
         self.assertEqual(sum(b["amount"] for b in self.client.get("/api/invoices/aging/").data), Decimal("64.76"))
         self.assertEqual(self.client.patch(f"/api/invoices/{first['id']}/", {"notes": "Immutable"}, format="json").status_code, 409)
-        for action in ("post", "send", "payment", "remind", "credit-note"):
-            self.assertEqual(self.client.post(f"/api/invoices/{first['id']}/{action}/", {}, format="json").status_code, 404)
+        self.assertEqual(self.client.post(f"/api/invoices/{first['id']}/send/", {}, format="json").status_code, 404)
+        for action in ("post", "payment", "remind", "credit-note"):
+            self.assertEqual(self.client.post(f"/api/invoices/{first['id']}/{action}/", {}, format="json").status_code, 403)
 
     def test_late_failure_rolls_back_invoice_lines_number_and_order_link(self):
         oid = self.confirmed_order()

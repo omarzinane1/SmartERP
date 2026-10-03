@@ -20,6 +20,9 @@ def next_document_number(*, company, kind, prefix, start=1, dated=True):
         app_label, model_name, field = {
             "customer": ("crm", "Customer", "reference"), "quote": ("sales", "Quote", "number"),
             "sales_order": ("sales", "SalesOrder", "number"), "invoice": ("sales", "Invoice", "number"),
+            "credit_note": ("sales", "CreditNote", "number"), "payment": ("finance", "Payment", "number"),
+            "supplier": ("purchasing", "Supplier", "reference"), "purchase_order": ("purchasing", "PurchaseOrder", "number"),
+            "goods_receipt": ("purchasing", "GoodsReceipt", "number"),
         }[kind]
         stem = f"{prefix}-{year}-" if dated else f"{prefix}-"
         model = apps.get_model(app_label, model_name)

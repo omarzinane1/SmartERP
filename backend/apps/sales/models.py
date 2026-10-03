@@ -180,6 +180,7 @@ class Invoice(TimeStampedModel):
     tax_total = models.DecimalField(max_digits=18, decimal_places=2, default=0)
     total = models.DecimalField(max_digits=18, decimal_places=2, default=0)
     amount_paid = models.DecimalField(max_digits=18, decimal_places=2, default=0)
+    credit_total = models.DecimalField(max_digits=18, decimal_places=2, default=0)
     balance_due = models.DecimalField(max_digits=18, decimal_places=2, default=0)
 
     class Meta:
@@ -190,7 +191,8 @@ class Invoice(TimeStampedModel):
             models.CheckConstraint(condition=models.Q(due_date__gte=models.F("issue_date")), name="invoice_date_order"),
             models.CheckConstraint(condition=models.Q(status__in=InvoiceStatus.values), name="invoice_status_valid"),
             models.CheckConstraint(condition=models.Q(total__gte=0, subtotal__gte=0, tax_total__gte=0, amount_paid__gte=0, amount_paid__lte=models.F("total")), name="invoice_amounts_valid"),
-            models.CheckConstraint(condition=models.Q(balance_due=models.F("total") - models.F("amount_paid")), name="invoice_balance_consistent"),
+            models.CheckConstraint(condition=models.Q(balance_due=models.F("total") - models.F("amount_paid") - models.F("credit_total")), name="invoice_balance_consistent"),
+            models.CheckConstraint(condition=models.Q(credit_total__gte=0, balance_due__gte=0), name="invoice_credit_balance_positive"),
         ]
         indexes = [models.Index(fields=["company", "status", "issue_date"], name="invoice_company_status_date"),
                    models.Index(fields=["company", "due_date"], name="invoice_company_due"),
@@ -216,3 +218,61 @@ class InvoiceActivity(models.Model):
 
     class Meta:
         ordering = ["-created_at", "-pk"]
+
+
+class CreditNote(TimeStampedModel):
+    company = models.ForeignKey("companies.Company", on_delete=models.PROTECT)
+    customer = models.ForeignKey("crm.Customer", on_delete=models.PROTECT)
+    original_invoice = models.ForeignKey(Invoice, on_delete=models.PROTECT, related_name="credit_notes")
+    number = models.CharField(max_length=50)
+    date = models.DateField()
+    currency = models.CharField(max_length=3)
+    reason = models.TextField()
+    status = models.CharField(max_length=20, default="posted", editable=False)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    operation_key = models.CharField(max_length=128)
+    request_fingerprint = models.CharField(max_length=64)
+    gross_total = models.DecimalField(max_digits=18, decimal_places=2)
+    discount_total = models.DecimalField(max_digits=18, decimal_places=2)
+    subtotal = models.DecimalField(max_digits=18, decimal_places=2)
+    tax_total = models.DecimalField(max_digits=18, decimal_places=2)
+    total = models.DecimalField(max_digits=18, decimal_places=2)
+
+    class Meta:
+        ordering = ["-date", "-pk"]
+        constraints = [
+            models.UniqueConstraint(fields=["company", "number"], name="unique_credit_number"),
+            models.UniqueConstraint(fields=["company", "operation_key"], name="unique_credit_operation"),
+            models.CheckConstraint(condition=models.Q(total__gt=0, subtotal__gte=0, tax_total__gte=0, status="posted"), name="credit_amounts_status_valid"),
+        ]
+        indexes = [models.Index(fields=["company", "customer", "date"], name="credit_company_customer_date")]
+
+
+class CreditNoteLine(CommercialLine):
+    credit_note = models.ForeignKey(CreditNote, on_delete=models.PROTECT, related_name="lines")
+    original_line = models.ForeignKey(InvoiceLine, on_delete=models.PROTECT, related_name="credits")
+
+    class Meta(CommercialLine.Meta):
+        constraints = CommercialLine.Meta.constraints + [
+            models.UniqueConstraint(fields=["credit_note", "original_line"], name="unique_credit_source_line"),
+            models.UniqueConstraint(fields=["credit_note", "position"], name="unique_credit_line_position"),
+        ]
+
+
+class InvoiceReminder(models.Model):
+    company = models.ForeignKey("companies.Company", on_delete=models.PROTECT)
+    invoice = models.ForeignKey(Invoice, on_delete=models.PROTECT, related_name="reminders")
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    created_at = models.DateTimeField(auto_now_add=True)
+    channel = models.CharField(max_length=20, default="email")
+    recipient = models.EmailField(blank=True)
+    status = models.CharField(max_length=20, default="requested")
+    operation_key = models.CharField(max_length=128)
+    request_fingerprint = models.CharField(max_length=64)
+
+    class Meta:
+        ordering = ["-created_at", "-pk"]
+        constraints = [
+            models.UniqueConstraint(fields=["company", "operation_key"], name="unique_reminder_operation"),
+            models.CheckConstraint(condition=models.Q(status="requested"), name="reminder_requested_only"),
+        ]

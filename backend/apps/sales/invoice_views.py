@@ -70,3 +70,37 @@ class InvoiceAgingView(APIView):
 
     def get(self, request):
         return Response(selectors.invoice_aging(company=request.company))
+
+
+class InvoiceActionView(APIView):
+    permission_classes = [IsAuthenticated, HasActiveCompany, HasPermission]
+    action = None
+
+    @property
+    def required_permission(self):
+        return {"post": "invoices.post", "credit-note": "invoices.credit_note", "remind": "invoices.remind", "payment": "payments.create"}[self.action]
+
+    def post(self, request, invoice_id):
+        from . import invoice_workflows as workflows
+        from .invoice_serializers import CreditNoteInputSerializer
+        from .serializers import EmptyActionSerializer
+        from apps.finance.serializers import InvoicePaymentInputSerializer
+        from apps.finance.services import create_payment
+        invoice = selectors.invoice_by_id(company=request.company, invoice_id=invoice_id)
+        serializer = {"post": EmptyActionSerializer, "remind": EmptyActionSerializer,
+            "credit-note": CreditNoteInputSerializer, "payment": InvoicePaymentInputSerializer}[self.action](data=request.data)
+        serializer.is_valid(raise_exception=True)
+        args = dict(company=request.company, membership=request.membership, invoice_id=invoice_id)
+        key = request.headers.get("Idempotency-Key")
+        if self.action == "post":
+            workflows.post_invoice(**args)
+        elif self.action == "credit-note":
+            workflows.create_credit_note(**args, data=serializer.validated_data, key=key)
+        elif self.action == "remind":
+            workflows.request_reminder(**args, key=key)
+        else:
+            data = dict(serializer.validated_data)
+            data["reference_external"] = data.pop("reference")
+            create_payment(company=request.company, membership=request.membership, key=key,
+                data=dict(**data, direction="incoming", partner_id=invoice.customer_id, invoice_id=invoice_id, currency=invoice.currency))
+        return Response(selectors.invoice_detail(invoice=selectors.invoice_by_id(company=request.company, invoice_id=invoice_id), membership=request.membership))

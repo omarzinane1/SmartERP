@@ -34,5 +34,5 @@ export function calculateTotals(lines: MoneyLine[]): MoneyTotals {
   }
 }
 export const calculateLineAmounts = (line: MoneyLine) => calculateTotals([line])
-export const formatMoney = (amount: number, currency = 'MAD') => Number.isFinite(amount) ? `${formatNumber(amount, 2)} ${currency}` : '—'
+export const formatMoney = (amount: number | null, currency = 'MAD') => typeof amount === 'number' && Number.isFinite(amount) ? `${formatNumber(amount, 2)} ${currency}` : '—'
 export const sumMoney = (values: number[]) => values.reduce((sum, value) => sum + Math.round(value * 100), 0) / 100

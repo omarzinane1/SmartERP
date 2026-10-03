@@ -1,5 +1,6 @@
 import { env } from '../../../config/env'
 import { apiClient } from '../../../lib/axios'
+import { postIdempotent } from '../../../lib/idempotentApi'
 import { getCollection } from '../../../lib/collectionApi'
 import { getInvoiceInsightMock, getInvoiceMock, getInvoicesAgingMock, getInvoicesMock, invoiceActionMock, saveInvoiceMock } from '../data/invoices.mock'
 import type { AgingBucket, InvoiceAction, InvoiceDetail, InvoiceInput, InvoicePaymentInput, InvoicesData } from '../types/invoices.types'
@@ -35,7 +36,12 @@ export async function updateInvoice(scope: string, id: number, input: InvoiceInp
 }
 async function mutateInvoice(scope: string, id: number, action: InvoiceAction, input?: InvoicePaymentInput): Promise<InvoiceDetail> {
   if (env.invoicesUseMock) return invoiceActionMock(scope, id, action, input)
-  const { data } = await apiClient.post<InvoiceDetail>(`${INVOICES_ENDPOINT}${id}/${action}/`, input); return fromAPI(data)
+  return fromAPI(await postIdempotent<InvoiceDetail>(scope, `${INVOICES_ENDPOINT}${id}/${action}/`, input ?? {}))
+}
+export interface CreditNoteInput { date: string; reason: string; lines?: { line_id: number; quantity: number }[] }
+export async function createCreditNote(scope: string, id: number, input: CreditNoteInput) {
+  if (env.invoicesUseMock) throw new Error('Les avoirs nécessitent le backend réel.')
+  return fromAPI(await postIdempotent<InvoiceDetail>(scope, `${INVOICES_ENDPOINT}${id}/credit-note/`, input))
 }
 export const postInvoice = (scope: string, id: number) => mutateInvoice(scope, id, 'post')
 export const sendInvoice = (scope: string, id: number) => mutateInvoice(scope, id, 'send')

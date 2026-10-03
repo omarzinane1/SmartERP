@@ -3,7 +3,7 @@ import type { AgingBucket, AgingKey, InvoiceFilters, InvoiceGroup, InvoiceLine, 
 import { presentationLabels } from '../types/invoices.types'
 
 export const calculateInvoiceTotals = (lines: InvoiceLine[]) => calculateTotals(lines)
-export const remainingAmount = (invoice: Pick<InvoiceSummary, 'totalAmount' | 'paidAmount'>) => Math.max(0, sumMoney([invoice.totalAmount, -invoice.paidAmount]))
+export const remainingAmount = (invoice: Pick<InvoiceSummary, 'totalAmount' | 'paidAmount' | 'creditTotal' | 'balanceDue'>) => Math.max(0, invoice.balanceDue ?? sumMoney([invoice.totalAmount, -invoice.paidAmount, -(invoice.creditTotal ?? 0)]))
 export const daysOverdue = (invoice: InvoiceSummary, asOf: string) => invoice.workflowStatus === 'posted' && remainingAmount(invoice) > 0
   ? Math.max(0, Math.round((Date.parse(`${asOf}T12:00:00Z`) - Date.parse(`${invoice.dueDate}T12:00:00Z`)) / 86400000)) : 0
 export function agingKey(invoice: InvoiceSummary, asOf: string): AgingKey | null {
@@ -22,7 +22,7 @@ export function calculateAging(invoices: InvoiceSummary[], asOf: string): AgingB
 export function invoiceKPIs(invoices: InvoiceSummary[], asOf: string) {
   const issued = invoices.filter((invoice) => invoice.workflowStatus === 'posted')
   const late = issued.filter((invoice) => daysOverdue(invoice, asOf) > 0)
-  return { invoiced: sumMoney(issued.map((invoice) => invoice.totalAmount)), paid: sumMoney(issued.map((invoice) => invoice.paidAmount)), remaining: sumMoney(issued.map(remainingAmount)), overdue: sumMoney(late.map(remainingAmount)), overdueCount: late.length }
+  return { invoiced: sumMoney(issued.map((invoice) => sumMoney([invoice.totalAmount, -(invoice.creditTotal ?? 0)]))), paid: sumMoney(issued.map((invoice) => invoice.paidAmount)), remaining: sumMoney(issued.map(remainingAmount)), overdue: sumMoney(late.map(remainingAmount)), overdueCount: late.length }
 }
 export function presentation(invoice: InvoiceSummary, asOf: string): InvoicePresentation {
   if (invoice.workflowStatus !== 'posted') return invoice.workflowStatus

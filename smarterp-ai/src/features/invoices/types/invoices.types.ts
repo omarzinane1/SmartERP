@@ -12,9 +12,10 @@ export interface InvoiceInput {
 export interface InvoiceSummary {
   id: number; reference: string; customerId: number; customerName: string; salesperson: string
   invoiceDate: string; issuedAt: string | null; dueDate: string; totalAmount: number; paidAmount: number
+  creditTotal?: number; balanceDue?: number
   workflowStatus: InvoiceWorkflowStatus; paymentStatus: InvoicePaymentStatus
   salesOrderId: number | null; salesOrderReference: string | null
-  capabilities: { canEdit: boolean; canPost: boolean; canSend: boolean; canPay: boolean; canRemind: boolean }
+  capabilities: { canEdit: boolean; canPost: boolean; canSend: boolean; canPay: boolean; canRemind: boolean; canCredit?: boolean }
 }
 export interface InvoiceDetail extends InvoiceSummary, InvoiceInput {
   customerEmail: string; totals: MoneyTotals; payments: Omit<SalesPayment, 'invoiceId'>[]; deliveries: SalesDelivery[]
@@ -34,6 +35,6 @@ export interface InvoiceFilters {
   dateFrom: string; dateTo: string; dueFrom: string; dueTo: string; minAmount: string; maxAmount: string; aging: string
 }
 export type InvoiceGroup = '' | 'status' | 'customer' | 'salesperson' | 'month' | 'due' | 'aging'
-export const workflowLabels = { draft: 'Brouillon', posted: 'Comptabilisée', cancelled: 'Annulée' }
+export const workflowLabels = { draft: 'Brouillon', posted: 'Validée', cancelled: 'Annulée' }
 export const paymentLabels = { unpaid: 'Impayée', partially_paid: 'Partiellement payée', paid: 'Payée' }
 export const presentationLabels = { draft: 'Brouillon', unpaid: 'Impayée', partially_paid: 'Partiellement payée', overdue: 'En retard', paid: 'Payée', cancelled: 'Annulée' }

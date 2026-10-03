@@ -55,3 +55,14 @@ class InvoiceFilterSerializer(serializers.Serializer):
     max_amount = serializers.DecimalField(max_digits=18, decimal_places=2, min_value=0, required=False)
     aging = serializers.ChoiceField(choices=["current", "1-30", "31-60", "61-90", "90+"], required=False)
     ordering = serializers.ChoiceField(choices=["issue_date", "-issue_date", "due_date", "-due_date", "total", "-total", "balance_due", "-balance_due", "number"], required=False)
+
+
+class CreditLineInputSerializer(StrictSerializer):
+    line_id = serializers.IntegerField(min_value=1)
+    quantity = serializers.DecimalField(max_digits=9, decimal_places=3, min_value=Decimal("0.001"), max_value=Decimal("100000"))
+
+
+class CreditNoteInputSerializer(StrictSerializer):
+    date = serializers.DateField()
+    reason = serializers.CharField(max_length=5000)
+    lines = CreditLineInputSerializer(many=True, min_length=1, max_length=100, required=False)

@@ -12,12 +12,12 @@ export interface Supplier {
   country: string
   city: string
   buyer: string
-  purchaseVolume: number
-  outstandingBalance: number
+  purchaseVolume: number | null
+  outstandingBalance: number | null
   averageLeadTimeDays: number | null
   score: number | null
   scoreSource: string
-  risk: SupplierRisk
+  risk: SupplierRisk | null
   status: SupplierStatus
   createdAt: string
   lastPurchaseAt: string | null
@@ -30,7 +30,7 @@ export interface SupplierFilters {
   buyer: string; city: string; quick: string; strategic: boolean
 }
 export interface SupplierQuery extends SupplierFilters { page: number; pageSize: number; sort: string }
-export interface SupplierSummary { active: number; purchaseVolume: number; outstandingBalance: number; averageLeadTimeDays: number | null; atRisk: number }
+export interface SupplierSummary { active: number; purchaseVolume: number | null; outstandingBalance: number | null; averageLeadTimeDays: number | null; atRisk: number | null }
 export interface SuppliersData {
   suppliers: Supplier[]; count: number; totalCount: number; summary: SupplierSummary
   permissions: SupplierPermission[]; asOf: string; currentBuyer: string
