@@ -8,7 +8,7 @@ export type PurchaseOrderStatus = 'draft' | 'sent' | 'confirmed' | 'cancelled'
 export type ReceiptStatus = 'not_received' | 'partially_received' | 'received'
 export type BillingStatus = 'not_billed' | 'partially_billed' | 'billed'
 export interface PurchaseLine extends MoneyLine {
-  id: string; productName: string; description: string; receivedQuantity: number
+  id: string; productId?: number | null; productName: string; description: string; receivedQuantity: number
   previousPrice: number | null; averagePrice: number | null
 }
 export interface Activity { id: string; date: string; title: string; detail: string }
@@ -28,12 +28,15 @@ export interface PurchaseOrder extends PurchaseInput {
   documents: BusinessDocument[]; activities: Activity[]
   capabilities: { canEdit: boolean; canSend: boolean; canConfirm: boolean; canReceive: boolean; canBill: boolean; canCancel?: boolean }
 }
+export interface PurchaseCatalogItem { id: number; name: string; sku: string; purchasePrice: number; taxRate: number; description: string }
 export interface PurchaseOrdersData {
+  products?: PurchaseCatalogItem[]
   orders: PurchaseOrder[]; permissions: PurchasingPermission[]; asOf: string
   warehouses?: { id: number; name: string }[]
   currentBuyer: string; suppliers: Pick<Supplier, 'id' | 'name'>[]; canExport: boolean
 }
 export interface PurchaseOrderDetail extends PurchaseOrder {
+  products?: PurchaseCatalogItem[]
   permissions: PurchasingPermission[]; asOf: string
   invoices: { id: number; reference: string; total: number; paidAmount: number; workflowStatus: string }[]
   payments: { id: number; reference: string; date: string; amount: number; status: string }[]

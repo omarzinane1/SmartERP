@@ -42,6 +42,13 @@ class InvoiceWorkflowTests(LedgerDataMixin, TestCase):
         self.assertEqual(self.credit(invoice).status_code, 409)
         self.assertEqual(CreditNote.objects.count(), 1)
 
+    def test_customer_receivables_and_revenue_include_credits(self):
+        invoice = self.invoice()
+        self.credit(invoice, lines=[dict(line_id=invoice["lines"][0]["id"], quantity=2)])
+        result = self.client.get(f"/api/customers/{self.customer.pk}/summary/")
+        self.assertEqual(result.data["revenue"], Decimal("800.00"))
+        self.assertEqual(result.data["outstanding"], Decimal("800.00"))
+
     def test_partial_credits_preserve_rounding_and_idempotency(self):
         invoice = self.invoice(price="0.05", quantity="3.000", tax="10.00")
         path = f"/api/invoices/{invoice['id']}/credit-note/"

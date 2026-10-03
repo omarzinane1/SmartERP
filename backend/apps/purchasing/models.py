@@ -81,6 +81,7 @@ class GoodsReceipt(TimeStampedModel):
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     operation_key = models.CharField(max_length=128)
     request_fingerprint = models.CharField(max_length=64)
+    stock_applied_at = models.DateTimeField(null=True)
 
     class Meta:
         ordering = ["date", "pk"]
@@ -108,6 +109,66 @@ class GoodsReceiptLine(models.Model):
 class PurchaseActivity(models.Model):
     company = models.ForeignKey("companies.Company", on_delete=models.PROTECT)
     order = models.ForeignKey(PurchaseOrder, on_delete=models.PROTECT, related_name="activities")
+    actor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    created_at = models.DateTimeField(auto_now_add=True)
+    title = models.CharField(max_length=100)
+    detail = models.CharField(max_length=255)
+
+    class Meta:
+        ordering = ["-created_at", "-pk"]
+
+
+class SupplierInvoice(TimeStampedModel):
+    company = models.ForeignKey("companies.Company", on_delete=models.PROTECT)
+    supplier = models.ForeignKey(Supplier, on_delete=models.PROTECT, related_name="invoices")
+    order = models.ForeignKey(PurchaseOrder, on_delete=models.PROTECT, null=True, related_name="invoices")
+    number = models.CharField(max_length=50)
+    supplier_reference = models.CharField(max_length=120, blank=True)
+    issue_date = models.DateField()
+    due_date = models.DateField()
+    currency = models.CharField(max_length=3, default="MAD")
+    payment_terms = models.CharField(max_length=500, blank=True)
+    notes = models.TextField(blank=True)
+    status = models.CharField(max_length=20, default="draft", choices=[(s, s) for s in ("draft", "posted", "cancelled")])
+    gross_total = models.DecimalField(max_digits=18, decimal_places=2, default=0)
+    discount_total = models.DecimalField(max_digits=18, decimal_places=2, default=0)
+    subtotal = models.DecimalField(max_digits=18, decimal_places=2, default=0)
+    tax_total = models.DecimalField(max_digits=18, decimal_places=2, default=0)
+    total = models.DecimalField(max_digits=18, decimal_places=2)
+    amount_paid = models.DecimalField(max_digits=18, decimal_places=2, default=0)
+    balance_due = models.DecimalField(max_digits=18, decimal_places=2)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    posted_at = models.DateTimeField(null=True)
+    operation_key = models.CharField(max_length=128)
+    request_fingerprint = models.CharField(max_length=64)
+
+    class Meta:
+        ordering = ["-issue_date", "-pk"]
+        constraints = [
+            models.UniqueConstraint(fields=["company", "number"], name="unique_supplier_invoice_number"),
+            models.UniqueConstraint(fields=["company", "operation_key"], name="unique_supplier_invoice_op"),
+            models.UniqueConstraint(fields=["company", "supplier", "supplier_reference"], condition=~models.Q(supplier_reference="") & ~models.Q(status="cancelled"), name="unique_supplier_external_ref"),
+            models.CheckConstraint(condition=models.Q(total__gt=0, amount_paid__gte=0, balance_due__gte=0, balance_due=models.F("total")-models.F("amount_paid")), name="supplier_invoice_balance_valid"),
+            models.CheckConstraint(condition=models.Q(due_date__gte=models.F("issue_date")), name="supplier_invoice_dates_valid"),
+            models.CheckConstraint(condition=models.Q(status__in=["draft", "posted", "cancelled"]), name="supplier_invoice_status_valid"),
+        ]
+        indexes = [models.Index(fields=["company", "status", "due_date"], name="supinvoice_company_status_due"), models.Index(fields=["company", "supplier"], name="supinvoice_company_supplier")]
+
+
+class SupplierInvoiceLine(CommercialLine):
+    invoice = models.ForeignKey(SupplierInvoice, on_delete=models.CASCADE, related_name="lines")
+    purchase_line = models.ForeignKey(PurchaseOrderLine, on_delete=models.PROTECT, null=True, related_name="invoice_lines")
+
+    class Meta(CommercialLine.Meta):
+        constraints = CommercialLine.Meta.constraints + [
+            models.UniqueConstraint(fields=["invoice", "position"], name="unique_supinvoice_line_position"),
+            models.UniqueConstraint(fields=["invoice", "purchase_line"], condition=models.Q(purchase_line__isnull=False), name="unique_supinvoice_purchase_line"),
+        ]
+
+
+class SupplierInvoiceActivity(models.Model):
+    company = models.ForeignKey("companies.Company", on_delete=models.PROTECT)
+    invoice = models.ForeignKey(SupplierInvoice, on_delete=models.PROTECT, related_name="activities")
     actor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=100)

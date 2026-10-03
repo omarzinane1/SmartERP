@@ -59,7 +59,7 @@ export function warehouseSummaryMock(scope: string): WarehouseSummary[] {
 }
 export function inventorySummaryMock(scope: string): InventorySummary {
   const products = catalogSnapshot(scope), rows = stockSnapshot(scope)
-  return { value: sumMoney(rows.map((r) => r.value)), available: quantity(rows.reduce((s, r) => s + r.available, 0)), lowStock: products.filter((p) => p.stockHealth === 'low_stock').length, outOfStock: products.filter((p) => p.stockHealth === 'out_of_stock').length, dormantValue: sumMoney(rows.filter((r) => r.lastMovementAt < '2026-07-02').map((r) => r.value)), incoming: quantity(rows.reduce((s, r) => s + r.incoming, 0)), products, rows, warehouses: warehouseSummaryMock(scope), permissions: stockDemoPermissions, asOf: stockDemoDate }
+  return { value: sumMoney(rows.map((r) => r.value)), available: quantity(rows.reduce((s, r) => s + r.available, 0)), lowStock: products.filter((p) => p.stockHealth === 'low_stock').length, outOfStock: products.filter((p) => p.stockHealth === 'out_of_stock').length, dormantValue: sumMoney(rows.filter((r) => (r.lastMovementAt ?? stockDemoDate) < '2026-07-02').map((r) => r.value)), incoming: quantity(rows.reduce((s, r) => s + r.incoming, 0)), products, rows, warehouses: warehouseSummaryMock(scope), permissions: stockDemoPermissions, asOf: stockDemoDate }
 }
 function getRow(scope: string, productId: number, warehouseId: number) {
   let row = store(scope).rows.find((r) => r.productId === productId && r.warehouseId === warehouseId)
@@ -77,7 +77,7 @@ export async function createMovementMock(scope: string, input: MovementInput) {
   await new Promise((r) => setTimeout(r, 250)); const v = movementSchema.parse(input)
   if (!productSnapshot(scope).some((p) => p.id === v.productId && p.type === 'product' && p.status === 'active') || !warehouseSnapshot(scope).some((w) => w.id === v.warehouseId && w.status === 'active')) throw new Error('Produit physique et dépôt actifs requis.')
   const row = getRow(scope, v.productId, v.warehouseId), delta = v.type === 'out' || v.type === 'adjustment' && v.adjustmentDirection === 'decrease' ? -v.quantity : v.quantity
-  if (v.date < row.lastMovementAt || v.date > stockDemoDate) throw new Error('La date doit suivre le dernier mouvement et ne pas être future dans la simulation.')
+  if (v.date < (row.lastMovementAt ?? stockDemoDate) || v.date > stockDemoDate) throw new Error('La date doit suivre le dernier mouvement et ne pas être future dans la simulation.')
   if (row.onHand + delta < row.reserved) throw new Error('Stock disponible insuffisant. Le stock réservé est protégé.')
   return appendMovement(scope, row, delta, v.type, v.date, v.sourceReference, v.note)
 }

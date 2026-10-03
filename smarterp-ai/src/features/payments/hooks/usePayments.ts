@@ -22,9 +22,15 @@ export function usePayments(filters: PaymentQuery) {
   const create = useMutation({ ...options, mutationFn: (input: PaymentInput) => createPayment(scope, input), onSuccess: refresh })
   const cancel = useMutation({ ...options, mutationFn: (id: number) => cancelPayment(scope, id), onSuccess: refresh })
   async function exportRows() {
-    const result = await getPayments(scope, { ...filters, page: 1, pageSize: Math.max(1, query.data?.count ?? 0) })
-    if (!result.permissions.includes('payments.export') || result.payments.length !== result.count) throw new Error('Export complet indisponible')
-    return result.payments
+    const result = await getPayments(scope, { ...filters, page: 1, pageSize: 100 })
+    if (!result.permissions.includes('payments.export')) throw new Error('Export non autorisé')
+    const rows = [...result.payments]
+    for (let page = 2; rows.length < result.count; page++) {
+      const next = await getPayments(scope, { ...filters, page, pageSize: 100 })
+      if (!next.payments.length || next.count !== result.count) throw new Error('La liste a changé. Relancez l’export.')
+      rows.push(...next.payments)
+    }
+    return rows
   }
   return { ...query, summary, create, cancel, exportRows, isDemo: env.paymentsUseMock, scope, isForbidden: isAxiosError(query.error) && query.error.response?.status === 403 || !!query.data && !query.data.permissions.includes('payments.view') }
 }

@@ -19,9 +19,15 @@ export function useSuppliers(filters: SupplierQuery) {
   const save = useMutation({ ...options, mutationFn: ({ id, input }: { id?: number; input: SupplierInput }) => id === undefined ? createSupplier(scope, input) : updateSupplier(scope, id, input), onSuccess: refresh })
   const archive = useMutation({ ...options, mutationFn: (id: number) => updateSupplier(scope, id, { status: 'archived' }), onSuccess: refresh })
   async function exportRows() {
-    const result = await getSuppliers(scope, { ...filters, page: 1, pageSize: Math.max(1, query.data?.count ?? 0) })
-    if (!result.permissions.includes('suppliers.export') || result.suppliers.length !== result.count) throw new Error('Export complet indisponible')
-    return result.suppliers
+    const result = await getSuppliers(scope, { ...filters, page: 1, pageSize: 100 })
+    if (!result.permissions.includes('suppliers.export')) throw new Error('Export non autorisé')
+    const rows = [...result.suppliers]
+    for (let page = 2; rows.length < result.count; page++) {
+      const next = await getSuppliers(scope, { ...filters, page, pageSize: 100 })
+      if (!next.suppliers.length || next.count !== result.count) throw new Error('La liste a changé. Relancez l’export.')
+      rows.push(...next.suppliers)
+    }
+    return rows
   }
   return { ...query, save, archive, exportRows, scope, isDemo: env.suppliersUseMock, isForbidden: isAxiosError(query.error) && query.error.response?.status === 403 || !!query.data && !query.data.permissions.includes('suppliers.view') }
 }

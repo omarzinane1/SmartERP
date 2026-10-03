@@ -23,6 +23,11 @@ def next_document_number(*, company, kind, prefix, start=1, dated=True):
             "credit_note": ("sales", "CreditNote", "number"), "payment": ("finance", "Payment", "number"),
             "supplier": ("purchasing", "Supplier", "reference"), "purchase_order": ("purchasing", "PurchaseOrder", "number"),
             "goods_receipt": ("purchasing", "GoodsReceipt", "number"),
+            "supplier_invoice": ("purchasing", "SupplierInvoice", "number"),
+            "warehouse": ("inventory", "Warehouse", "code"),
+            "stock_movement": ("inventory", "StockMovement", "number"),
+            "stock_transfer": ("inventory", "StockTransfer", "number"),
+            "expense": ("finance", "Expense", "number"),
         }[kind]
         stem = f"{prefix}-{year}-" if dated else f"{prefix}-"
         model = apps.get_model(app_label, model_name)

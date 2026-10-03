@@ -2,9 +2,9 @@ import type { CatalogProduct, StockHealth } from '../../products/types/products.
 import type { WarehouseSummary } from '../../warehouses/types/warehouses.types'
 export type MovementType = 'in' | 'out' | 'transfer' | 'adjustment' | 'return'
 export type TransferStatus = 'draft' | 'ready' | 'in_transit' | 'completed' | 'cancelled'
-export interface StockRow { productId: number; warehouseId: number; onHand: number; reserved: number; incoming: number; lastMovementAt: string }
+export interface StockRow { productId: number; warehouseId: number; onHand: number; reserved: number; incoming: number; lastMovementAt: string | null }
 export interface InventoryRow extends StockRow { productName: string; sku: string; warehouseName: string; available: number; value: number; minimum: number; health: StockHealth; unit: string }
-export interface MovementInput { productId: number; warehouseId: number; quantity: number; type: Exclude<MovementType, 'transfer'>; date: string; sourceReference: string; note: string; adjustmentDirection: 'increase' | 'decrease' }
+export interface MovementInput { productId: number; warehouseId: number; quantity: number; type: Exclude<MovementType, 'transfer'>; date: string; sourceReference: string; note: string; unitCost?: number; adjustmentDirection: 'increase' | 'decrease' }
 export interface StockMovement { id: number; reference: string; date: string; type: MovementType; productId: number; productName: string; warehouseId: number; warehouseName: string; destinationId: number | null; destinationName: string | null; quantity: number; before: number; after: number; sourceReference: string; sourcePath: string | null; user: string; note: string }
 export interface TransferInput { sourceId: number; destinationId: number; date: string; referenceExternal: string; notes: string; lines: { productId: number; quantity: number }[] }
 export interface StockTransfer extends TransferInput { id: number; reference: string; sourceName: string; destinationName: string; status: TransferStatus; user: string; activities: { id: string; date: string; title: string; detail: string }[]; capabilities: { canEdit: boolean; canReady: boolean; canStart: boolean; canComplete: boolean; canCancel: boolean } }

@@ -92,7 +92,7 @@ class PurchaseListView(PurchasingView):
         pager = CollectionPagination()
         rows = pager.paginate_queryset(query, request)
         return Response(pager.envelope(key="orders", rows=[selectors.purchase_payload(o, codes) for o in rows],
-            permissions=codes, asOf=timezone.localdate().isoformat(), currentBuyer=salesperson_name(request.membership),
+            permissions=codes, asOf=timezone.localdate().isoformat(), currentBuyer=salesperson_name(request.membership), products=selectors.purchase_catalog(request.company),
             suppliers=list(selectors.Supplier.objects.filter(company=request.company, buyer__company=request.company, status="active").values("id", "name")),
             warehouses=list(Warehouse.objects.filter(company=request.company, is_active=True).values("id", "name")), canExport=False))
 
@@ -100,7 +100,7 @@ class PurchaseListView(PurchasingView):
         serializer = PurchaseInputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         order = services.save_purchase_order(company=request.company, membership=request.membership, data=serializer.validated_data)
-        return Response(selectors.purchase_payload(selectors.purchase_by_id(request.company, order.pk), self.codes()), status=201)
+        return Response(selectors.purchase_payload(selectors.purchase_by_id(request.company, order.pk), self.codes(), True), status=201)
 
 
 class PurchaseDetailView(PurchasingView):
@@ -109,14 +109,14 @@ class PurchaseDetailView(PurchasingView):
         return "purchases.edit" if self.request.method == "PATCH" else "purchases.view"
 
     def get(self, request, order_id):
-        return Response(selectors.purchase_payload(selectors.purchase_by_id(request.company, order_id), self.codes()))
+        return Response(selectors.purchase_payload(selectors.purchase_by_id(request.company, order_id), self.codes(), True))
 
     def patch(self, request, order_id):
         selectors.purchase_by_id(request.company, order_id)
         serializer = PurchaseInputSerializer(data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         services.save_purchase_order(company=request.company, membership=request.membership, data=serializer.validated_data, order_id=order_id)
-        return Response(selectors.purchase_payload(selectors.purchase_by_id(request.company, order_id), self.codes()))
+        return Response(selectors.purchase_payload(selectors.purchase_by_id(request.company, order_id), self.codes(), True))
 
 
 class PurchaseActionView(PurchasingView):
@@ -135,4 +135,4 @@ class PurchaseActionView(PurchasingView):
             services.receive_purchase_order(**args, data=serializer.validated_data, key=request.headers.get("Idempotency-Key"))
         else:
             services.transition_purchase_order(**args, action=self.action)
-        return Response(selectors.purchase_payload(selectors.purchase_by_id(request.company, order_id), self.codes()))
+        return Response(selectors.purchase_payload(selectors.purchase_by_id(request.company, order_id), self.codes(), True))

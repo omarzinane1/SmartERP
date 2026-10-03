@@ -4,7 +4,7 @@ import type { Payment } from '../../payments/types/payments.types'
 export type SupplierInvoiceWorkflowStatus = 'draft' | 'posted' | 'cancelled'
 export type SupplierInvoicePaymentStatus = 'unpaid' | 'partially_paid' | 'paid'
 export interface SupplierInvoiceLine extends MoneyLine {
-  id: string; productName: string; description: string; purchaseLineId: string | null
+  id: string; productId?: number | null; productName: string; description: string; purchaseLineId: string | null
   orderedQuantity: number | null; receivedQuantity: number | null
 }
 export interface SupplierInvoiceInput {

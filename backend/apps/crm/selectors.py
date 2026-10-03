@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from django.db.models import Avg, DecimalField, OuterRef, Q, Subquery, Sum, Value
+from django.db.models import Avg, DecimalField, F, OuterRef, Q, Subquery, Sum, Value
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 from rest_framework.exceptions import NotFound
@@ -28,7 +28,7 @@ def customers_queryset(company):
         summed = query.order_by().values("customer_id").annotate(value=Sum(field)).values("value")[:1]
         return Coalesce(Subquery(summed, output_field=money), Value(Decimal("0.00")), output_field=money)
     return Customer.objects.filter(company=company).select_related("salesperson__user", "created_by").annotate(
-        revenue=amount(ledger.filter(issue_date__year=today.year), "total"),
+        revenue=amount(ledger.filter(issue_date__year=today.year), F("total") - F("credit_total")),
         outstanding=amount(ledger, "balance_due"),
         overdue=amount(ledger.filter(due_date__lt=today), "balance_due"),
     )
@@ -108,7 +108,7 @@ def customer_detail(*, customer, membership):
 def customer_summary(*, customer, membership):
     orders = SalesOrder.objects.filter(company=membership.company, customer=customer).exclude(status="cancelled")
     previous = Invoice.objects.filter(company=membership.company, customer=customer, status="posted", currency=customer.company.currency,
-                                      issue_date__year=timezone.localdate().year - 1).aggregate(value=Sum("total"))["value"]
+                                      issue_date__year=timezone.localdate().year - 1).aggregate(value=Sum(F("total") - F("credit_total")))["value"]
     return dict(asOf=timezone.localdate().isoformat(), customerScore=None, paymentReliability=None,
                 revenue=customer.revenue, revenueGrowth=((customer.revenue - previous) / previous * 100).quantize(Decimal("0.01")) if previous else None,
                 averageOrderValue=orders.aggregate(value=Avg("total"))["value"],

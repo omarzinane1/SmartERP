@@ -162,5 +162,7 @@ def receive_purchase_order(*, company, membership, order_id, data, key):
         GoodsReceiptLine.objects.create(company=company, receipt=receipt, order_line=line, quantity=quantity)
         line.received_quantity += quantity
         line.save(update_fields=["received_quantity"])
-    activity(order, membership, "Réception enregistrée", f"{receipt.number} ; quantités reçues mises à jour. Intégration stock différée.")
+    from apps.inventory.stock import apply_receipt_stock
+    apply_receipt_stock(company=company, membership=membership, receipt=receipt)
+    activity(order, membership, "Réception enregistrée", f"{receipt.number} ; quantités reçues et stock des produits liés mis à jour.")
     return receipt

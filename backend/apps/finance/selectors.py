@@ -14,7 +14,7 @@ def payment_queryset(company):
     return Payment.objects.filter(company=company).filter(
         Q(direction="incoming", customer__company=company) | Q(direction="outgoing", supplier__company=company),
     ).select_related("customer", "supplier").prefetch_related(Prefetch("allocations", queryset=
-        PaymentAllocation.objects.filter(company=company, invoice__company=company).select_related("invoice")))
+        PaymentAllocation.objects.filter(company=company).filter(Q(invoice__company=company) | Q(supplier_invoice__company=company)).select_related("invoice", "supplier_invoice")))
 
 
 def payment_by_id(company, payment_id):
@@ -26,9 +26,10 @@ def payment_by_id(company, payment_id):
 
 def payment_payload(payment, permissions):
     allocations = list(payment.allocations.all())
-    visible = "invoices.view" in permissions
-    invoice_ids = {a.invoice_id for a in allocations}
-    invoice = allocations[0].invoice if len(invoice_ids) == 1 and visible else None
+    visible = ("invoices.view" if payment.direction == "incoming" else "supplier_invoices.view") in permissions
+    documents = [a.invoice if a.invoice_id else a.supplier_invoice for a in allocations]
+    invoice_ids = {i.pk for i in documents}
+    invoice = documents[0] if len(invoice_ids) == 1 and visible else None
     active = sum((a.amount for a in allocations if a.reversed_at is None), ZERO)
     partner = payment.customer if payment.direction == "incoming" else payment.supplier
     return dict(id=payment.pk, reference=payment.number, direction=payment.direction,
@@ -39,8 +40,8 @@ def payment_payload(payment, permissions):
         referenceExternal=payment.reference_external, note=payment.note,
         canCancel="payments.cancel" in permissions and payment.status in {"pending", "completed"},
         allocatedAmount=active, availableAmount=payment.amount - active if payment.status == "completed" else ZERO,
-        allocations=[dict(id=a.pk, invoiceId=a.invoice_id, invoiceReference=a.invoice.number, amount=a.amount,
-                          reversedAt=a.reversed_at) for a in allocations] if visible else [])
+        allocations=[dict(id=a.pk, invoiceId=doc.pk, invoiceReference=doc.number, amount=a.amount,
+                          reversedAt=a.reversed_at) for a, doc in zip(allocations, documents)] if visible else [])
 
 
 def filter_payments(query, filters):
@@ -57,7 +58,7 @@ def filter_payments(query, filters):
         term = filters["search"]
         query = query.filter(Q(number__icontains=term) | Q(reference_external__icontains=term) | Q(customer__name__icontains=term) | Q(supplier__name__icontains=term))
     if filters.get("invoice"):
-        query = query.filter(allocations__invoice__number__icontains=filters["invoice"])
+        query = query.filter(Q(allocations__invoice__number__icontains=filters["invoice"]) | Q(allocations__supplier_invoice__number__icontains=filters["invoice"]))
     today, period = timezone.localdate(), filters.get("period")
     start = today if period == "today" else today - timedelta(days=today.weekday()) if period == "week" else today.replace(day=1) if period == "month" else None
     if start:
@@ -95,5 +96,7 @@ def payment_options(company, permissions):
     partners = [dict(id=c.pk, name=c.name, type="customer") for c in Customer.objects.filter(company=company).exclude(status="archived")] if "payments.create" in permissions else []
     if "payments.create" in permissions:
         partners += [dict(id=s.pk, name=s.name, type="supplier") for s in Supplier.objects.filter(company=company, status="active")]
+    from apps.purchasing.invoice_selectors import invoice_queryset as supplier_invoices
+    outgoing = supplier_invoices(company).filter(status="posted", balance_due__gt=0) if "payments.create" in permissions and "supplier_invoices.view" in permissions else []
     return dict(partners=partners, openInvoices=[dict(id=i.pk, reference=i.number, direction="incoming", partnerId=i.customer_id,
-        partnerName=i.customer.name, remainingAmount=i.balance_due, issuedDate=i.issue_date.isoformat()) for i in invoices])
+        partnerName=i.customer.name, remainingAmount=i.balance_due, issuedDate=i.issue_date.isoformat()) for i in invoices] + [dict(id=i.pk, reference=i.number, direction="outgoing", partnerId=i.supplier_id, partnerName=i.supplier.name, remainingAmount=i.balance_due, issuedDate=i.issue_date.isoformat()) for i in outgoing])

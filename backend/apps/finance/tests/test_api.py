@@ -90,3 +90,10 @@ class PaymentTests(LedgerDataMixin, TestCase):
         self.post(f"/api/invoices/{invoice['id']}/post/")
         Invoice.objects.filter(pk=invoice["id"]).update(currency="EUR")
         self.assertEqual(self.payment(invoice).status_code, 400)
+
+    def test_legacy_paid_amount_is_never_silently_overwritten(self):
+        invoice = self.invoice()
+        Invoice.objects.filter(pk=invoice["id"]).update(amount_paid=100, balance_due=900)
+        self.assertEqual(self.payment(invoice).status_code, 409)
+        self.assertEqual(Invoice.objects.get(pk=invoice["id"]).amount_paid, 100)
+        self.assertFalse(Payment.objects.exists())
