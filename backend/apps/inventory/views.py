@@ -15,25 +15,10 @@ from .serializers import ProductInput, WarehouseInput, ReferenceInput, UnitInput
 from .valuation import assert_supported_valuation, ZERO
 
 
-class InventoryView(APIView):
-    permission_classes = [IsAuthenticated, HasActiveCompany, HasPermission]
+from common.views import CompanyAPIView
 
-    def codes(self):
-        return get_effective_permission_codes(membership=self.request.membership)
 
-    def metadata(self):
-        return dict(permissions=self.codes(), asOf=timezone.localdate().isoformat())
-
-    def page(self, request, key, rows, **metadata):
-        pager = CollectionPagination()
-        page = pager.paginate_queryset(rows, request)
-        return Response(pager.envelope(key=key, rows=page, **self.metadata(), **metadata))
-
-    def validated(self, serializer, *, partial=False):
-        value = serializer(data=self.request.data, partial=partial)
-        value.is_valid(raise_exception=True)
-        return value.validated_data
-
+class InventoryView(CompanyAPIView):
     def filters(self):
         value = InventoryFilter(data=self.request.query_params)
         value.is_valid(raise_exception=True)
@@ -219,7 +204,7 @@ class InventorySummaryView(InventoryView):
             from collections import defaultdict
             categories = defaultdict(lambda: ZERO)
             for p in read.catalog_payloads(context, self.codes()):
-                categories[p["category"] or "Sans catégorie"] += p["stockValue"] or ZERO
+                categories[p["category"] or "Sans catÃ©gorie"] += p["stockValue"] or ZERO
             return Response(dict(categories=[dict(name=k, value=v) for k, v in categories.items()],
                 warehouses=[dict(name=w.name, value=sum((s.total_value for (_, wid), s in context["levels"].items() if wid == w.pk), ZERO)) for w in context["warehouses"]]))
         return Response(read.inventory_summary(request.company, self.codes(), context))

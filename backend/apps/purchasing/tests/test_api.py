@@ -97,7 +97,7 @@ class PurchaseTests(PurchasingDataMixin, TestCase):
         self.assertEqual(result.data["receiptStatus"], "received")
         self.assertEqual(result.data["status"], "confirmed")
         self.assertFalse(result.data["capabilities"]["canReceive"])
-        self.assertFalse(result.data["stockIntegrated"])
+        self.assertTrue(result.data["stockIntegrated"])
         self.assertEqual(self.receipt(order, "1.000").status_code, 409)
 
     def test_receipt_excess_nonpositive_foreign_duplicate_dates_and_rollback(self):

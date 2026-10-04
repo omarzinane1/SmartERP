@@ -14,8 +14,15 @@ class ExpenseInput(StrictSerializer):
     note = serializers.CharField(max_length=3000, allow_blank=True)
 
 
+class ExpenseCategoryInput(StrictSerializer):
+    name = serializers.CharField(max_length=80)
+    code = serializers.CharField(max_length=80, required=False)
+    description = serializers.CharField(max_length=500, allow_blank=True, default="")
+    is_active = serializers.BooleanField(required=False)
+
+
 class RejectExpenseInput(StrictSerializer):
-    reason = serializers.CharField(max_length=500)
+    reason = serializers.CharField(max_length=2000)
 
 
 class ExpenseFilter(serializers.Serializer):

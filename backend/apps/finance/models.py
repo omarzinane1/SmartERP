@@ -6,7 +6,7 @@ from common.models import TimeStampedModel
 class Payment(TimeStampedModel):
     company = models.ForeignKey("companies.Company", on_delete=models.PROTECT)
     number = models.CharField(max_length=50)
-    direction = models.CharField(max_length=10, choices=[("incoming", "Encaissement"), ("outgoing", "Décaissement")])
+    direction = models.CharField(max_length=10, choices=[("incoming", "Encaissement"), ("outgoing", "DÃ©caissement")])
     customer = models.ForeignKey("crm.Customer", on_delete=models.PROTECT, null=True, related_name="payments")
     supplier = models.ForeignKey("purchasing.Supplier", on_delete=models.PROTECT, null=True, related_name="payments")
     amount = models.DecimalField(max_digits=18, decimal_places=2)
@@ -65,6 +65,7 @@ class Expense(TimeStampedModel):
     date = models.DateField()
     description = models.CharField(max_length=300)
     category = models.CharField(max_length=80)
+    category_record = models.ForeignKey("ExpenseCategory", on_delete=models.PROTECT, null=True, related_name="expenses")
     supplier = models.ForeignKey("purchasing.Supplier", on_delete=models.PROTECT, null=True, related_name="expenses")
     employee = models.CharField(max_length=120)
     amount_ht = models.DecimalField(max_digits=12, decimal_places=2)
@@ -81,7 +82,7 @@ class Expense(TimeStampedModel):
     approved_at = models.DateTimeField(null=True)
     rejected_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, related_name="rejected_expenses")
     rejected_at = models.DateTimeField(null=True)
-    rejection_reason = models.CharField(max_length=500, blank=True)
+    rejection_reason = models.CharField(max_length=2000, blank=True)
     paid_date = models.DateField(null=True)
     operation_key = models.CharField(max_length=128)
     request_fingerprint = models.CharField(max_length=64)
@@ -95,3 +96,15 @@ class Expense(TimeStampedModel):
             models.CheckConstraint(condition=models.Q(status__in=["draft", "submitted", "approved", "rejected", "paid"]), name="expense_status_valid"),
         ]
         indexes = [models.Index(fields=["company", "status", "date"], name="expense_company_status_date"), models.Index(fields=["company", "supplier"], name="expense_company_supplier")]
+
+
+class ExpenseCategory(TimeStampedModel):
+    company = models.ForeignKey("companies.Company", on_delete=models.PROTECT)
+    name = models.CharField(max_length=80)
+    code = models.CharField(max_length=80)
+    description = models.CharField(max_length=500, blank=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["name", "pk"]
+        constraints = [models.UniqueConstraint(fields=["company", "code"], name="unique_expense_category_code"), models.UniqueConstraint(fields=["company", "name"], name="unique_expense_category_name")]

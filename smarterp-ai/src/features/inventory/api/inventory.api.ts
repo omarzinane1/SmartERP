@@ -13,7 +13,7 @@ export async function getInventoryHealth(scope: string, signal?: AbortSignal): P
   if (!env.inventoryUseMock) return (await apiClient.get('/inventory/health/', { signal })).data
   const summary = inventorySummaryMock(scope), categories = new Map<string, number>()
   for (const p of summary.products) if (p.stockValue !== null) categories.set(p.category, Math.round(((categories.get(p.category) ?? 0) + p.stockValue) * 100) / 100)
-  return { categories: [...categories].map(([name, value]) => ({ name, value })), warehouses: summary.warehouses.map((w) => ({ name: w.name, value: w.stockValue })) }
+  return { categories: [...categories].map(([name, value]) => ({ name, value })), warehouses: summary.warehouses.map((w) => ({ name: w.name, value: w.stockValue ?? 0 })) }
 }
 export const getCriticalProducts = async (scope: string, signal?: AbortSignal): Promise<InventoryRow[]> => env.inventoryUseMock ? stockSnapshot(scope).filter((r) => ['low_stock', 'out_of_stock'].includes(r.health)) : (await getCollection<{ rows: InventoryRow[] }, 'rows'>('/inventory/critical/', 'rows', signal)).rows
 export const getRecentMovements = async (scope: string, signal?: AbortSignal): Promise<StockMovement[]> => env.inventoryUseMock ? movementSnapshot(scope).slice(0, 8) : (await apiClient.get('/inventory/recent-movements/', { signal })).data

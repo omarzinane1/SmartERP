@@ -21,7 +21,7 @@ function initialize(): StockStore {
     const product = productsMock.find((p) => p.id === r.productId)!, warehouse = warehousesMock.find((w) => w.id === r.warehouseId)!
     const type = (['in', 'out', 'adjustment', 'return'] as const)[n % 4]
     const delta = type === 'out' ? -5 : Math.min(5, r.onHand)
-    return { id: 800 + n, reference: `MOV-2026-${String(800 + n).padStart(4, '0')}`, date: r.lastMovementAt, type, productId: r.productId, productName: product.name, warehouseId: warehouse.id, warehouseName: warehouse.name, destinationId: null, destinationName: null, quantity: delta, before: quantity(r.onHand - delta), after: r.onHand, sourceReference: 'SOLDE-INITIAL', sourcePath: null, user: 'Omar Zinane', note: 'Mouvement historique de démonstration. Quantités physiques avant/après.' }
+    return { id: 800 + n, reference: `MOV-2026-${String(800 + n).padStart(4, '0')}`, date: r.lastMovementAt ?? stockDemoDate, type, productId: r.productId, productName: product.name, warehouseId: warehouse.id, warehouseName: warehouse.name, destinationId: null, destinationName: null, quantity: delta, before: quantity(r.onHand - delta), after: r.onHand, sourceReference: 'SOLDE-INITIAL', sourcePath: null, user: 'Omar Zinane', note: 'Mouvement historique de démonstration. Quantités physiques avant/après.' }
   })
   return { rows, movements, transfers: [] }
 }
@@ -55,7 +55,7 @@ export function movementSnapshot(scope: string) { const products = productSnapsh
 export const transferSnapshot = (scope: string) => structuredClone(store(scope).transfers)
 export function warehouseSummaryMock(scope: string): WarehouseSummary[] {
   const rows = stockSnapshot(scope), transfers = transferSnapshot(scope)
-  return warehouseSnapshot(scope).map((w) => { const stock = rows.filter((r) => r.warehouseId === w.id), usedCapacity = quantity(stock.reduce((s, r) => s + r.onHand, 0)); return { ...w, stockValue: sumMoney(stock.map((r) => r.value)), products: stock.filter((r) => r.onHand > 0).length, lowStock: stock.filter((r) => r.health === 'low_stock').length, outOfStock: stock.filter((r) => r.health === 'out_of_stock').length, usedCapacity, capacityPercent: w.capacity > 0 ? usedCapacity / w.capacity * 100 : null, incomingTransfers: transfers.filter((t) => t.destinationId === w.id && ['ready', 'in_transit'].includes(t.status)).length } })
+  return warehouseSnapshot(scope).map((w) => { const stock = rows.filter((r) => r.warehouseId === w.id), usedCapacity = quantity(stock.reduce((s, r) => s + r.onHand, 0)); return { ...w, stockValue: sumMoney(stock.map((r) => r.value)), products: stock.filter((r) => r.onHand > 0).length, lowStock: stock.filter((r) => r.health === 'low_stock').length, outOfStock: stock.filter((r) => r.health === 'out_of_stock').length, usedCapacity, capacityPercent: w.capacity && w.capacity > 0 ? usedCapacity / w.capacity * 100 : null, incomingTransfers: transfers.filter((t) => t.destinationId === w.id && ['ready', 'in_transit'].includes(t.status)).length } })
 }
 export function inventorySummaryMock(scope: string): InventorySummary {
   const products = catalogSnapshot(scope), rows = stockSnapshot(scope)

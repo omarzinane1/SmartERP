@@ -28,6 +28,7 @@ def next_document_number(*, company, kind, prefix, start=1, dated=True):
             "stock_movement": ("inventory", "StockMovement", "number"),
             "stock_transfer": ("inventory", "StockTransfer", "number"),
             "expense": ("finance", "Expense", "number"),
+            "approval": ("approvals", "ApprovalRequest", "number"),
         }[kind]
         stem = f"{prefix}-{year}-" if dated else f"{prefix}-"
         model = apps.get_model(app_label, model_name)

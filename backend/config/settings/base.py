@@ -41,6 +41,9 @@ INSTALLED_APPS = [
     "apps.sales.apps.SalesConfig",
     "apps.purchasing.apps.PurchasingConfig",
     "apps.finance.apps.FinanceConfig",
+    "apps.approvals.apps.ApprovalsConfig",
+    "apps.documents.apps.DocumentsConfig",
+    "apps.reporting.apps.ReportingConfig",
 ]
 
 
@@ -149,6 +152,7 @@ AUTH_USER_MODEL = "accounts.User"
 
 
 REST_FRAMEWORK = {
+    "EXCEPTION_HANDLER": "common.exceptions.exception_handler",
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "common.authentication.SessionAuthentication",
     ],
