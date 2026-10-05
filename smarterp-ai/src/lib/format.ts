@@ -1,13 +1,14 @@
-export function formatNumber(value: number, maximumFractionDigits = 0): string {
+export function formatNumber(value: number | null, maximumFractionDigits = 0): string {
+  if (value === null) return 'Indisponible'
   return new Intl.NumberFormat('fr-FR', { maximumFractionDigits }).format(value)
 }
 
-export function formatCurrency(value: number, currency = 'MAD'): string {
-  return `${formatNumber(value)} ${currency}`
+export function formatCurrency(value: number | null, currency = 'MAD'): string {
+  return value === null ? 'Indisponible' : `${formatNumber(value)} ${currency}`
 }
 
-export function formatPercentage(value: number): string {
-  return `${formatNumber(value, 1)} %`
+export function formatPercentage(value: number | null): string {
+  return value === null ? 'Indisponible' : `${formatNumber(value, 1)} %`
 }
 
 export function formatDate(value: string): string {

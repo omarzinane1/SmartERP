@@ -1,3 +1,4 @@
+import { downloadEntityExport, downloadAPIFile } from '../../../lib/fileDownloads'
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { CalendarDays, ChevronLeft, ChevronRight, Copy, Download, FileText, RefreshCw, Send, ShieldAlert, X } from 'lucide-react'
@@ -84,6 +85,7 @@ export function QuotesPage() {
   }
   function exportRows(quotes: Quote[]) {
     if (!can.export || !quotes.length) return
+    if (!isDemo) { void downloadEntityExport('quotes', quotes.map((q) => q.id)); return }
     exportQuotes(quotes, isDemo); toast.success(`${quotes.length} devis exporté(s) en CSV.`)
   }
   function requestSend(quotes: Quote[]) {
@@ -118,7 +120,7 @@ export function QuotesPage() {
     if (action === 'open') navigate(`/quotes/${quote.id}`)
     if (action === 'send') requestSend([quote])
     if (action === 'duplicate') void runAction('duplicate', [quote])
-    if (action === 'pdf') toast.info('L’export PDF sera disponible avec le backend Django. L’export CSV est déjà disponible.')
+    if (action === 'pdf') { if (isDemo) toast.info('PDF disponible en mode API.'); else void downloadAPIFile(`/quotes/${quote.id}/pdf/`, `${quote.reference}.pdf`) }
   }
 
   return <main className="dashboard-page quotes-page">

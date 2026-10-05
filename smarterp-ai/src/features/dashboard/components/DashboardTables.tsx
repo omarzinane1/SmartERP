@@ -137,7 +137,7 @@ export function DashboardTables({ data }: { data: DashboardData }) {
                     <td className="text-right font-mono font-medium">
                       {formatCurrency(customer.revenue, data.currency)}
                     </td>
-                    <td className="text-right font-mono">{customer.orders}</td>
+                    <td className="text-right font-mono">{customer.orders ?? '—'}</td>
                     <td
                       className={cn(
                         'text-right font-mono',
@@ -153,12 +153,12 @@ export function DashboardTables({ data }: { data: DashboardData }) {
                     <td
                       className={cn(
                         'text-right font-mono',
-                        customer.trend >= 0
+                        customer.trend !== null && customer.trend >= 0
                           ? 'text-success-text'
                           : 'text-danger-text',
                       )}
                     >
-                      {customer.trend > 0 ? '+' : ''}
+                      {customer.trend !== null && customer.trend > 0 ? '+' : ''}
                       {formatPercentage(customer.trend)}
                     </td>
                   </tr>
@@ -233,7 +233,7 @@ export function DashboardTables({ data }: { data: DashboardData }) {
                     <td
                       className={cn(
                         'text-right font-mono',
-                        product.margin >= 28
+                        product.margin !== null && product.margin >= 28
                           ? 'text-success-text'
                           : 'text-warning-text',
                       )}
@@ -251,12 +251,12 @@ export function DashboardTables({ data }: { data: DashboardData }) {
                     <td
                       className={cn(
                         'text-right font-mono',
-                        product.trend >= 0
+                        product.trend !== null && product.trend >= 0
                           ? 'text-success-text'
                           : 'text-danger-text',
                       )}
                     >
-                      {product.trend > 0 ? '+' : ''}
+                      {product.trend !== null && product.trend > 0 ? '+' : ''}
                       {formatPercentage(product.trend)}
                     </td>
                   </tr>

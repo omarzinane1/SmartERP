@@ -1,3 +1,4 @@
+import { downloadEntityExport } from '../../../lib/fileDownloads'
 import { useMemo, useRef, useState } from 'react'
 import { ChevronLeft, ChevronRight, Download, RefreshCw, ShieldAlert, X } from 'lucide-react'
 import { toast } from 'sonner'
@@ -60,7 +61,7 @@ export function InvoicesPage() {
   const pageRows = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize)
   const selected = filtered.filter((invoice) => selectedIds.includes(invoice.id))
   const canRemindSelection = data.permissions.includes('invoices.remind') && selected.length > 0 && selected.every((invoice) => invoice.capabilities.canRemind && invoice.workflowStatus === 'posted' && remainingAmount(invoice) > 0)
-  const exportRows = (rows: InvoiceSummary[]) => exportInvoices(rows, data.asOf, query.isDemo)
+  const exportRows = (rows: InvoiceSummary[]) => query.isDemo ? exportInvoices(rows, data.asOf, true) : data.permissions.includes('reports.export') ? void downloadEntityExport('invoices', rows.map((row) => row.id)) : undefined
   const onSend = (invoice: InvoiceSummary) => { if (!data.permissions.includes('invoices.send') || !invoice.capabilities.canSend || invoice.workflowStatus !== 'posted' || busy) return; setTargets([invoice]); setAction('send'); setError(null) }
   const collectionProps = { invoices: view === 'list' ? pageRows : filtered, asOf: data.asOf, selected: selectedIds, permissions: data.permissions, busy, onSelect: toggle, onSend, onExport: exportRows }
   return <main className="dashboard-page invoice-page"><header className="invoice-page-header"><div><div className="invoice-title-row"><h1>Factures clients</h1><span className="invoice-module-label">Finance / Ventes</span></div><p>Centralisez vos créances clients et suivez les paiements, les soldes et les retards.</p></div><Button variant="secondary" className="invoice-button" disabled={query.isFetching || busy} onClick={() => void query.refetch()}><RefreshCw size={12} />Actualiser</Button></header>

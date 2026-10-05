@@ -1,3 +1,4 @@
+import { downloadEntityExport } from '../../../lib/fileDownloads'
 import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Archive, Download, RefreshCw, ShieldAlert, X } from 'lucide-react'
@@ -68,6 +69,7 @@ export function SuppliersPage() {
     try {
       const all = await query.exportRows()
       const rows = selectedOnly ? all.filter((row) => selection.some((selected) => selected.id === row.id)) : all
+      if (!query.isDemo) { await downloadEntityExport('suppliers', rows.map((row) => row.id)); return }
       downloadCSV(`fournisseurs${query.isDemo ? '-demo' : ''}.csv`, [['Référence', 'Nom', 'Catégorie', 'Ville', 'Pays', 'Acheteur', 'Volume achats MAD', 'Solde MAD', 'Délai jours', 'Score', 'Provenance score', 'Risque', 'Statut', 'Source'], ...rows.map((row) => [row.reference, row.name, row.category, row.city, row.country, row.buyer, row.purchaseVolume ?? '', row.outstandingBalance ?? '', row.averageLeadTimeDays ?? '', row.score ?? '', row.scoreSource, row.risk ?? '', row.status, query.isDemo ? 'Démonstration' : 'Serveur'])])
     } catch { toast.error('Impossible d’exporter tous les fournisseurs autorisés.') }
     finally { setExporting(false) }

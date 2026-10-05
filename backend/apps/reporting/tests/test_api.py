@@ -20,7 +20,6 @@ class ReportingAPITests(FinanceDocumentsMixin, TestCase):
 
     def content(self, response):
         data = b"".join(response.streaming_content)
-        response.close()
         return data
 
     def test_invoice_pdf_saved_totals_headers_and_tenant(self):

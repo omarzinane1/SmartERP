@@ -1,3 +1,4 @@
+import { downloadEntityExport } from '../../../lib/fileDownloads'
 import { useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { RefreshCw, ShieldAlert } from 'lucide-react'
@@ -57,6 +58,7 @@ export function PaymentsPage() {
     setExporting(true)
     try {
       const rows = await query.exportRows()
+      if (!query.isDemo) { await downloadEntityExport('payments', rows.map((row) => row.id)); return }
       downloadCSV(`paiements${query.isDemo ? '-demo' : ''}.csv`, [['Référence', 'Date', 'Direction', 'Tiers', 'Facture', 'Méthode', 'Montant MAD', 'Statut', 'Référence externe', 'Source'], ...rows.map((row) => [row.reference, row.date, row.direction, row.partnerName, row.invoiceReference ?? '', row.method, row.amount, row.status, row.referenceExternal, query.isDemo ? 'Démonstration' : 'Serveur'])])
     } catch { toast.error('Impossible d’exporter tous les résultats autorisés.') }
     finally { setExporting(false) }

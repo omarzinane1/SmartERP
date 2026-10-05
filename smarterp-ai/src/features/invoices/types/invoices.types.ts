@@ -3,7 +3,7 @@ import type { SalesDelivery, SalesPayment } from '../../sales/types/sales.types'
 
 export type InvoiceWorkflowStatus = 'draft' | 'posted' | 'cancelled'
 export type InvoicePaymentStatus = 'unpaid' | 'partially_paid' | 'paid'
-export type InvoicePermission = 'invoices.view' | 'invoices.create' | 'invoices.edit' | 'invoices.post' | 'invoices.send' | 'finance.view' | 'payments.create' | 'ai.use' | 'invoices.remind' | 'invoices.credit_note'
+export type InvoicePermission = 'reports.export' | 'documents.view' | 'documents.upload' | 'invoices.view' | 'invoices.create' | 'invoices.edit' | 'invoices.post' | 'invoices.send' | 'finance.view' | 'payments.create' | 'ai.use' | 'invoices.remind' | 'invoices.credit_note'
 export interface InvoiceLine extends MoneyLine { id: string; productId: number | null; productName: string; description: string }
 export interface InvoiceInput {
   customerId: number; billingAddress: string; invoiceDate: string; dueDate: string; salesperson: string

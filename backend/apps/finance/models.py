@@ -6,7 +6,7 @@ from common.models import TimeStampedModel
 class Payment(TimeStampedModel):
     company = models.ForeignKey("companies.Company", on_delete=models.PROTECT)
     number = models.CharField(max_length=50)
-    direction = models.CharField(max_length=10, choices=[("incoming", "Encaissement"), ("outgoing", "DÃ©caissement")])
+    direction = models.CharField(max_length=10, choices=[("incoming", "Encaissement"), ("outgoing", "Décaissement")])
     customer = models.ForeignKey("crm.Customer", on_delete=models.PROTECT, null=True, related_name="payments")
     supplier = models.ForeignKey("purchasing.Supplier", on_delete=models.PROTECT, null=True, related_name="payments")
     amount = models.DecimalField(max_digits=18, decimal_places=2)

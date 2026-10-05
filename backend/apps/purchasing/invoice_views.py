@@ -31,7 +31,7 @@ class SupplierInvoiceListView(PurchasingView):
         pager, codes = CollectionPagination(), self.codes()
         page = pager.paginate_queryset(query, request)
         return Response(pager.envelope(key="invoices", rows=[selectors.invoice_payload(i, codes) for i in page], permissions=codes,
-            asOf=timezone.localdate().isoformat(), suppliers=list(Supplier.objects.filter(company=request.company, status="active").values("id", "name")), canExport=False))
+            asOf=timezone.localdate().isoformat(), suppliers=list(Supplier.objects.filter(company=request.company, status="active").values("id", "name")), canExport="reports.export" in codes))
 
     def post(self, request):
         serializer = SupplierInvoiceInput(data=request.data)

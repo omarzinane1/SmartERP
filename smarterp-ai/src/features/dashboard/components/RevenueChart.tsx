@@ -36,7 +36,7 @@ export function RevenueChart({
   const [metric, setMetric] = useState<keyof typeof metrics>('revenue')
   const selected = metrics[metric]
   const lastPoint = points.at(-1)
-  const formatValue = (value: number) =>
+  const formatValue = (value: number | null) =>
     metric === 'revenue'
       ? formatCurrency(value, currency)
       : metric === 'margin'
@@ -54,7 +54,7 @@ export function RevenueChart({
             Évolution du chiffre d’affaires
           </h2>
           <p className="dashboard-caption">
-            Comparaison sur 12 mois · Année N et année N−1
+            Périodes de même durée · Année N et année N−1
           </p>
         </div>
         <div
@@ -83,7 +83,7 @@ export function RevenueChart({
       <div
         className="mt-5 h-[220px] min-w-0"
         role="img"
-        aria-label={`${selected.label} : comparaison des douze derniers mois avec l’année précédente`}
+        aria-label={`${selected.label} : comparaison des mois affichés avec l’année précédente`}
       >
         <ResponsiveContainer
           width="100%"
@@ -178,7 +178,7 @@ export function RevenueBreakdown({
             Revenus vs dépenses
           </h2>
           <p className="dashboard-caption">
-            Structure du résultat d’exploitation
+            Indicateurs HT de la période
           </p>
         </div>
         <Badge tone="positive" className="shrink-0">
@@ -189,7 +189,7 @@ export function RevenueBreakdown({
         <div className="flex items-center justify-between gap-2">
           <dt className="flex items-center gap-1.5 text-slate-500">
             <span className="size-1.5 rounded-full bg-primary" />
-            Revenus bruts
+            Chiffre d’affaires net des avoirs
           </dt>
           <dd className="font-mono font-semibold text-navy-950">
             {formatCurrency(data.revenue, currency)}
@@ -198,7 +198,7 @@ export function RevenueBreakdown({
         <div className="flex items-center justify-between gap-2">
           <dt className="flex items-center gap-1.5 text-slate-500">
             <span className="size-1.5 rounded-full bg-slate-400" />
-            Dépenses &amp; achats
+            Dépenses approuvées HT
           </dt>
           <dd className="font-mono font-semibold text-navy-950">
             {formatCurrency(data.expenses, currency)}
@@ -252,7 +252,7 @@ export function RevenueBreakdown({
           />
           <div>
             <p className="text-[8px] font-semibold tracking-wide text-primary-text uppercase">
-              Recommandation IA
+              Source et limites
             </p>
             <p className="mt-1 text-[10px] leading-4 text-slate-500">
               {data.suggestion}

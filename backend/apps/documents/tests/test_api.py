@@ -3,6 +3,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.db import transaction
 from django.db.models.deletion import ProtectedError
 from django.test import TestCase, override_settings
 from pypdf import PdfWriter
@@ -26,7 +27,6 @@ class DocumentAPITests(FinanceDocumentsMixin, TestCase):
 
     def read_stream(self, response):
         data = b"".join(response.streaming_content)
-        response.close()
         return data
 
     def test_upload_list_detail_pages_download_and_safe_path(self):
@@ -81,7 +81,7 @@ class DocumentAPITests(FinanceDocumentsMixin, TestCase):
         self.assertEqual(self.post(f"/api/documents/{obj.pk}/link/", dict(entity_type="customer", entity_id=self.foreign_customer.pk)).status_code, 404)
         self.assertEqual(self.post(f"/api/documents/{obj.pk}/link/", dict(entity_type="secret_table", entity_id=1)).status_code, 400)
         from apps.purchasing.models import Supplier
-        with self.assertRaises(ProtectedError):
+        with self.assertRaises(ProtectedError), transaction.atomic():
             Supplier.objects.get(pk=supplier["id"]).delete()
         self.assertEqual(self.client.delete(f"/api/documents/{obj.pk}/link/{link.data['id']}/").status_code, 204)
         self.assertEqual(DocumentLink.objects.count(), 1)

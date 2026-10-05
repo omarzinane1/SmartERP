@@ -172,7 +172,7 @@ export function ReceivablesCard({
                 className="h-full rounded-full"
                 style={{
                   backgroundColor: bucket.color,
-                  width: `${data.total > 0 ? (bucket.amount / data.total) * 100 : 0}%`,
+                  width: `${data.total !== null && data.total > 0 ? (bucket.amount / data.total) * 100 : 0}%`,
                 }}
               />
             </div>
@@ -183,11 +183,11 @@ export function ReceivablesCard({
         <span>
           Délai moyen :{' '}
           <strong className="font-semibold text-slate-600">
-            {data.dso} jours
+            {data.dso === null ? 'Indisponible' : `${data.dso} jours`}
           </strong>
         </span>
         <span className="text-danger-text">
-          {data.overdueCount} factures à relancer
+          {data.overdueCount === null ? 'Indisponible' : `${data.overdueCount} factures à relancer`}
         </span>
       </p>
     </section>

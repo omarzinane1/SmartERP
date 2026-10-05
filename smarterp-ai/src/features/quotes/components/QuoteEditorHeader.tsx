@@ -1,3 +1,4 @@
+import { downloadAPIFile } from '../../../lib/fileDownloads'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, Check, Copy, Download, Eye, MoreHorizontal, Save, Send, ShoppingCart, Receipt, LockKeyhole } from 'lucide-react'
 import { Button } from '../../../components/ui/Button'
@@ -31,7 +32,7 @@ export function QuoteEditorHeader({ quote, values, customerName, total, permissi
       {permissions.includes('quotes.send') && <Button variant="secondary" className="quotes-button" disabled={!available || !canSend}
         title={dirty || !quote ? 'Enregistrez le devis avant l’envoi' : !canSend ? 'Ce statut ou cette échéance ne permet pas l’envoi' : 'Confirmer l’envoi du devis enregistré'} onClick={() => onAction('send')}><Send className="size-3.5" />Envoyer</Button>}
       <Button variant="secondary" className="quotes-button" onClick={onPreview}><Eye className="size-3.5" />Prévisualiser</Button>
-      {permissions.includes('quotes.export') && <Button variant="secondary" className="quotes-button" disabled title="La génération PDF n’est pas encore connectée"><Download className="size-3.5" />Télécharger PDF</Button>}
+      {permissions.includes('quotes.export') && <Button variant="secondary" className="quotes-button" disabled={!available || isDemo} onClick={() => quote && void downloadAPIFile(`/quotes/${quote.id}/pdf/`, `${quote.reference}.pdf`)} title="Télécharger le devis enregistré"><Download className="size-3.5" />Télécharger PDF</Button>}
       <details className="quotes-menu"><summary className="quotes-menu-trigger"><MoreHorizontal className="size-3.5" />Plus</summary><div className="quotes-menu-panel">
         {permissions.includes('quotes.create') && <button type="button" disabled={!available} onClick={() => onAction('duplicate')}><Copy className="size-3.5" />Dupliquer le devis enregistré</button>}
         {permissions.includes('quotes.accept') && <button type="button" disabled={!available || isDemo || !quote?.canAccept || !['sent', 'viewed'].includes(quote.status) || !canSend}
@@ -45,6 +46,6 @@ export function QuoteEditorHeader({ quote, values, customerName, total, permissi
       <span className={`quote-save-indicator ${dirty ? 'is-dirty' : ''}`} role="status">{dirty ? 'Modifications non enregistrées' : !editable ? <><LockKeyhole className="size-3" />Lecture seule</> : quote ? 'Toutes les modifications sont enregistrées' : 'Brouillon non enregistré'}</span>
     </div>
     <p className="quote-editor-notice">{dirty && 'Enregistrez vos modifications avant toute action commerciale. '}
-      Génération PDF non connectée : utilisez l’aperçu HTML imprimable.{isDemo && ' Les sauvegardes restent locales ; aucun e-mail n’est envoyé.'}</p>
+      {isDemo ? 'Aperçu HTML imprimable de démonstration.' : 'Le PDF reprend les montants enregistrés du devis.'}{isDemo && ' Les sauvegardes restent locales ; aucun e-mail n’est envoyé.'}</p>
   </header>
 }

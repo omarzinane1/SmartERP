@@ -204,7 +204,7 @@ class InventorySummaryView(InventoryView):
             from collections import defaultdict
             categories = defaultdict(lambda: ZERO)
             for p in read.catalog_payloads(context, self.codes()):
-                categories[p["category"] or "Sans catÃ©gorie"] += p["stockValue"] or ZERO
+                categories[p["category"] or "Sans catégorie"] += p["stockValue"] or ZERO
             return Response(dict(categories=[dict(name=k, value=v) for k, v in categories.items()],
                 warehouses=[dict(name=w.name, value=sum((s.total_value for (_, wid), s in context["levels"].items() if wid == w.pk), ZERO)) for w in context["warehouses"]]))
         return Response(read.inventory_summary(request.company, self.codes(), context))

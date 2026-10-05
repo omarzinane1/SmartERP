@@ -1,5 +1,6 @@
 from .models import GeneratedExport
 from .registry import DATASETS
+from .analytics import SPECS
 
 
 def generated_queryset(company, permissions):
@@ -26,6 +27,6 @@ def catalog(company, permissions):
         record = latest.get(name)
         result.append(dict(id=name, name=spec.title, category="Exports ERP", description="Export des données enregistrées et filtrées de la société active.",
             formats=["csv", "xlsx"] if {spec.export, "reports.generate", "reports.export"}.issubset(permissions) else [], supportsPeriod=bool(spec.date),
-            path=spec.path, canOpen=True, lastGenerated=record.created_at.isoformat() if record else None,
+            path=f"/reports/{name}" if name in SPECS and SPECS[name][1].issubset(permissions) else spec.path, canOpen=True, lastGenerated=record.created_at.isoformat() if record else None,
             generatedBy=(record.requested_by.get_full_name() or record.requested_by.email) if record else None))
     return result

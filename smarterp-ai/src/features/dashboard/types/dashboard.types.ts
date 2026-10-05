@@ -16,7 +16,7 @@ export interface DashboardKpi {
     | 'inventory'
     | 'customers'
   title: string
-  value: number
+  value: number | null
   format: 'currency' | 'percentage' | 'number'
   change: string
   trend: 'up' | 'down' | 'stable'
@@ -26,12 +26,12 @@ export interface DashboardKpi {
 
 export interface RevenuePoint {
   month: string
-  revenue: number
+  revenue: number | null
   previousRevenue: number
-  orders: number
-  previousOrders: number
-  margin: number
-  previousMargin: number
+  orders: number | null
+  previousOrders: number | null
+  margin: number | null
+  previousMargin: number | null
 }
 
 export interface CashFlowPoint {
@@ -54,22 +54,22 @@ export interface DashboardAlert {
 export interface DashboardCustomer {
   id: string
   name: string
-  revenue: number
-  orders: number
+  revenue: number | null
+  orders: number | null
   outstanding: number
-  trend: number
+  trend: number | null
 }
 
 export interface DashboardProduct {
   id: string
   name: string
-  revenue: number
+  revenue: number | null
   units: number
-  margin: number
-  stock: number
+  margin: number | null
+  stock: number | null
   stockLabel: string
   status: DashboardStatus
-  trend: number
+  trend: number | null
 }
 
 export interface DashboardInvoice {
@@ -83,6 +83,7 @@ export interface DashboardInvoice {
 }
 
 export interface DashboardData {
+  permissions?: string[]
   currency: string
   period: {
     label: string
@@ -94,9 +95,9 @@ export interface DashboardData {
   branch: string
   kpis: DashboardKpi[]
   summary: {
-    score: number
+    score: number | null
     status: string
-    confidence: number
+    confidence: number | null
     generatedAt: string
     text: string
     risks: string[]
@@ -105,35 +106,35 @@ export interface DashboardData {
   }
   revenue: RevenuePoint[]
   revenueBreakdown: {
-    revenue: number
-    expenses: number
-    grossProfit: number
-    margin: number
+    revenue: number | null
+    expenses: number | null
+    grossProfit: number | null
+    margin: number | null
     suggestion: string
   }
   cashFlow: {
-    current: number
-    inflows: number
-    outflows: number
-    projected: number
+    current: number | null
+    inflows: number | null
+    outflows: number | null
+    projected: number | null
     points: CashFlowPoint[]
     status: string
   }
   receivables: {
-    total: number
-    dso: number
-    overdueCount: number
+    total: number | null
+    dso: number | null
+    overdueCount: number | null
     buckets: { label: string; amount: number; color: string }[]
   }
   inventory: {
-    value: number
-    turnover: number
-    dormantValue: number
+    value: number | null
+    turnover: number | null
+    dormantValue: number | null
     segments: { label: string; count: number; color: string }[]
   }
   alerts: DashboardAlert[]
   topCustomers: DashboardCustomer[]
-  topCustomersShare: number
+  topCustomersShare: number | null
   topProducts: DashboardProduct[]
   recentInvoices: DashboardInvoice[]
 }

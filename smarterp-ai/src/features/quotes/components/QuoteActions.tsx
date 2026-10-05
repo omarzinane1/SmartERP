@@ -9,6 +9,6 @@ export function QuoteActions({ quote, asOf, permissions, busy, onAction }: Quote
     {permissions.includes('quotes.send') && canSendQuote(quote, asOf) && <button type="button" disabled={busy}
       onClick={() => onAction('send', quote)} aria-label={`Envoyer ${quote.reference}`} title={quote.status === 'draft' ? 'Envoyer' : 'Renvoyer'}><Send className="size-3" /></button>}
     {permissions.includes('quotes.create') && <button type="button" disabled={busy} onClick={() => onAction('duplicate', quote)} aria-label={`Dupliquer ${quote.reference}`} title="Dupliquer"><Copy className="size-3" /></button>}
-    {permissions.includes('quotes.export') && <button type="button" onClick={() => onAction('pdf', quote)} aria-label={`Exporter PDF ${quote.reference}`} title="Exporter PDF · à venir"><Download className="size-3" /></button>}
+    {permissions.includes('quotes.export') && <button type="button" onClick={() => onAction('pdf', quote)} aria-label={`Exporter PDF ${quote.reference}`} title="Exporter PDF"><Download className="size-3" /></button>}
   </div>
 }

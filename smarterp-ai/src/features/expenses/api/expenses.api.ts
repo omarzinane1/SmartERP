@@ -12,3 +12,5 @@ export const submitExpense = async (scope: string, id: number): Promise<Expense>
 export const approveExpense = async (scope: string, id: number): Promise<Expense> => env.expensesUseMock ? expenseActionMock(scope, id, 'approve') : (await apiClient.post(`/expenses/${id}/approve/`)).data
 
 export async function rejectExpense(scope: string, id: number, reason: string): Promise<Expense> { void scope; if (env.expensesUseMock) throw new Error('Refus disponible en mode API.'); return (await apiClient.post(`/expenses/${id}/reject/`, { reason })).data }
+
+export const cancelExpense = async (id: number): Promise<Expense> => (await apiClient.post(`/expenses/${id}/cancel/`)).data

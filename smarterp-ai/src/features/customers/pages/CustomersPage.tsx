@@ -1,3 +1,4 @@
+import { downloadEntityExport } from '../../../lib/fileDownloads'
 import { useEffect, useState } from 'react'
 import {
   ChevronLeft,
@@ -48,6 +49,7 @@ const normalize = (text: string) =>
     .toLowerCase()
 
 function exportCustomers(customers: Customer[], isDemo: boolean) {
+  if (!isDemo) { void downloadEntityExport('customers', customers.map((row) => row.id)); return }
   const quote = (value: string | number) => {
     const text = String(value)
     const safe = /^[=+\-@\t\r]/.test(text) ? `'${text}` : text

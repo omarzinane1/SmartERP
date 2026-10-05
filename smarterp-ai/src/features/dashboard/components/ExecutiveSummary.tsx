@@ -45,27 +45,27 @@ export function ExecutiveSummary({
               </h2>
               <Badge tone="indigo">
                 <Sparkles className="size-2.5" aria-hidden="true" />
-                SmartERP AI · Analyse IA
+                {summary.score === null ? 'Faits ERP' : 'SmartERP AI · Analyse IA'}
               </Badge>
               <Badge tone="positive">
-                Santé : {summary.score}/100 · {summary.status}
+                {summary.score === null ? summary.status : `Santé : ${summary.score}/100 · ${summary.status}`}
               </Badge>
             </div>
             <p className="mt-1.5 text-[9px] leading-4 text-slate-500">
               Généré{' '}
               {minutesAgo === 0 ? 'à l’instant' : `il y a ${minutesAgo} min`} au{' '}
               {new Date(period.asOf).toLocaleDateString('fr-FR')} ·{' '}
-              {period.label} · Confiance {summary.confidence} %
+              {period.label} {summary.confidence === null ? '' : `· Confiance ${summary.confidence} %`}
             </p>
           </div>
         </div>
-        <Link
+        {summary.score !== null && <Link
           to="/ai/control-center"
           className="inline-flex min-h-7 items-center gap-1.5 rounded bg-ai-button px-2.5 text-[9px] font-medium text-white hover:bg-ai-hover focus-visible:ring-2 focus-visible:ring-ai-border focus-visible:ring-offset-2"
         >
           Ouvrir AI Control Center
           <ArrowRight className="size-3" aria-hidden="true" />
-        </Link>
+        </Link>}
       </div>
       <div className="mt-4 rounded-md border border-ai-border bg-surface/60 px-4 py-3 text-[11px] leading-6 text-[color:var(--text-secondary)]">
         <span className="font-semibold text-ai-text">

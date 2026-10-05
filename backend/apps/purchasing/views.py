@@ -94,7 +94,7 @@ class PurchaseListView(PurchasingView):
         return Response(pager.envelope(key="orders", rows=[selectors.purchase_payload(o, codes) for o in rows],
             permissions=codes, asOf=timezone.localdate().isoformat(), currentBuyer=salesperson_name(request.membership), products=selectors.purchase_catalog(request.company),
             suppliers=list(selectors.Supplier.objects.filter(company=request.company, buyer__company=request.company, status="active").values("id", "name")),
-            warehouses=list(Warehouse.objects.filter(company=request.company, is_active=True).values("id", "name")), canExport=False))
+            warehouses=list(Warehouse.objects.filter(company=request.company, is_active=True).values("id", "name")), canExport="reports.export" in codes))
 
     def post(self, request):
         serializer = PurchaseInputSerializer(data=request.data)

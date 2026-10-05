@@ -26,19 +26,19 @@ class ApprovalListView(CompanyAPIView):
         pager = CollectionPagination()
         rows = pager.paginate_queryset(query, request)
         allowed = [kind for kind, code in [("expense", "expenses.approve"), ("purchase", "purchases.confirm")] if code in codes and "approvals.approve" in codes]
-        return Response(pager.envelope(key="requests", rows=[read.approval_payload(obj, codes) for obj in rows], **self.metadata(), allowedApprovalTypes=allowed))
+        return Response(pager.envelope(key="requests", rows=[read.approval_payload(obj, codes, request.membership) for obj in rows], **self.metadata(), allowedApprovalTypes=allowed))
 
     def post(self, request):
         data = self.validated(ApprovalRequestInput)
         obj = services.request_approval(company=request.company, membership=request.membership, order_id=data["record_id"])
-        return Response(read.approval_payload(obj, self.codes()), status=201)
+        return Response(read.approval_payload(obj, self.codes(), request.membership), status=201)
 
 
 class ApprovalDetailView(CompanyAPIView):
     required_permission = "approvals.view"
 
     def get(self, request, request_id):
-        return Response(read.approval_payload(read.approval_by_id(request.company, self.codes(), request_id), self.codes()))
+        return Response(read.approval_payload(read.approval_by_id(request.company, self.codes(), request_id), self.codes(), request.membership, include_documents=True))
 
 
 class ApprovalActionView(CompanyAPIView):
@@ -52,9 +52,9 @@ class ApprovalActionView(CompanyAPIView):
         data = self.validated(ApprovalDecisionInput)
         if self.action == "reject" and len(data["comment"].strip()) < 3:
             from rest_framework.exceptions import ValidationError
-            raise ValidationError("Motif de refus : trois caractÃ¨res minimum.")
+            raise ValidationError("Motif de refus : trois caractères minimum.")
         if self.action == "cancel":
             obj = services.cancel_approval_request(company=request.company, membership=request.membership, request_id=request_id, data=data)
         else:
             obj = services.decide_request(company=request.company, membership=request.membership, request_id=request_id, action=self.action, data=data)
-        return Response(read.approval_payload(obj, self.codes()))
+        return Response(read.approval_payload(obj, self.codes(), request.membership))
