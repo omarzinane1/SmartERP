@@ -1,5 +1,7 @@
 from .base import *
 
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL") or "redis://localhost:6379/0"
+
 
 DEBUG = True
 

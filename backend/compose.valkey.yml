@@ -1,0 +1,19 @@
+name: smarterp-broker
+
+services:
+  valkey:
+    image: valkey/valkey:9.1.2-alpine
+    ports:
+      - "127.0.0.1:6379:6379"
+    command: ["valkey-server", "--appendonly", "yes"]
+    volumes:
+      - valkey-data:/data
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+volumes:
+  valkey-data:

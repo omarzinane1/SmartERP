@@ -2,6 +2,11 @@ import os
 
 from .base import *
 
+from django.core.exceptions import ImproperlyConfigured
+
+if not CELERY_BROKER_URL:
+    raise ImproperlyConfigured("CELERY_BROKER_URL doit être défini en production.")
+
 
 DEBUG = False
 

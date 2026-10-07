@@ -167,3 +167,15 @@ SESSION_COOKIE_SAMESITE = "Lax"
 
 CSRF_COOKIE_HTTPONLY = False
 CSRF_COOKIE_SAMESITE = "Lax"
+
+# Valkey is a Redis-compatible Celery broker, not an ERP data store.
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
+CELERY_TASK_SERIALIZER = "json"
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_TASK_IGNORE_RESULT = True
+CELERY_TASK_ALWAYS_EAGER = False
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+CELERY_TASK_DEFAULT_QUEUE = "smarterp"
+# common is infrastructure, not an installed Django business app.
+CELERY_IMPORTS = ("common.tasks",)
