@@ -1,0 +1,7 @@
+{{ company.name }}
+
+{{ notification.title }}
+
+{{ notification.message }}
+
+Connectez-vous à SmartERP et sélectionnez {{ company.name }} pour consulter l'enregistrement concerné.

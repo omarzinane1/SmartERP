@@ -5,7 +5,7 @@ import sys
 def main():
     os.environ.setdefault(
         "DJANGO_SETTINGS_MODULE",
-        "config.settings.development",
+        "config.settings.test" if len(sys.argv) > 1 and sys.argv[1] == "test" else "config.settings.development",
     )
 
     try:

@@ -64,6 +64,10 @@ def balance_summary(company, supplier=False):
         overdueCount=Count("pk", filter=Q(due_date__lt=today)))
 
 
+def overdue_invoices(company):
+    return eligible_invoices(company).filter(due_date__lt=company_today(company), balance_due__gt=0)
+
+
 def aging_buckets(company, supplier=False):
     today = company_today(company)
     conditions = [

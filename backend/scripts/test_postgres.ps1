@@ -29,7 +29,7 @@ try {
     $env:DB_PASSWORD = [IO.File]::ReadAllText($passwordPath)
     $env:DB_HOST = '127.0.0.1'
     $env:DB_PORT = [string]$Port
-    & (Join-Path $backendPath '.venv\Scripts\python.exe') (Join-Path $backendPath 'manage.py') test @Labels --noinput --verbosity 1
+    & (Join-Path $backendPath '.venv\Scripts\python.exe') (Join-Path $backendPath 'manage.py') test @Labels --settings=config.settings.test --noinput --verbosity 1
     $testExitCode = $LASTEXITCODE
 } finally {
     foreach ($key in $oldEnvironment.Keys) {

@@ -7,6 +7,11 @@ CELERY_BROKER_URL = "memory://"
 os.environ["CELERY_BROKER_URL"] = CELERY_BROKER_URL
 CELERY_TASK_ALWAYS_EAGER = True
 CELERY_TASK_EAGER_PROPAGATES = True
+EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
+EMAIL_DELIVERY_TEST_MODE = True
+EMAIL_DELIVERY_ENABLED = False
+DEFAULT_FROM_EMAIL = "notifications@example.test"
+CELERY_BEAT_SCHEDULE = {}
 
 
 DEBUG = False

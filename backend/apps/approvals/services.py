@@ -77,6 +77,8 @@ def _decide(*, company, membership, request, entity, action, comment, version):
     request.decided_by_id, request.decided_at, request.comment = membership.user_id, timezone.now(), comment
     request.version += 1
     request.save()
+    from apps.notifications.services import notify_approval_decision
+    notify_approval_decision(company=company, approval=request)
     return request
 
 

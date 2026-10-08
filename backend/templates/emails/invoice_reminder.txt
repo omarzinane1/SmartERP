@@ -1,0 +1,9 @@
+Bonjour {{ invoice.customer.name }},
+
+Sauf erreur de notre part, la facture {{ invoice.number }}, arrivée à échéance le {{ invoice.due_date|date:"d/m/Y" }}, présente un solde de {{ invoice.balance_due }} {{ invoice.currency }} au moment de cette relance.
+
+Si votre règlement vient d'être effectué, merci de ne pas tenir compte de ce message.
+Pour toute question, contactez {{ company.name }}{% if company.email %} : {{ company.email }}{% endif %}.
+
+{{ company.legal_name|default:company.name }}
+{{ footer }}

@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.db import models
-from common.models import TimeStampedModel
+from common.models import TimeStampedModel, EmailDeliveryState
 
 
 class QuoteStatus(models.TextChoices):
@@ -259,7 +259,7 @@ class CreditNoteLine(CommercialLine):
         ]
 
 
-class InvoiceReminder(models.Model):
+class InvoiceReminder(EmailDeliveryState):
     company = models.ForeignKey("companies.Company", on_delete=models.PROTECT)
     invoice = models.ForeignKey(Invoice, on_delete=models.PROTECT, related_name="reminders")
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
@@ -274,5 +274,5 @@ class InvoiceReminder(models.Model):
         ordering = ["-created_at", "-pk"]
         constraints = [
             models.UniqueConstraint(fields=["company", "operation_key"], name="unique_reminder_operation"),
-            models.CheckConstraint(condition=models.Q(status="requested"), name="reminder_requested_only"),
+            models.CheckConstraint(condition=models.Q(status__in=["requested", "processing", "retrying", "sent", "failed", "skipped", "uncertain"]), name="reminder_delivery_status_valid"),
         ]

@@ -31,7 +31,7 @@ class IdempotencyKey(models.Model):
     response_code = models.PositiveSmallIntegerField()
     response_body = models.JSONField()
     created_at = models.DateTimeField(auto_now_add=True)
-    expires_at = models.DateTimeField(db_index=True)
+    expires_at = models.DateTimeField(db_index=True, null=True)
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=["company", "operation", "key"], name="idempotency_company_operation_key")]

@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     "apps.approvals.apps.ApprovalsConfig",
     "apps.documents.apps.DocumentsConfig",
     "apps.reporting.apps.ReportingConfig",
+    "apps.audit.apps.AuditConfig",
+    "apps.notifications.apps.NotificationsConfig",
 ]
 
 
@@ -179,3 +181,29 @@ CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 CELERY_TASK_DEFAULT_QUEUE = "smarterp"
 # common is infrastructure, not an installed Django business app.
 CELERY_IMPORTS = ("common.tasks",)
+CELERY_BROKER_CONNECTION_TIMEOUT = 3
+CELERY_BROKER_TRANSPORT_OPTIONS = {"socket_connect_timeout": 3, "socket_timeout": 3}
+
+# Outbound email is opt-in. Tests use locmem, never a real SMTP server.
+EMAIL_DELIVERY_ENABLED = os.getenv("EMAIL_DELIVERY_ENABLED", "false").lower() == "true"
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = os.getenv("EMAIL_HOST", "localhost")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "true").lower() == "true"
+EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", "false").lower() == "true"
+EMAIL_TIMEOUT = 15
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "")
+EMAIL_DELIVERY_TEST_MODE = False
+
+# Opt-in Beat schedule, interpreted in CELERY_TIMEZONE (Africa/Casablanca).
+CELERY_BEAT_SCHEDULE = {}
+if os.getenv("CELERY_BEAT_ENABLED", "false").lower() == "true":
+    from celery.schedules import crontab
+    CELERY_BEAT_SCHEDULE = {
+        "overdue-daily": {"task": "apps.finance.tasks.scan_overdue_invoices", "schedule": crontab(hour=7, minute=0)},
+        "stock-daily": {"task": "apps.inventory.tasks.scan_low_stock", "schedule": crontab(hour=8, minute=0)},
+        "idempotency-nightly": {"task": "apps.audit.tasks.cleanup_expired_idempotency_keys", "schedule": crontab(hour=2, minute=0)},
+        "interrupted-tasks-hourly": {"task": "apps.reporting.tasks.expire_stalled_jobs", "schedule": crontab(minute=15)},
+    }

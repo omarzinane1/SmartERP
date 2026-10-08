@@ -1,7 +1,8 @@
 from collections import defaultdict
 from datetime import timedelta
 from decimal import Decimal
-from django.db.models import Count, Max, Prefetch, Q, Sum
+from django.db.models import Count, Max, Prefetch, Q, Sum, F, OuterRef, Subquery, DecimalField, Value
+from django.db.models.functions import Coalesce
 from django.utils import timezone
 from rest_framework.exceptions import NotFound
 from .models import Product, Warehouse, StockLevel, StockMovement, StockTransfer, StockTransferLine, StockTransferActivity, ProductPriceRecord
@@ -81,6 +82,20 @@ def get_low_stock_products(*, company, context=None):
     context = context or stock_context(company)
     active_warehouses = {w.pk for w in context["warehouses"] if w.is_active}
     return [r for r in inventory_rows(context) if r["warehouseId"] in active_warehouses and r["health"] in {"low_stock", "out_of_stock"}]
+
+
+def low_stock_queryset(company, warehouse):
+    """SQL equivalent of get_low_stock_products for one active warehouse.
+
+    Reservations are not implemented: available = on hand. Missing rows mean zero.
+    """
+    if warehouse is None or warehouse.company_id != company.pk or not warehouse.is_active:
+        return Product.objects.none()
+    level = StockLevel.objects.filter(company=company, warehouse=warehouse, warehouse__company=company, product_id=OuterRef("pk"))
+    quantity = DecimalField(max_digits=18, decimal_places=3)
+    return product_queryset(company).filter(is_active=True, kind="product").annotate(
+        available_stock=Coalesce(Subquery(level.values("quantity_on_hand")[:1]), Value(ZERO), output_field=quantity)
+    ).filter(available_stock__lte=F("minimum_stock"))
 
 
 def warehouse_payload(warehouse, context, permissions):

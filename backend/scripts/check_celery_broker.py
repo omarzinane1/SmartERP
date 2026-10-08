@@ -4,6 +4,7 @@ Owns a temporary worker on a unique queue and stops only that worker afterward.
 Requires the local Valkey service to be running; does not start/stop Docker.
 """
 import os
+import argparse
 from pathlib import Path
 import subprocess
 import sys
@@ -30,10 +31,14 @@ def wait_for(log_path, predicate, process, timeout=45):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--task", choices=["health", "cleanup"], default="health", help="cleanup executes the real expired-key maintenance task")
+    arguments = parser.parse_args()
     import django
     django.setup()
     from config import celery_app
     from common.tasks import celery_healthcheck
+    from apps.audit.tasks import cleanup_expired_idempotency_keys
     from redis import Redis
 
     broker = celery_app.conf.broker_url
@@ -57,11 +62,15 @@ def main():
         try:
             wait_for(log_path, lambda log: "Connected to redis://" in log and f"{hostname} ready." in log, process)
             print("Celery worker: connected and ready (solo diagnostic)", flush=True)
-            result = celery_healthcheck.apply_async(queue=queue)
+            task = cleanup_expired_idempotency_keys if arguments.task == "cleanup" else celery_healthcheck
+            result = task.apply_async(queue=queue, retry=False)
             print(f"Task sent: {result.id}", flush=True)
-            marker = f"Task common.tasks.celery_healthcheck[{result.id}]"
-            wait_for(log_path, lambda log: marker+" received" in log and marker+" succeeded" in log and "SmartERP Celery healthcheck: ok" in log, process, timeout=30)
-            print("Task received: YES\nTask succeeded: ok\nResult backend: disabled; result.get() not used", flush=True)
+            marker = f"Task {task.name}[{result.id}]"
+            wait_for(log_path, lambda log: marker+" received" in log and marker+" succeeded" in log, process, timeout=30)
+            for line in log_path.read_text(encoding="utf-8", errors="replace").splitlines():
+                if marker+" received" in line or marker+" succeeded" in line:
+                    print(line, flush=True)
+            print("Result backend: disabled; result.get() not used", flush=True)
         finally:
             if process.poll() is None:
                 try:

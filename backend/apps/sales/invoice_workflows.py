@@ -130,9 +130,13 @@ def request_reminder(*, company, membership, invoice_id, key):
     existing = replay(InvoiceReminder.objects.filter(company=company), key, fingerprint)
     if existing:
         return existing
-    if invoice.status != "posted" or invoice.balance_due <= 0 or invoice.due_date >= timezone.localdate():
+    from common.dates import company_today
+    if invoice.status != "posted" or invoice.balance_due <= 0 or invoice.due_date >= company_today(company):
         raise BusinessConflict("Seule une facture échue avec un solde positif peut être relancée.")
     reminder = InvoiceReminder.objects.create(company=company, invoice=invoice, created_by_id=membership.user_id,
         recipient=invoice.customer.email, operation_key=key, request_fingerprint=fingerprint)
-    invoice_activity(invoice, membership, "reminder", "Demande de relance enregistrée ; aucun e-mail envoyé.")
+    from common.dispatch import enqueue_after_commit
+    from .tasks import send_invoice_reminder_email
+    enqueue_after_commit(send_invoice_reminder_email, reminder.pk, failed=lambda: InvoiceReminder.objects.filter(pk=reminder.pk, status="requested").update(status="failed", email_error_code="broker_unavailable"))
+    invoice_activity(invoice, membership, "reminder", "Relance demandée ; envoi traité en arrière-plan selon la configuration e-mail.")
     return reminder

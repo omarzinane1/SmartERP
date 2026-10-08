@@ -80,8 +80,8 @@ export function DashboardPage() {
   function exportIndicators() {
     if (!data) return
     // L’export contient uniquement les indicateurs actuellement affichés.
-    const quote = (value: string | number) =>
-      `"${String(value).replace(/"/g, '""')}"`
+    const quote = (value: string | number | null) =>
+      `"${String(value ?? '').replace(/"/g, '""')}"`
     const rows = [
       ['Indicateur', 'Valeur', 'Unité', 'Période', 'Source'],
       ...data.kpis.map((kpi) => [
