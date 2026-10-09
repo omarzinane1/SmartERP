@@ -39,7 +39,7 @@ class AsyncConcurrencyTests(TransactionTestCase):
             return list(pool.map(work, range(2)))
 
     def notification(self):
-        return create_notification(company=self.company, recipient_id=self.user.pk, type="low_stock", title="Stock", message="Stock",
+        return create_notification(company=self.company, recipient_id=self.user.pk, type="notification", title="Stock", message="Stock",
             entity_type="product", entity_id=self.product.pk, dedupe_key="same-event", permissions=["products.view"])
 
     def test_concurrent_notifications_create_one_row_and_one_publication(self):

@@ -114,6 +114,10 @@ def create_payment(*, company, membership, data, key):
     if invoice_id:
         allocate_payment(company=company, membership=membership, payment_id=payment.pk,
                          invoice_id=invoice_id, amount=payment.amount, key=f"create-payment:{payment.pk}")
+    if payment.direction == "incoming":
+        from apps.notifications.email_services import prepare_email
+        prepare_email(company=company, email_type="payment_confirmation", entity_type="payment", entity_id=payment.pk,
+            requested_by_id=membership.user_id, dedupe_key=f"payment_confirmation:initial:{payment.pk}", strict=False)
     return payment
 
 

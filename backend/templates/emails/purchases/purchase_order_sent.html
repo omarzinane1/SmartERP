@@ -1,0 +1,8 @@
+{% extends "emails/base.html" %}
+{% block content %}<h1 style="font-size:22px;line-height:1.3;margin:0 0 20px">Commande fournisseur</h1>
+<p>Bonjour {{ supplier.name }},<br>
+Nous vous transmettons la commande {{ number }}.<br>
+Date : {{ date|date:"d/m/Y" }}<br>
+Livraison attendue : {{ due_date|date:"d/m/Y" }}<br>
+Total TTC : {{ total|floatformat:2 }} {{ currency }}<br>
+Merci de contacter notre société pour organiser son exécution.</p>{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "emails/base.txt" %}
+{% block content %}Commande fournisseur
+
+Bonjour {{ supplier.name }},
+Nous vous transmettons la commande {{ number }}.
+Date : {{ date|date:"d/m/Y" }}
+Livraison attendue : {{ due_date|date:"d/m/Y" }}
+Total TTC : {{ total|floatformat:2 }} {{ currency }}
+Merci de contacter notre société pour organiser son exécution.
+{% endblock %}

@@ -127,12 +127,13 @@ class PurchaseActionView(PurchasingView):
         return {"send": "purchases.edit", "confirm": "purchases.confirm", "cancel": "purchases.edit", "receive": "receipts.create"}[self.action]
 
     def post(self, request, order_id):
+        from apps.notifications.serializers import SendEmailInput
         selectors.purchase_by_id(request.company, order_id)
-        serializer = (ReceiptInputSerializer if self.action == "receive" else EmptyActionSerializer)(data=request.data)
+        serializer = (ReceiptInputSerializer if self.action == "receive" else SendEmailInput if self.action == "send" else EmptyActionSerializer)(data=request.data)
         serializer.is_valid(raise_exception=True)
         args = dict(company=request.company, membership=request.membership, order_id=order_id)
         if self.action == "receive":
             services.receive_purchase_order(**args, data=serializer.validated_data, key=request.headers.get("Idempotency-Key"))
         else:
-            services.transition_purchase_order(**args, action=self.action)
+            services.transition_purchase_order(**args, action=self.action, **(dict(key=request.headers.get("Idempotency-Key"), **serializer.validated_data) if self.action == "send" else {}))
         return Response(selectors.purchase_payload(selectors.purchase_by_id(request.company, order_id), self.codes(), True))

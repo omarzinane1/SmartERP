@@ -1,0 +1,10 @@
+{% extends "emails/base.txt" %}
+{% block content %}Votre facture
+
+Bonjour {{ customer.name }},
+Veuillez trouver votre facture {{ number }} en pièce jointe.
+Date : {{ date|date:"d/m/Y" }}
+Échéance : {{ due_date|date:"d/m/Y" }}
+Total TTC : {{ total|floatformat:2 }} {{ currency }}
+Solde restant : {{ balance|floatformat:2 }} {{ currency }}
+{% endblock %}

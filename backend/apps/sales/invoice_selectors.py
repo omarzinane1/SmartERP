@@ -39,7 +39,7 @@ def invoice_payload(invoice, *, permissions):
                 workflowStatus=invoice.status, paymentStatus=payment_status(invoice), salesOrderId=invoice.sales_order_id,
                 salesOrderReference=invoice.sales_order.number if invoice.sales_order_id else None,
                 capabilities=dict(canEdit=invoice.status == "draft" and "invoices.edit" in permissions,
-                    canPost=invoice.status == "draft" and "invoices.post" in permissions, canSend=False,
+                    canPost=invoice.status == "draft" and "invoices.post" in permissions, canSend=invoice.status == "posted" and "invoices.send" in permissions,
                     canPay=invoice.status == "posted" and invoice.balance_due > 0 and "payments.create" in permissions,
                     canRemind=invoice.status == "posted" and invoice.balance_due > 0 and invoice.due_date < timezone.localdate() and "invoices.remind" in permissions,
                     canCredit=invoice.status == "posted" and invoice.balance_due > 0 and "invoices.credit_note" in permissions))
@@ -47,9 +47,12 @@ def invoice_payload(invoice, *, permissions):
 
 def invoice_detail(*, invoice, membership):
     from apps.finance.models import PaymentAllocation
+    from apps.notifications.models import BusinessEmail
+    from apps.notifications.email_services import email_payload
     permissions = get_effective_permission_codes(membership=membership)
     allocations = PaymentAllocation.objects.filter(company_id=invoice.company_id, invoice=invoice, payment__company_id=invoice.company_id).select_related("payment") if "payments.view" in permissions else []
     return {**invoice_payload(invoice, permissions=permissions), "customerEmail": invoice.customer.email,
+            "emailDeliveries": [email_payload(e) for e in BusinessEmail.objects.filter(company_id=invoice.company_id, entity_type="invoice", entity_id=invoice.pk)[:20]],
             "billingAddress": invoice.billing_address, "currency": invoice.currency, "paymentTerms": invoice.payment_terms,
             "customerReference": invoice.customer_reference, "notes": invoice.notes,
             "lines": [dict(id=str(line.pk), productId=line.product_id, productName=line.product_name, description=line.description,

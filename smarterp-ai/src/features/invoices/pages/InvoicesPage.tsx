@@ -49,7 +49,7 @@ export function InvoicesPage() {
         pending.shift()
       }
       setTargets([]); setSelectedIds([])
-      toast.success(query.isDemo ? 'Envoi simulé. Aucun e-mail envoyé.' : action === 'send' ? 'Envoi confirmé par le serveur.' : 'Relances confirmées par le serveur.')
+      toast.success(query.isDemo ? 'Envoi simulé. Aucun e-mail envoyé.' : action === 'send' ? 'Envoi demandé. Consultez le suivi sur la facture.' : 'Relances demandées. Consultez le suivi sur les factures.')
     } catch { setTargets(pending); setError(`L’opération n’a pas été confirmée pour ${pending.length} facture(s). Une nouvelle tentative portera uniquement sur ces factures.`) }
     finally { lock.current = false }
   }

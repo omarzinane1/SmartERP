@@ -1,0 +1,7 @@
+{% extends "emails/base.txt" %}
+{% block content %}Approbation acceptée
+
+Votre demande {{ approval.number }} pour {{ number }} a été approuvée.
+Montant : {{ total|floatformat:2 }} {{ currency }}
+Consultez les détails dans le centre d’approbation de SmartERP.
+{% endblock %}

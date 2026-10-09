@@ -1,0 +1,7 @@
+{% extends "emails/base.html" %}
+{% block content %}<h1 style="font-size:22px;line-height:1.3;margin:0 0 20px">Rappel de paiement</h1>
+<p>Bonjour {{ customer.name }},<br>
+La facture {{ number }} reste en attente de règlement.<br>
+Échéance initiale : {{ due_date|date:"d/m/Y" }}<br>
+Solde restant : {{ balance|floatformat:2 }} {{ currency }}<br>
+Pour toute question, vous pouvez contacter notre société aux coordonnées ci-dessous.</p>{% endblock %}

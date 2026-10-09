@@ -26,9 +26,12 @@ def _new_request(company, membership, entity, workflow):
     field = "expense" if workflow == "expense" else "purchase_order"
     if ApprovalRequest.objects.filter(company=company, status="pending", **{field: entity}).exists():
         raise BusinessConflict("Une demande est déjà en attente pour cet enregistrement.")
-    return ApprovalRequest.objects.create(company=company, **{field: entity}, workflow_type=workflow,
+    request = ApprovalRequest.objects.create(company=company, **{field: entity}, workflow_type=workflow,
         number=next_document_number(company=company, kind="approval", prefix="APR"), requested_by_id=membership.user_id,
         requested_at=timezone.now(), source_updated_at=entity.updated_at)
+    from apps.notifications.services import notify_approval_requested
+    notify_approval_requested(company=company, approval=request)
+    return request
 
 
 @transaction.atomic

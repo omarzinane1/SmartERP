@@ -83,12 +83,14 @@ def save_quote(*, company, membership, data, quote_id=None):
 
 
 @transaction.atomic
-def transition_quote(*, company, membership, quote_id, action):
+def transition_quote(*, company, membership, quote_id, action, key=None, resend=False):
     Company.objects.select_for_update().get(pk=company.pk)
     permissions = {"send": "quotes.send", "accept": "quotes.accept", "reject": "quotes.accept", "viewed": "quotes.edit", "expire": "quotes.edit"}
     require_actor(company=company, actor=membership, permission_code=permissions[action])
     quote = locked_quote(company=company, quote_id=quote_id)
     if action == "send" and quote.status in {"sent", "viewed"} and quote.expires_at >= timezone.localdate():
+        from apps.notifications.email_services import request_document_email
+        request_document_email(company=company, membership=membership, entity=quote, email_type="quote", key=key, resend=resend)
         return quote  # Recording dispatch twice must not duplicate an event.
     sources = {"send": {"draft"}, "accept": {"sent", "viewed"}, "reject": {"sent", "viewed"}, "viewed": {"sent"}, "expire": {"draft", "sent", "viewed"}}
     if quote.status not in sources[action]:
@@ -100,7 +102,10 @@ def transition_quote(*, company, membership, quote_id, action):
         raise BusinessConflict("Le devis n'a pas encore expiré.")
     quote.status = {"send": "sent", "accept": "accepted", "reject": "rejected", "viewed": "viewed", "expire": "expired"}[action]
     quote.save(update_fields=["status", "updated_at"])
-    messages = {"send": "Devis marqué comme envoyé (envoi externe).", "accept": "Devis accepté.", "reject": "Devis refusé.", "viewed": "Consultation du devis enregistrée.", "expire": "Devis expiré."}
+    if action == "send":
+        from apps.notifications.email_services import request_document_email
+        request_document_email(company=company, membership=membership, entity=quote, email_type="quote", key=key, resend=resend)
+    messages = {"send": "Envoi du devis demandé ; suivi de livraison disponible dans les e-mails.", "accept": "Devis accepté.", "reject": "Devis refusé.", "viewed": "Consultation du devis enregistrée.", "expire": "Devis expiré."}
     QuoteActivity.objects.create(company=company, quote=quote, actor_id=membership.user_id, description=messages[action])
     return quote
 

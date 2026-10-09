@@ -1,5 +1,6 @@
 import { env } from '../../../config/env'
 import { apiClient } from '../../../lib/axios'
+import { postIdempotent } from '../../../lib/idempotentApi'
 import { duplicateQuoteMock, getQuoteByIdMock, getQuotesMock, saveQuoteMock, sendQuoteMock } from '../data/quotes.mock'
 import type { Quote, QuoteActivity, QuoteConversion, QuoteConversionTarget, QuoteDetail, QuoteEditorData, QuoteInput, QuotePermission, QuoteProduct, QuotesData, QuoteStatus } from '../types/quotes.types'
 
@@ -57,7 +58,7 @@ export async function getQuotes(scope: string, params: QuotesParams = {}, signal
 }
 export async function sendQuote(scope: string, id: number): Promise<Quote> {
   if (env.quotesUseMock) return sendQuoteMock(scope, id)
-  const { data } = await apiClient.post<QuoteDTO>(`${QUOTES_ENDPOINT}${id}/send/`)
+  const data = await postIdempotent<QuoteDTO>(scope, `${QUOTES_ENDPOINT}${id}/send/`)
   return fromDTO(data)
 }
 export async function duplicateQuote(scope: string, id: number): Promise<Quote> {

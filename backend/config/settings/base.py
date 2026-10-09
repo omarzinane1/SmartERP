@@ -186,7 +186,7 @@ CELERY_BROKER_TRANSPORT_OPTIONS = {"socket_connect_timeout": 3, "socket_timeout"
 
 # Outbound email is opt-in. Tests use locmem, never a real SMTP server.
 EMAIL_DELIVERY_ENABLED = os.getenv("EMAIL_DELIVERY_ENABLED", "false").lower() == "true"
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend")
 EMAIL_HOST = os.getenv("EMAIL_HOST", "localhost")
 EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
@@ -196,6 +196,7 @@ EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", "false").lower() == "true"
 EMAIL_TIMEOUT = 15
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "")
 EMAIL_DELIVERY_TEST_MODE = False
+EMAIL_ALLOW_CONSOLE = False
 
 # Opt-in Beat schedule, interpreted in CELERY_TIMEZONE (Africa/Casablanca).
 CELERY_BEAT_SCHEDULE = {}

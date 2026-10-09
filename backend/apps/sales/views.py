@@ -61,12 +61,13 @@ class QuoteActionView(APIView):
         return {"send": "quotes.send", "accept": "quotes.accept", "reject": "quotes.accept", "viewed": "quotes.edit", "expire": "quotes.edit", "duplicate": "quotes.create"}[self.action]
 
     def post(self, request, quote_id):
-        serializer = EmptyActionSerializer(data=request.data)
+        from apps.notifications.serializers import SendEmailInput
+        serializer = (SendEmailInput if self.action == "send" else EmptyActionSerializer)(data=request.data)
         serializer.is_valid(raise_exception=True)
         kwargs = dict(company=request.company, membership=request.membership, quote_id=quote_id)
         if self.action == "duplicate":
             quote = services.duplicate_quote(**kwargs)
         else:
-            quote = services.transition_quote(**kwargs, action=self.action)
+            quote = services.transition_quote(**kwargs, action=self.action, **(dict(key=request.headers.get("Idempotency-Key"), **serializer.validated_data) if self.action == "send" else {}))
         quote = selectors.quote_by_id(company=request.company, quote_id=quote.pk)
         return Response(selectors.quote_detail(quote=quote, membership=request.membership), status=201 if self.action == "duplicate" else 200)

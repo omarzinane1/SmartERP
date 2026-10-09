@@ -114,7 +114,7 @@ class InvoiceAPITests(SalesDataMixin, TestCase):
         self.assertEqual(self.client.get("/api/invoices/?aging=1-30").data["count"], 1)
         self.assertEqual(sum(b["amount"] for b in self.client.get("/api/invoices/aging/").data), Decimal("64.76"))
         self.assertEqual(self.client.patch(f"/api/invoices/{first['id']}/", {"notes": "Immutable"}, format="json").status_code, 409)
-        self.assertEqual(self.client.post(f"/api/invoices/{first['id']}/send/", {}, format="json").status_code, 404)
+        self.assertEqual(self.client.post(f"/api/invoices/{first['id']}/send/", {}, format="json").status_code, 403)  # Route exists; this role lacks invoices.send.
         for action in ("post", "payment", "remind", "credit-note"):
             self.assertEqual(self.client.post(f"/api/invoices/{first['id']}/{action}/", {}, format="json").status_code, 403)
 

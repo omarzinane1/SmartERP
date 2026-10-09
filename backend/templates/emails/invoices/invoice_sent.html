@@ -1,0 +1,8 @@
+{% extends "emails/base.html" %}
+{% block content %}<h1 style="font-size:22px;line-height:1.3;margin:0 0 20px">Votre facture</h1>
+<p>Bonjour {{ customer.name }},<br>
+Veuillez trouver votre facture {{ number }} en pièce jointe.<br>
+Date : {{ date|date:"d/m/Y" }}<br>
+Échéance : {{ due_date|date:"d/m/Y" }}<br>
+Total TTC : {{ total|floatformat:2 }} {{ currency }}<br>
+Solde restant : {{ balance|floatformat:2 }} {{ currency }}</p>{% endblock %}

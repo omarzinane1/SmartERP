@@ -1,0 +1,9 @@
+{% extends "emails/base.txt" %}
+{% block content %}Rappel de paiement
+
+Bonjour {{ customer.name }},
+La facture {{ number }} reste en attente de règlement.
+Échéance initiale : {{ due_date|date:"d/m/Y" }}
+Solde restant : {{ balance|floatformat:2 }} {{ currency }}
+Pour toute question, vous pouvez contacter notre société aux coordonnées ci-dessous.
+{% endblock %}

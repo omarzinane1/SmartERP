@@ -78,7 +78,7 @@ class InvoiceActionView(APIView):
 
     @property
     def required_permission(self):
-        return {"post": "invoices.post", "credit-note": "invoices.credit_note", "remind": "invoices.remind", "payment": "payments.create"}[self.action]
+        return {"post": "invoices.post", "send": "invoices.send", "credit-note": "invoices.credit_note", "remind": "invoices.remind", "payment": "payments.create"}[self.action]
 
     def post(self, request, invoice_id):
         from . import invoice_workflows as workflows
@@ -86,14 +86,17 @@ class InvoiceActionView(APIView):
         from .serializers import EmptyActionSerializer
         from apps.finance.serializers import InvoicePaymentInputSerializer
         from apps.finance.services import create_payment
+        from apps.notifications.serializers import SendEmailInput
         invoice = selectors.invoice_by_id(company=request.company, invoice_id=invoice_id)
-        serializer = {"post": EmptyActionSerializer, "remind": EmptyActionSerializer,
+        serializer = {"post": EmptyActionSerializer, "send": SendEmailInput, "remind": EmptyActionSerializer,
             "credit-note": CreditNoteInputSerializer, "payment": InvoicePaymentInputSerializer}[self.action](data=request.data)
         serializer.is_valid(raise_exception=True)
         args = dict(company=request.company, membership=request.membership, invoice_id=invoice_id)
         key = request.headers.get("Idempotency-Key")
         if self.action == "post":
             workflows.post_invoice(**args)
+        elif self.action == "send":
+            workflows.request_invoice_email(**args, key=key, **serializer.validated_data)
         elif self.action == "credit-note":
             workflows.create_credit_note(**args, data=serializer.validated_data, key=key)
         elif self.action == "remind":

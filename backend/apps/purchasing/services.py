@@ -93,10 +93,14 @@ def save_purchase_order(*, company, membership, data, order_id=None):
 
 
 @transaction.atomic
-def transition_purchase_order(*, company, membership, order_id, action):
+def transition_purchase_order(*, company, membership, order_id, action, key=None, resend=False):
     Company.objects.select_for_update().get(pk=company.pk)
     require_actor(company=company, actor=membership, permission_code="purchases.confirm" if action == "confirm" else "purchases.edit")
     order = locked_order(company, order_id)
+    if action == "send" and order.status in {"sent", "confirmed", "partially_received", "received"}:
+        from apps.notifications.email_services import request_document_email
+        request_document_email(company=company, membership=membership, entity=order, email_type="purchase_order", key=key, resend=resend)
+        return order
     allowed = {"send": {"draft"}, "confirm": {"draft", "sent"}, "cancel": {"draft", "sent", "confirmed"}}
     if action not in allowed or order.status not in allowed[action]:
         raise BusinessConflict("Transition de commande fournisseur invalide.")
@@ -117,7 +121,10 @@ def transition_purchase_order(*, company, membership, order_id, action):
     field = {"send": "sent_at", "confirm": "confirmed_at", "cancel": "cancelled_at"}[action]
     setattr(order, field, timezone.now())
     order.save(update_fields=["status", field, "updated_at"])
-    title, detail = {"send": ("Envoi externe enregistré", "Envoi au fournisseur attesté par l'utilisateur ; aucun e-mail automatique."),
+    if action == "send":
+        from apps.notifications.email_services import request_document_email
+        request_document_email(company=company, membership=membership, entity=order, email_type="purchase_order", key=key, resend=resend)
+    title, detail = {"send": ("Envoi demandé", "E-mail au fournisseur préparé pour le worker."),
                      "confirm": ("Commande confirmée", "Montants et lignes figés."), "cancel": ("Commande annulée", "Document conservé dans l'historique.")}[action]
     activity(order, membership, title, detail)
     return order

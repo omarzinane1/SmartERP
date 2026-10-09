@@ -135,8 +135,16 @@ def request_reminder(*, company, membership, invoice_id, key):
         raise BusinessConflict("Seule une facture échue avec un solde positif peut être relancée.")
     reminder = InvoiceReminder.objects.create(company=company, invoice=invoice, created_by_id=membership.user_id,
         recipient=invoice.customer.email, operation_key=key, request_fingerprint=fingerprint)
-    from common.dispatch import enqueue_after_commit
-    from .tasks import send_invoice_reminder_email
-    enqueue_after_commit(send_invoice_reminder_email, reminder.pk, failed=lambda: InvoiceReminder.objects.filter(pk=reminder.pk, status="requested").update(status="failed", email_error_code="broker_unavailable"))
+    from apps.notifications.email_services import prepare_reminder_email
+    prepare_reminder_email(reminder)
     invoice_activity(invoice, membership, "reminder", "Relance demandée ; envoi traité en arrière-plan selon la configuration e-mail.")
     return reminder
+
+
+@transaction.atomic
+def request_invoice_email(*, company, membership, invoice_id, key=None, resend=False):
+    Company.objects.select_for_update().get(pk=company.pk)
+    require_actor(company=company, actor=membership, permission_code="invoices.send")
+    invoice = locked_invoice(company, invoice_id)
+    from apps.notifications.email_services import request_document_email
+    return request_document_email(company=company, membership=membership, entity=invoice, email_type="invoice", key=key, resend=resend)

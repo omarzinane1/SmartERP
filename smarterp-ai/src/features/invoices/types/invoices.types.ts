@@ -18,6 +18,7 @@ export interface InvoiceSummary {
   capabilities: { canEdit: boolean; canPost: boolean; canSend: boolean; canPay: boolean; canRemind: boolean; canCredit?: boolean }
 }
 export interface InvoiceDetail extends InvoiceSummary, InvoiceInput {
+  emailDeliveries?: { id: number; type: string; status: string }[]
   customerEmail: string; totals: MoneyTotals; payments: Omit<SalesPayment, 'invoiceId'>[]; deliveries: SalesDelivery[]
   creditNotes: { id: number; reference: string; amount: number }[]; documents: { id: number; name: string }[]
   activities: { id: string; type: 'created' | 'edited' | 'posted' | 'sent' | 'payment' | 'reminder' | 'cancelled'; date: string; user: string; description: string; reference?: string }[]

@@ -11,7 +11,7 @@ from apps.accounts.models import RolePermission
 from apps.finance.models import Expense
 from apps.approvals.models import ApprovalRequest
 from apps.finance.tasks import scan_overdue_invoices
-from apps.notifications.models import Notification
+from apps.notifications.models import Notification, BusinessEmail
 from apps.notifications.tasks import send_notification_email
 from apps.sales.models import Invoice, InvoiceReminder
 from apps.sales.invoice_workflows import request_reminder
@@ -115,7 +115,7 @@ class EmailDeliveryTests(AsyncDataMixin, TestCase):
     def test_interrupted_claim_is_uncertain_and_fences_late_worker(self):
         reminder = self.reminder()
         claimed, _ = claim_delivery("reminder", reminder.pk)
-        InvoiceReminder.objects.filter(pk=reminder.pk).update(email_started_at=timezone.now()-timedelta(hours=1))
+        BusinessEmail.objects.filter(reminder=reminder).update(email_started_at=timezone.now()-timedelta(hours=1))
         self.assertEqual(expire_email_claims(), 1)
         self.assertEqual(finish_delivery("reminder", claimed, "sent", recipient=self.customer.email)["status"], "uncertain")
         reminder.refresh_from_db()
@@ -145,4 +145,4 @@ class EmailDeliveryTests(AsyncDataMixin, TestCase):
                 self.assertEqual(response.status_code, 200, response.data)
                 self.assertEqual(Expense.objects.get(pk=expense["id"]).status, "approved")
                 publish.assert_not_called()
-            publish.assert_called_once_with(args=[Notification.objects.get().pk], retry=False)
+            publish.assert_called_once_with(args=[Notification.objects.get(type="approval_approved").pk], retry=False)

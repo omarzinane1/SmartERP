@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>{{ company_name }}</title></head>
+<body style="margin:0;background:#f3f5f8;color:#202d3d;font-family:Arial,sans-serif">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td align="center" style="padding:24px 12px">
+<table role="presentation" width="600" cellspacing="0" cellpadding="0" style="width:100%;max-width:600px;background:#ffffff;border:1px solid #dce3eb;border-radius:8px">
+<tr><td style="padding:24px 28px;border-bottom:3px solid #285bd4;font-size:18px;font-weight:bold">{{ company_name }}</td></tr>
+<tr><td style="padding:28px;line-height:1.6;font-size:15px">{% block content %}{% endblock %}</td></tr>
+<tr><td style="padding:20px 28px;background:#f7f9fc;color:#536174;font-size:12px;line-height:1.6">{% if footer %}<p>{{ footer|linebreaksbr }}</p>{% endif %}{{ company_name }}{% if company.email %}<br>{{ company.email }}{% endif %}{% if company.phone %}<br>{{ company.phone }}{% endif %}{% if company.address %}<br>{{ company.address }}{% endif %}</td></tr>
+</table></td></tr></table></body></html>

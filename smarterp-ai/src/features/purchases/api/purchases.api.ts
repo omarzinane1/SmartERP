@@ -28,7 +28,7 @@ export async function updatePurchaseOrder(scope: string, id: number, input: Purc
 }
 export async function sendPurchaseOrder(scope: string, id: number): Promise<PurchaseOrderDetail> {
   if (env.purchasesUseMock) { await purchaseActionMock(scope, id, 'send'); return purchaseDetailMock(scope, id) }
-  return (await apiClient.post<PurchaseOrderDetail>(`${PURCHASE_ORDERS_ENDPOINT}${id}/send/`)).data
+  return postIdempotent<PurchaseOrderDetail>(scope, `${PURCHASE_ORDERS_ENDPOINT}${id}/send/`)
 }
 export async function confirmPurchaseOrder(scope: string, id: number): Promise<PurchaseOrderDetail> {
   if (env.purchasesUseMock) { await purchaseActionMock(scope, id, 'confirm'); return purchaseDetailMock(scope, id) }

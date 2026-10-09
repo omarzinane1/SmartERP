@@ -1,0 +1,9 @@
+{% extends "emails/base.txt" %}
+{% block content %}Approbation demandée
+
+{{ requester }} demande votre décision pour {{ number }}.
+Demande : {{ approval.number }}
+Date : {{ date|date:"d/m/Y H:i" }}
+Montant : {{ total|floatformat:2 }} {{ currency }}
+Ouvrez le centre d’approbation de SmartERP pour consulter les détails et décider.
+{% endblock %}

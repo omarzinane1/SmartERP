@@ -1,0 +1,9 @@
+{% extends "emails/base.txt" %}
+{% block content %}Votre devis
+
+Bonjour {{ customer.name }},
+Veuillez trouver le devis {{ number }} en pièce jointe.
+Date : {{ date|date:"d/m/Y" }}
+Valable jusqu’au : {{ due_date|date:"d/m/Y" }}
+Total TTC : {{ total|floatformat:2 }} {{ currency }}
+{% endblock %}

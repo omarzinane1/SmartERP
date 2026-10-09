@@ -1,6 +1,9 @@
 from .base import *
 
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL") or "redis://localhost:6379/0"
+EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend")
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL") or "noreply@smarterp.local"
+EMAIL_ALLOW_CONSOLE = True
 
 
 DEBUG = True

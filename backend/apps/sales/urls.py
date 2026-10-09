@@ -7,7 +7,7 @@ urlpatterns = [
     path("invoices/", InvoiceListView.as_view()),
     path("invoices/aging/", InvoiceAgingView.as_view()),
     path("invoices/<int:invoice_id>/", InvoiceDetailView.as_view()),
-    *[path(f"invoices/<int:invoice_id>/{action}/", InvoiceActionView.as_view(action=action)) for action in ("post", "credit-note", "payment", "remind")],
+    *[path(f"invoices/<int:invoice_id>/{action}/", InvoiceActionView.as_view(action=action)) for action in ("post", "send", "credit-note", "payment", "remind")],
     path("sales-orders/<int:order_id>/invoice/", OrderInvoiceView.as_view()),
     path("sales-orders/", SalesOrderListView.as_view()),
     path("sales-orders/<int:order_id>/", SalesOrderDetailView.as_view()),

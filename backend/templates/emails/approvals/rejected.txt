@@ -1,0 +1,8 @@
+{% extends "emails/base.txt" %}
+{% block content %}Approbation refusée
+
+Votre demande {{ approval.number }} pour {{ number }} a été refusée.
+Montant : {{ total|floatformat:2 }} {{ currency }}
+Motif : {{ approval.comment }}
+Consultez les détails dans le centre d’approbation de SmartERP.
+{% endblock %}

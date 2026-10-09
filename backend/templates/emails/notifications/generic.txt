@@ -1,0 +1,6 @@
+{% extends "emails/base.txt" %}
+{% block content %}{{ notification.title }}
+
+{{ notification.message }}
+Vous pouvez consulter cet événement dans SmartERP.
+{% endblock %}

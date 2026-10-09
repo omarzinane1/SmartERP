@@ -1,0 +1,7 @@
+{% extends "emails/base.html" %}
+{% block content %}<h1 style="font-size:22px;line-height:1.3;margin:0 0 20px">Approbation demandée</h1>
+<p>{{ requester }} demande votre décision pour {{ number }}.<br>
+Demande : {{ approval.number }}<br>
+Date : {{ date|date:"d/m/Y H:i" }}<br>
+Montant : {{ total|floatformat:2 }} {{ currency }}<br>
+Ouvrez le centre d’approbation de SmartERP pour consulter les détails et décider.</p>{% endblock %}

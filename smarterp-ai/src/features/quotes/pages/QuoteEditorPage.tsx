@@ -1,3 +1,4 @@
+import { BusinessEmailPanel } from '../../../components/business/BusinessEmailPanel'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useBeforeUnload, useBlocker, useNavigate, useParams } from 'react-router-dom'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
@@ -115,7 +116,7 @@ function QuoteEditorForm({ editor, data }: { editor: ReturnType<typeof useQuoteE
     try {
       if (action === 'send') {
         await editor.send.mutateAsync()
-        toast.success(editor.isDemo ? 'Envoi simulé. Aucun e-mail envoyé.' : 'Devis marqué comme envoyé.')
+        toast.success(editor.isDemo ? 'Envoi simulé. Aucun e-mail envoyé.' : 'Envoi du devis demandé. Consultez le suivi des e-mails.')
       } else if (action === 'accept') {
         await editor.accept.mutateAsync(); toast.success('Acceptation confirmée par le serveur.')
       } else if (action === 'duplicate') {
@@ -156,5 +157,6 @@ function QuoteEditorForm({ editor, data }: { editor: ReturnType<typeof useQuoteE
       confirmLabel="Confirmer" busy={editor.busy} error={error} onClose={() => { setConfirmation(null); setError(null) }} onConfirm={() => void performAction(confirmation)} />}
     {blocker.state === 'blocked' && <QuoteConfirmDialog title="Quitter le devis ?" description={editor.busy ? 'Une opération est en cours. Veuillez attendre sa fin.' : 'Vos modifications non enregistrées seront perdues.'}
       confirmLabel="Quitter sans enregistrer" busy={editor.busy} onClose={() => blocker.reset()} onConfirm={() => blocker.proceed()} />}
-  </main>
+  {quote && !editor.isDemo && <BusinessEmailPanel entityType="quote" entityId={quote.id} revision={quote.status} canResend={permissions.includes('quotes.send') && ['sent', 'viewed'].includes(quote.status)} />}
+</main>
 }

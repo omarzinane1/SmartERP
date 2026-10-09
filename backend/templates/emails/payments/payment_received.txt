@@ -1,0 +1,9 @@
+{% extends "emails/base.txt" %}
+{% block content %}Confirmation de paiement
+
+Bonjour {{ customer.name }},
+Nous confirmons l’enregistrement du paiement {{ number }}.
+Date : {{ date|date:"d/m/Y" }}
+Montant : {{ total|floatformat:2 }} {{ currency }}
+{% if invoice_references %}Factures concernées : {{ invoice_references|join:", " }}{% endif %}
+{% endblock %}

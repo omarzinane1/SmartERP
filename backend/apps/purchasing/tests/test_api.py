@@ -74,7 +74,7 @@ class PurchaseTests(PurchasingDataMixin, TestCase):
         self.assertEqual(self.client.patch(path, {"lines": [{"product_name": "Incomplete"}]}, format="json").status_code, 400)
         self.assertEqual(self.client.patch(path, {"total": 1}, format="json").status_code, 400)
         self.assertEqual(self.post(path + "send/").status_code, 200)
-        self.assertEqual(self.post(path + "send/").status_code, 409)
+        self.assertEqual(self.post(path + "send/").status_code, 200)  # Accidental duplicate reuses the same email.
         self.assertEqual(self.post(path + "confirm/").status_code, 200)
         self.assertEqual(self.post(path + "confirm/").status_code, 409)
         self.assertEqual(self.client.patch(path, {"notes": "No"}, format="json").status_code, 409)

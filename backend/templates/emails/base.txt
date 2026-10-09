@@ -1,0 +1,9 @@
+{% autoescape off %}{{ company_name }}
+
+{% block content %}{% endblock %}
+
+{% if footer %}{{ footer }}
+{% endif %}{{ company_name }}
+{% if company.email %}{{ company.email }}
+{% endif %}{% if company.phone %}{{ company.phone }}
+{% endif %}{% if company.address %}{{ company.address }}{% endif %}{% endautoescape %}

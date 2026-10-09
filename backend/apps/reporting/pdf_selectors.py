@@ -4,14 +4,14 @@ from apps.companies.models import Company
 
 
 @transaction.atomic
-def commercial_pdf_data(company, membership, kind, pk):
+def commercial_pdf_data(company, membership, kind, pk, *, purpose="download"):
     Company.objects.select_for_update().get(pk=company.pk)
     if kind == "invoice":
         require_actor(company=company, actor=membership, permission_code="invoices.view")
         from apps.sales.invoice_selectors import invoice_by_id
         obj = invoice_by_id(company=company, invoice_id=pk)
     else:
-        for permission in ("quotes.view", "quotes.export"):
+        for permission in ("quotes.view", "quotes.send" if purpose == "email" else "quotes.export"):
             require_actor(company=company, actor=membership, permission_code=permission)
         from apps.sales.selectors import quote_by_id
         obj = quote_by_id(company=company, quote_id=pk)

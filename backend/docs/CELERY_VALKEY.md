@@ -63,7 +63,7 @@ Commande normale sous Linux, après activation de l'environnement Python et déf
 celery -A config worker -l info
 ```
 
-La file par défaut est `smarterp`. Les tâches des applications installées sont découvertes automatiquement. `common.tasks` est importé explicitement, car `common` n'est pas une application métier Django. Aucun Beat ni horaire périodique n'est configuré.
+La file par défaut est `smarterp`. Les tâches des applications installées sont découvertes automatiquement. `common.tasks` est importé explicitement, car `common` n'est pas une application métier Django. Les horaires Beat sont désormais disponibles sur activation explicite (`CELERY_BEAT_ENABLED=true`) ; voir [le guide des tâches](ASYNC_TASKS.md).
 
 ## 5. Exécuter une tâche réelle
 
@@ -111,6 +111,6 @@ Redémarrer avec `docker compose -f compose.valkey.yml start valkey`. Pour retir
 
 Définir `DJANGO_SETTINGS_MODULE=config.settings.production` et `CELERY_BROKER_URL` dans l'environnement du déploiement, par exemple `redis://valkey:6379/0` sur son réseau privé. Les settings production refusent un broker absent ; aucun défaut localhost ni mode eager n'y est imposé. Ne pas publier le port du broker sur Internet. Configurer authentification/TLS selon l'infrastructure retenue, sans identifiants dans Git. Le petit Compose fourni est une configuration de développement local.
 
-Aucun result backend n'est requis actuellement. Si un besoin apparaît, analyser sa rétention et utiliser une variable distincte `CELERY_RESULT_BACKEND` et une base logique dédiée, sans recycler arbitrairement celle du broker. L'implémentation des vraies tâches métier est le prochain lot ; publier après commit, par exemple via `transaction.on_commit`, en conservant les opérations financières et de stock critiques synchrones. [Intégration Django/Celery](https://docs.celeryq.dev/en/stable/django/first-steps-with-django.html).
+Aucun result backend n'est requis : PostgreSQL porte le suivi des jobs et des e-mails. Les tâches métier utilisent désormais `transaction.on_commit`, en conservant les opérations financières et de stock critiques synchrones. Voir [ASYNC_TASKS.md](ASYNC_TASKS.md) et [BUSINESS_EMAILS.md](BUSINESS_EMAILS.md). [Intégration Django/Celery](https://docs.celeryq.dev/en/stable/django/first-steps-with-django.html).
 
 Références de configuration : [transport Redis de Celery](https://docs.celeryq.dev/en/stable/getting-started/backends-and-brokers/redis.html), [image officielle Valkey et versions](https://valkey.io/download/).
