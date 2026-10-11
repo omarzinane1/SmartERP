@@ -55,12 +55,12 @@ const normalize = (text: string) =>
     .toLowerCase()
 
 export function AIControlCenterPage() {
-  const { data, isPending, isError, isFetching, refetch, isDemo } =
-    useAIControlCenter()
   const [selectedAlertId, setSelectedAlertId] = useState<string | null>(
-    'margin',
+    null,
   )
   const [filters, setFilters] = useState<AlertFilters>(defaultFilters)
+  const [page, setPage] = useState(1)
+  const { data, isPending, isError, isFetching, refetch, isDemo, alerts: alertQuery, detail, refresh, action } = useAIControlCenter(filters, page, selectedAlertId)
   const [savedView, setSavedView] = useState<AlertFilters | null>(null)
   const [localChanges, setLocalChanges] = useState<
     Record<string, Partial<AIAlert>>
@@ -117,7 +117,7 @@ export function AIControlCenterPage() {
       </main>
     )
 
-  const alerts = data.alerts.map((alert) => ({
+  const alerts = (isDemo ? data.alerts : alertQuery.data?.alerts ?? []).map((alert) => ({
     ...alert,
     ...localChanges[alert.id],
   }))
@@ -126,6 +126,7 @@ export function AIControlCenterPage() {
   )
   const visibleAlerts = alerts
     .filter((alert) => {
+      if (!isDemo) return true
       const age = Date.parse(data.period.asOf) - Date.parse(alert.detectedAt)
       return (
         (filters.department === 'all' ||
@@ -145,7 +146,7 @@ export function AIControlCenterPage() {
         ? Date.parse(b.detectedAt) - Date.parse(a.detectedAt)
         : severityOrder[a.severity] - severityOrder[b.severity],
     )
-  const selectedAlert = visibleAlerts.find(
+  const selectedAlert = !isDemo && detail.data ? detail.data : visibleAlerts.find(
     (alert) => alert.id === selectedAlertId,
   )
   const resolvedLocally = alerts.filter(
@@ -172,6 +173,8 @@ export function AIControlCenterPage() {
   }
 
   function changeFilter(key: keyof AlertFilters, value: string) {
+    setPage(1)
+    setSelectedAlertId(null)
     setFilters((current) => ({ ...current, [key]: value }))
   }
   function selectRisk(alertId: string) {
@@ -192,6 +195,13 @@ export function AIControlCenterPage() {
     toast.success('Alerte mise à jour dans cette session de démonstration.')
   }
   async function refreshAnalysis() {
+    if (!isDemo) {
+      try {
+        const run = await refresh.mutateAsync()
+        toast[run.status === 'failed' ? 'error' : 'success'](run.status === 'failed' ? (run.errorMessage ?? 'Analyse en échec.') : 'Analyse demandée. Le résultat apparaîtra après son exécution.')
+      } catch { toast.error('Impossible de lancer l’analyse.') }
+      return
+    }
     const result = await refetch()
     if (result.isSuccess) {
       setRefreshedAt(
@@ -206,6 +216,12 @@ export function AIControlCenterPage() {
           : 'Analyse actualisée depuis le serveur.',
       )
     }
+  }
+  async function applyAlertAction(next: 'acknowledge' | 'resolve' | 'dismiss') {
+    if (!selectedAlert) return
+    if (isDemo) { updateSelectedAlert({ status: next === 'acknowledge' ? 'investigating' : next === 'resolve' ? 'resolved' : 'dismissed' }); return }
+    try { await action.mutateAsync({ id: selectedAlert.id, action: next }); toast.success('Alerte mise à jour.') }
+    catch { toast.error('Action refusée ou indisponible. Les données n’ont pas été modifiées localement.') }
   }
   function exportAlerts() {
     const quote = (value: string | number) => {
@@ -237,7 +253,7 @@ export function AIControlCenterPage() {
         alert.currentValue,
         alert.deviation,
         alert.impact,
-        `${alert.confidence} %`,
+        alert.confidence === null ? 'Non disponible' : `${alert.confidence} %`,
         alert.detectedAt,
         statusLabels[alert.status],
         isDemo ? 'Démonstration' : 'API',
@@ -262,7 +278,7 @@ export function AIControlCenterPage() {
       <PageHeader
         period={data.period}
         isDemo={isDemo}
-        isFetching={isFetching}
+        isFetching={isFetching || refresh.isPending || ['pending', 'running'].includes(data.lastRun?.status ?? '')}
         filters={filters}
         departments={departments}
         refreshedAt={refreshedAt}
@@ -272,6 +288,10 @@ export function AIControlCenterPage() {
       />
 
       <div className="space-y-4">
+        {!isDemo && !data.lastRun && <p role="status" className="dashboard-caption">Les indicateurs sont calculés en direct. Cliquez sur Actualiser pour détecter et enregistrer les alertes.</p>}
+        {!isDemo && data.lastRun && <p role="status" className="dashboard-caption">Dernière analyse : {{ pending: 'En attente', running: 'En cours', completed: 'Terminée', failed: 'Échec' }[data.lastRun.status]}{data.lastRun.errorMessage ? ` · ${data.lastRun.errorMessage}` : ''}</p>}
+        {!isDemo && alertQuery.isError && <Alert variant="error">Impossible de charger les alertes.</Alert>}
+        {!isDemo && detail.isError && <Alert variant="error">Détail de l’alerte inaccessible.</Alert>}
         <BusinessHealth health={data.health} />
         <IntelligenceStats stats={stats} />
         <IntelligenceSummary summary={data.summary} period={data.period} />
@@ -282,7 +302,7 @@ export function AIControlCenterPage() {
             departments={departments}
             filters={filters}
             onFilter={changeFilter}
-            onReset={() => setFilters(defaultFilters)}
+            onReset={() => { setPage(1); setFilters(defaultFilters) }}
             selectedId={selectedAlert?.id ?? null}
             onSelect={setSelectedAlertId}
             asOf={data.period.asOf}
@@ -306,11 +326,19 @@ export function AIControlCenterPage() {
               onAssign={(assignee) =>
                 updateSelectedAlert({ assignee, status: 'investigating' })
               }
-              onResolve={() => updateSelectedAlert({ status: 'resolved' })}
+              onResolve={() => void applyAlertAction('resolve')}
+              onAcknowledge={() => void applyAlertAction('acknowledge')}
+              onDismiss={() => void applyAlertAction('dismiss')}
+              isSaving={action.isPending}
               onReview={setReviewAction}
             />
           )}
         </div>
+        {!isDemo && alertQuery.data && <div className="flex items-center justify-end gap-3 text-xs">
+          <span>{alertQuery.data.count} alertes · Page {page}</span>
+          <Button variant="secondary" disabled={!alertQuery.data.previous || alertQuery.isFetching} onClick={() => setPage((value) => value - 1)}>Précédente</Button>
+          <Button variant="secondary" disabled={!alertQuery.data.next || alertQuery.isFetching} onClick={() => setPage((value) => value + 1)}>Suivante</Button>
+        </div>}
         <div className="grid min-w-0 items-start gap-4 xl:grid-cols-3">
           <RiskMatrix risks={data.risks} onSelect={selectRisk} />
           <ForecastRisks forecasts={data.forecasts} />

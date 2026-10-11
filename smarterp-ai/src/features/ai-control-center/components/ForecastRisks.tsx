@@ -17,14 +17,15 @@ export function ForecastRisks({
         className="dashboard-title flex items-center gap-2"
       >
         <TrendingUp className="size-3.5 text-ai-text" />
-        Risques prévisionnels
+        Indicateurs de risque
         <Badge tone="info" className="ml-auto text-[8px]">
-          7–30 jours
+          Situation observée
         </Badge>
       </h2>
       <p className="dashboard-caption">
-        Projections indicatives · aucune certitude de réalisation.
+        Règles ERP · aucune prévision ML disponible.
       </p>
+      {forecasts.length === 0 && <p className="dashboard-caption mt-4">Aucun risque observé disponible.</p>}
       <div className="mt-4 space-y-2">
         {forecasts.map((forecast) => (
           <article
@@ -44,15 +45,15 @@ export function ForecastRisks({
                 tone={severityTones[forecast.severity]}
                 className="shrink-0 text-[8px]"
               >
-                {forecast.confidence} %
+                {forecast.confidence === null ? 'Observé' : `${forecast.confidence} %`}
               </Badge>
             </div>
             <p className="mt-1 text-[7px] font-medium tracking-wide text-ai-text">
-              FORECAST
+              {forecast.source === 'RULE_BASED' ? 'RULE_BASED' : 'FORECAST'}
             </p>
             {expanded && (
               <p className="mt-2 border-t border-slate-200 pt-2 text-[9px] leading-4 text-slate-500">
-                Hypothèse : {forecast.assumptions}
+                Source : {forecast.assumptions}
               </p>
             )}
           </article>
@@ -65,8 +66,8 @@ export function ForecastRisks({
         className="mt-3 flex w-full items-center justify-center gap-1 rounded border border-ai-border bg-ai-soft/40 py-2 text-[10px] font-medium text-ai-text"
       >
         {expanded
-          ? 'Masquer les hypothèses'
-          : `Explorer les simulations (${forecasts.length})`}
+          ? 'Masquer les explications'
+          : `Voir les explications (${forecasts.length})`}
         <ChevronDown className={`size-3 ${expanded ? 'rotate-180' : ''}`} />
       </button>
     </section>

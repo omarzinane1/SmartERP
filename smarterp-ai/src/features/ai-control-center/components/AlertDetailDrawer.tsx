@@ -30,6 +30,9 @@ export function AlertDetailDrawer({
   onClose,
   onAssign,
   onResolve,
+  onAcknowledge,
+  onDismiss,
+  isSaving,
   onReview,
 }: {
   alert: AIAlert
@@ -39,6 +42,9 @@ export function AlertDetailDrawer({
   onClose: () => void
   onAssign: (name: string) => void
   onResolve: () => void
+  onAcknowledge: () => void
+  onDismiss: () => void
+  isSaving: boolean
   onReview: (action: SuggestedAction) => void
 }) {
   const panelRef = useRef<HTMLElement>(null)
@@ -146,7 +152,7 @@ export function AlertDetailDrawer({
           {alert.title}
         </h2>
         <div className="mt-2 flex flex-wrap gap-2 text-[9px] text-slate-400">
-          <span>Confiance {alert.confidence} %</span>
+          <span>{alert.confidence === null ? 'Règle déterministe' : `Confiance ${alert.confidence} %`}</span>
           <time dateTime={alert.detectedAt} title={alert.detectedAt}>
             Détectée il y a {detectedAgo} ·{' '}
             {new Date(alert.detectedAt).toLocaleString('fr-FR', {
@@ -163,22 +169,23 @@ export function AlertDetailDrawer({
           <Button
             variant="secondary"
             className="acc-button"
-            onClick={() => setAssigning(!assigning)}
+            onClick={() => isDemo ? setAssigning(!assigning) : onAcknowledge()}
             aria-expanded={assigning}
-            disabled={!isDemo || alert.status === 'resolved'}
+            disabled={isSaving || alert.status === 'resolved' || alert.status === 'dismissed'}
           >
             <UserRound className="size-3" />
-            {alert.assignee ? alert.assignee.split(' ')[0] : 'Assigner'}
+            {isDemo ? (alert.assignee ? alert.assignee.split(' ')[0] : 'Assigner') : alert.status === 'investigating' ? 'Prise en charge' : 'Prendre en charge'}
           </Button>
           <Button
             variant="secondary"
             className="acc-button text-success-text"
             onClick={onResolve}
-            disabled={!isDemo || alert.status === 'resolved'}
+            disabled={isSaving || alert.status === 'resolved' || alert.status === 'dismissed'}
           >
             <Check className="size-3" />
             {alert.status === 'resolved' ? 'Résolue' : 'Résoudre'}
           </Button>
+          {!isDemo && <Button variant="secondary" className="acc-button" onClick={onDismiss} disabled={isSaving || alert.status === 'resolved' || alert.status === 'dismissed'}>Écarter</Button>}
           <Button
             variant="secondary"
             className="acc-button text-ai-text"
@@ -191,7 +198,7 @@ export function AlertDetailDrawer({
             }}
           >
             <BrainCircuit className="size-3" />
-            Demander à l’IA
+            {isDemo ? 'Demander à l’IA' : 'Comprendre la règle'}
           </Button>
           <Button
             variant="secondary"
@@ -231,7 +238,7 @@ export function AlertDetailDrawer({
         <p className="mt-2 text-[8px] text-slate-400">
           {isDemo
             ? 'Assignation et résolution simulées pour cette session.'
-            : 'Assignation et résolution disponibles après connexion des API d’action.'}
+            : 'Actions enregistrées dans la société active ; aucune opération ERP automatique.'}
         </p>
       </header>
 
@@ -268,13 +275,13 @@ export function AlertDetailDrawer({
       >
         <h3 className="acc-section-label flex items-center gap-1 text-ai-text">
           <BrainCircuit className="size-3" />
-          AI ANALYSIS · Diagnostic
+          {isDemo ? 'AI ANALYSIS · Diagnostic' : 'RULE_BASED · Explication'}
         </h3>
         <p className="mt-2 text-[10px] leading-[1.7] text-slate-600">
           {alert.analysis}
         </p>
         <p className="mt-2 text-[9px] font-medium text-ai-text">
-          Confiance {alert.confidence} % · Hypothèse à vérifier
+          {alert.confidence === null ? 'Règle déterministe' : `Confiance ${alert.confidence} %`} · Observation ERP
         </p>
       </div>
 

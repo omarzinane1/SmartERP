@@ -23,14 +23,14 @@ export function IntelligenceSummary({
       items: summary.priorities,
       icon: TriangleAlert,
       color: 'text-danger-text',
-      label: 'AI ANALYSIS',
+      label: summary.confidence === null ? 'RULE_BASED' : 'AI ANALYSIS',
     },
     {
       title: 'Impact estimé',
       items: summary.impacts,
       icon: ClipboardList,
       color: 'text-ai-text',
-      label: 'FORECAST / ESTIMATE',
+      label: summary.confidence === null ? 'Non disponible' : 'FORECAST / ESTIMATE',
     },
     {
       title: 'Actions recommandées',
@@ -56,7 +56,7 @@ export function IntelligenceSummary({
             Synthèse exécutive IA
           </h2>
           <Badge tone="info">
-            AI ANALYSIS · Confiance {summary.confidence} %
+            {summary.confidence === null ? 'RULE_BASED · Observations ERP' : `AI ANALYSIS · Confiance ${summary.confidence} %`}
           </Badge>
         </div>
         <span className="text-[9px] text-slate-400">

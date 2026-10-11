@@ -13,15 +13,15 @@ const cards = [
   {
     key: 'warnings',
     title: 'Avertissements',
-    caption: 'À surveiller sous 48 h',
+    caption: 'Signaux encore ouverts',
     icon: BellRing,
     style: 'border-warning-border text-warning-text',
     iconStyle: 'bg-warning-bg',
   },
   {
     key: 'forecasts',
-    title: 'Risques prévisionnels',
-    caption: 'Horizon 7–30 jours',
+    title: 'Risques observés',
+    caption: 'Observations de moins de 24 h',
     icon: TrendingUp,
     style: 'border-ai-border text-ai-text',
     iconStyle: 'bg-ai-soft',
@@ -29,7 +29,7 @@ const cards = [
   {
     key: 'opportunities',
     title: 'Opportunités',
-    caption: 'Croissance & marge détectées',
+    caption: 'Moteur non disponible',
     icon: Rocket,
     style: 'border-success-border text-success-text',
     iconStyle: 'bg-success-bg',
@@ -37,7 +37,7 @@ const cards = [
   {
     key: 'resolved',
     title: 'Problèmes résolus',
-    caption: 'Traités ce mois-ci',
+    caption: 'Résolutions enregistrées',
     icon: CircleCheck,
     style: 'border-slate-200 text-slate-600',
     iconStyle: 'bg-slate-100',

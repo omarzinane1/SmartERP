@@ -42,7 +42,7 @@ export function RiskMatrix({
           <span className="absolute bottom-2 right-2 text-[7px] text-slate-500">
             OPÉRATIONNEL (PROGRAMMER)
           </span>
-          {risks.map((risk) => (
+          {risks.filter((risk) => risk.impact !== null && risk.probability !== null).map((risk) => (
             <button
               type="button"
               key={risk.id}
@@ -66,6 +66,7 @@ export function RiskMatrix({
           ))}
         </div>
       </div>
+      {risks.some((risk) => risk.probability === null) && <div className="mt-3 space-y-2"><p className="dashboard-caption">Probabilités et impacts chiffrés non disponibles.</p>{risks.filter((risk) => risk.probability === null).map((risk) => <button key={risk.id} className="block text-left text-xs text-ai-text" onClick={() => onSelect(risk.alertId)}>{risk.label}</button>)}</div>}
       <p className="mt-1 text-right text-[8px] text-slate-400">Probabilité →</p>
       <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-[8px] text-slate-400">
         <span>

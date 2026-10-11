@@ -21,8 +21,8 @@ export function AnomalyHistory({
   responseMinutes,
 }: {
   data: AIControlCenterData['anomalyHistory']
-  resolutionRate: number
-  responseMinutes: number
+  resolutionRate: number | null
+  responseMinutes: number | null
 }) {
   return (
     <section
@@ -32,10 +32,10 @@ export function AnomalyHistory({
       <div className="flex flex-wrap justify-between gap-3">
         <div>
           <h2 id="anomaly-title" className="dashboard-title">
-            Évolution des anomalies détectées (30 derniers jours)
+            Historique des signaux détectés (30 derniers jours)
           </h2>
           <p className="dashboard-caption">
-            Volume journalier selon la sévérité et le rythme de résolution.
+            Détections par règles ERP et résolutions enregistrées chaque jour.
           </p>
         </div>
         <div className="flex items-start gap-3 text-[8px] text-slate-500">
@@ -75,7 +75,7 @@ export function AnomalyHistory({
                 border: '1px solid var(--border)',
               }}
               cursor={{ fill: 'var(--chart-purple)' }}
-              labelFormatter={(value) => `Septembre · ${value}`}
+              labelFormatter={(value) => `${value}`}
             />
             {series.map((item) => (
               <Bar
@@ -93,11 +93,11 @@ export function AnomalyHistory({
       <div className="mt-2 flex flex-wrap justify-between gap-2 border-t border-slate-100 pt-3 text-[9px] text-slate-400">
         <span>
           Taux de résolution mensuel :{' '}
-          <strong className="text-slate-600">{resolutionRate} %</strong>
+          <strong className="text-slate-600">{resolutionRate === null ? 'Non disponible' : `${resolutionRate} %`}</strong>
         </span>
         <span>
           Temps moyen de prise en charge :{' '}
-          <strong className="text-slate-600">{responseMinutes} min</strong>
+          <strong className="text-slate-600">{responseMinutes === null ? 'Non disponible' : `${responseMinutes} min`}</strong>
         </span>
       </div>
       <details className="mt-3 text-[9px] text-slate-500">

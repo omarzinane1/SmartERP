@@ -6,6 +6,7 @@ from apps.companies.views import CompanySettingsView, CompanySettingsSectionView
 
 
 urlpatterns = [
+    path("api/", include("apps.intelligence.urls")),
     path("api/", include("apps.notifications.urls")),
     path("api/", include("apps.reporting.urls")),
     path("api/", include("apps.documents.urls")),

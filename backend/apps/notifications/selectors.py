@@ -5,6 +5,7 @@ from apps.accounts.selectors import get_effective_permission_codes
 from .models import Notification
 
 ENTITY_MODELS = {"invoice": "sales.Invoice", "product": "inventory.Product", "approval": "approvals.ApprovalRequest", "job": "reporting.AsyncJob"}
+ENTITY_MODELS["aialert"] = "intelligence.AIAlert"
 
 
 def entity_queryset(kind, company_id, recipient_id):
@@ -17,6 +18,13 @@ def entity_queryset(kind, company_id, recipient_id):
         query = query.filter(Q(category__isnull=True) | Q(category__company_id=company_id)).filter(Q(unit__isnull=True) | Q(unit__company_id=company_id)).filter(Q(supplier__isnull=True) | Q(supplier__company_id=company_id))
     elif kind == "job":
         query = query.filter(requested_by_id=recipient_id)
+    elif kind == "aialert":
+        # Reuse the source relation checks, including corrupted foreign FKs.
+        from apps.intelligence.selectors import alert_queryset
+        from apps.companies.models import Company
+        member = Membership.objects.filter(company_id=company_id, user_id=recipient_id, status="active", user__is_active=True).first()
+        codes = get_effective_permission_codes(membership=member)
+        query = alert_queryset(Company.objects.get(pk=company_id), codes)
     return query
 
 
@@ -52,5 +60,7 @@ def notification_queryset(company, membership):
 
 def notification_payload(obj):
     path = {"invoice": f"/invoices/{obj.entity_id}", "product": f"/products/{obj.entity_id}", "approval": "/approvals", "job": "/reports"}.get(obj.entity_type)
+    if obj.entity_type == "aialert":
+        path = "/ai/control-center"
     return dict(id=obj.pk, type=obj.type, title=obj.title, message=obj.message, entityType=obj.entity_type, entityId=obj.entity_id, path=path,
         isRead=obj.is_read, readAt=obj.read_at, createdAt=obj.created_at, emailStatus=obj.email_status)

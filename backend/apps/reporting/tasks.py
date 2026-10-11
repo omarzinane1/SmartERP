@@ -20,4 +20,5 @@ def generate_large_pdf(self, job_id):
 @shared_task
 def expire_stalled_jobs():
     from common.email_delivery import expire_email_claims
-    return dict(jobs=expire_jobs(), emails=expire_email_claims())
+    from apps.intelligence.services import expire_runs
+    return dict(jobs=expire_jobs(), emails=expire_email_claims(), intelligence=expire_runs())

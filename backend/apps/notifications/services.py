@@ -7,7 +7,7 @@ from .selectors import entity_exists, notification_queryset, recipient_membershi
 
 
 @transaction.atomic
-def create_notification(*, company, recipient_id, type, title, message, entity_type, entity_id, dedupe_key, permissions, warehouse=None):
+def create_notification(*, company, recipient_id, type, title, message, entity_type, entity_id, dedupe_key, permissions, warehouse=None, send_email=True):
     Company.objects.select_for_update().get(pk=company.pk)
     if not recipient_memberships(company, permissions).filter(user_id=recipient_id).exists():
         return None, False
@@ -15,8 +15,8 @@ def create_notification(*, company, recipient_id, type, title, message, entity_t
     if not entity_exists(candidate):
         raise ValidationError("Entité de notification incohérente.")
     obj, created = Notification.objects.get_or_create(company=company, recipient_id=recipient_id, dedupe_key=dedupe_key,
-        defaults=dict(type=type, title=title, message=message, entity_type=entity_type, entity_id=entity_id, warehouse=warehouse, required_permissions=sorted(permissions)))
-    if created:
+        defaults=dict(type=type, title=title, message=message, entity_type=entity_type, entity_id=entity_id, warehouse=warehouse, required_permissions=sorted(permissions), email_status="pending" if send_email else "skipped"))
+    if created and send_email:
         from .email_services import prepare_notification_email
         prepare_notification_email(obj)
     return obj, created

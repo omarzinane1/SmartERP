@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "apps.reporting.apps.ReportingConfig",
     "apps.audit.apps.AuditConfig",
     "apps.notifications.apps.NotificationsConfig",
+    "apps.intelligence.apps.IntelligenceConfig",
 ]
 
 

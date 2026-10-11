@@ -13,16 +13,16 @@ export function BusinessHealth({
 }: {
   health: AIControlCenterData['health']
 }) {
-  const status =
-    health.score <= 40
+  const status = health.score === null ? ({ healthy: 'Aucun signal', warning: 'À surveiller', critical: 'Critique', not_available: 'Indisponible' }[health.status ?? 'not_available']) :
+    (health.score ?? 100) <= 40
       ? 'Critique'
-      : health.score <= 70
+      : (health.score ?? 100) <= 70
       ? 'À risque'
       : 'Sain / Healthy'
-  const tone =
-    health.score <= 40
+  const tone = health.score === null ? (health.status === 'critical' ? 'critical' : health.status === 'warning' ? 'warning' : 'neutral') :
+    (health.score ?? 100) <= 40
       ? 'critical'
-      : health.score <= 70
+      : (health.score ?? 100) <= 70
       ? 'warning'
       : 'positive'
   return (
@@ -31,30 +31,30 @@ export function BusinessHealth({
         <div className="flex items-center justify-between gap-2">
           <h2 className="dashboard-title flex items-center gap-2">
             <Hexagon className="size-4 text-ai-text" />
-            Business Health Score
+            Santé de l’entreprise
           </h2>
           <Badge tone={tone}>{status}</Badge>
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <p className="text-[30px] font-semibold leading-none tracking-tight text-navy-950">
-            {health.score}
+            {health.score ?? '—'}
             <span className="ml-1 text-xs font-normal text-slate-400">
-              /100
+              {health.score === null ? 'Score non disponible' : '/100'}
             </span>
           </p>
           <span
             className={`flex items-center gap-1 text-[10px] ${
-              health.trend < 0 ? 'text-danger-text' : 'text-success-text'
+              (health.trend ?? 0) < 0 ? 'text-danger-text' : 'text-success-text'
             }`}
           >
             <ArrowUp
-              className={`size-3 ${health.trend < 0 ? 'rotate-180' : ''}`}
+              className={`size-3 ${(health.trend ?? 0) < 0 ? 'rotate-180' : ''}`}
             />
-            {health.trend > 0 ? '+' : ''}
-            {health.trend} pts vs période précédente
+            {(health.trend ?? 0) > 0 ? '+' : ''}
+            {health.trend === null ? 'Tendance non disponible' : `${health.trend} pts vs période précédente`}
           </span>
         </div>
-        <div className="mt-4 flex justify-between text-[8px] text-slate-400">
+        {health.score !== null && <><div className="mt-4 flex justify-between text-[8px] text-slate-400">
           <span>Critique (0–40)</span>
           <span>Risque (41–70)</span>
           <span>Stable (71–85)</span>
@@ -62,7 +62,7 @@ export function BusinessHealth({
         </div>
         <div
           className="relative mt-1.5 flex h-1.5 gap-0.5"
-          aria-label={`Score de santé : ${health.score} sur 100`}
+          aria-label={`Score de santé : ${health.score ?? '—'} sur 100`}
         >
           <span className="w-[40%] rounded-l bg-danger-bg" />
           <span className="w-[30%] bg-warning-bg" />
@@ -70,13 +70,13 @@ export function BusinessHealth({
           <span className="w-[15%] rounded-r bg-success-bg" />
           <span
             className="absolute -top-1 h-3.5 w-0.5 bg-navy-950"
-            style={{ left: `${health.score}%` }}
+            style={{ left: `${health.score ?? '—'}%` }}
           />
         </div>
-        <div className="mt-2 flex justify-between text-[9px] text-slate-400">
+        </>}<div className="mt-2 flex justify-between text-[9px] text-slate-400">
           <span>
             Confiance :{' '}
-            <strong className="text-slate-600">{health.confidence} %</strong>
+            <strong className="text-slate-600">{health.confidence === null ? 'Non mesurée' : `${health.confidence} %`}</strong>
           </span>
           <span className="text-ai-text">
             {health.departments.length} flux analysés
@@ -109,18 +109,18 @@ export function BusinessHealth({
             </div>
             <div>
               <p className="text-xl font-semibold leading-none text-navy-950">
-                {department.score}
+                {department.score ?? '—'}
                 <span className="text-[9px] font-normal text-slate-400">
-                  /100
+                  {health.score === null ? 'Score non disponible' : '/100'}
                 </span>
               </p>
               <p
                 className={`mt-2 text-[8px] ${
-                  department.trend < 0 ? 'text-danger-text' : 'text-success-text'
+                  (department.trend ?? 0) < 0 ? 'text-danger-text' : 'text-success-text'
                 }`}
               >
-                {department.trend > 0 ? '+' : ''}
-                {department.trend} pts · {department.alerts} alerte
+                {(department.trend ?? 0) > 0 ? '+' : ''}
+                {department.trend === null ? 'Observé' : `${department.trend} pts`} · {department.alerts} alerte
                 {department.alerts !== 1 ? 's' : ''}
               </p>
             </div>

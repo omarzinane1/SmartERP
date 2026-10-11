@@ -320,7 +320,7 @@ export function AlertsTable({
                     </td>
                     <td>
                       <Badge tone="info" className="text-[8px]">
-                        {alert.confidence} %
+                        {alert.confidence === null ? '—' : `${alert.confidence} %`}
                       </Badge>
                     </td>
                     <td className="whitespace-nowrap text-slate-400">

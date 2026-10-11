@@ -84,7 +84,7 @@ export function PageHeader({
             }}
           >
             <Sparkles className="size-3.5" />
-            Demander à l’IA
+            {isDemo ? 'Demander à l’IA' : 'Voir la synthèse'}
           </Button>
         </div>
       </div>
@@ -119,7 +119,7 @@ export function PageHeader({
           </label>
         </div>
         <p className="text-[9px] text-slate-400">
-          Dernière analyse :{' '}
+          Indicateurs calculés :{' '}
           <span className="font-medium text-slate-600">
             il y a {analysisAge} minutes
           </span>
