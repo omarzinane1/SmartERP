@@ -16,7 +16,6 @@ export const env = {
   reportsUseMock: import.meta.env.VITE_REPORTS_USE_MOCK !== 'false',
   apiBaseUrl: (apiBaseUrl || 'http://localhost:8000/api').replace(/\/+$/, ''),
   dashboardUseMock: import.meta.env.VITE_DASHBOARD_USE_MOCK !== 'false',
-  aiControlCenterUseMock: import.meta.env.VITE_AI_CONTROL_CENTER_USE_MOCK === 'true',
   customersUseMock: import.meta.env.VITE_CUSTOMERS_USE_MOCK !== 'false',
   quotesUseMock: import.meta.env.VITE_QUOTES_USE_MOCK !== 'false',
   salesUseMock: import.meta.env.VITE_SALES_USE_MOCK !== 'false',

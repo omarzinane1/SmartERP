@@ -15,5 +15,21 @@ export const forecastDomains = ['revenue', 'sales', 'demand', 'inventory', 'cash
 export type ForecastDomain = typeof forecastDomains[number]
 export interface ForecastResult { domain: ForecastDomain; permissions: string[]; asOf: string; status: 'ready' | 'low_confidence' | 'insufficient_data' | 'disabled'; horizon: number; confidence: number | null; dataQuality: string; generatedAt: string; historyFrom: string | null; historyTo: string | null; projected: number | null; unit: 'money' | 'number'; series: { date: string; historical: number | null; forecast: number | null; lower: number | null; upper: number | null }[]; risks: string[]; source: string }
 export interface ForecastDriver { label: string; explanation: string; relationship: 'observed' | 'correlation' | 'assumption' }
-export interface AIOpportunity { id: number; type: 'upsell' | 'growth' | 'margin' | 'supplier' | 'inventory'; title: string; potentialValue: number | null; confidence: number | null; confidenceLevel: 'high' | 'medium' | 'low' | null; evidence: DocumentSource[]; recommendation: string; status: 'open' | 'assigned' | 'dismissed'; assignedTo: { id: number; name: string } | null; canAssign: boolean; source: string }
-export interface OpportunitiesData { opportunities: AIOpportunity[]; permissions: string[]; asOf: string; assignees: { id: number; name: string; role: string }[] }
+export type OpportunityType = 'customer_reactivation' | 'high_value_customer' | 'receivable_collection' | 'stock_replenishment' | 'dormant_stock'
+export type OpportunityStatus = 'open' | 'acknowledged' | 'completed' | 'dismissed' | 'expired'
+export type OpportunityAction = 'acknowledge' | 'dismiss' | 'complete'
+export interface AIOpportunity {
+  id: number; type: OpportunityType; domain: string; title: string; description: string; reason: string;
+  potentialValue: string | null; valueKind: 'outstanding_receivable' | 'book_inventory_value' | null; currency: string;
+  confidence: null; evidence: DocumentSource[]; recommendation: string; priority: 'low' | 'medium' | 'high' | 'critical';
+  status: OpportunityStatus; source: string; detector: string; version: string; metrics: Record<string, string | number>;
+  entity: { type: string; id: number; name: string; path: string }; actions: OpportunityAction[];
+  detectedAt: string; lastSeenAt: string; expiresAt: string; acknowledgedAt: string | null;
+  dismissedAt: string | null; completedAt: string | null; expiredAt: string | null;
+  acknowledgedBy: number | null; dismissedBy: number | null; completedBy: number | null;
+}
+export interface OpportunityFilters { type: string; status: string; priority: string; domain: string; search: string; date_from: string; date_to: string; page: number; page_size: number }
+export interface OpportunitiesData {
+  opportunities: AIOpportunity[]; permissions: string[]; asOf: string; count: number; next: string | null; previous: string | null;
+  availableTypes: OpportunityType[]; lastRun: import('../../ai-control-center/types/aiControlCenter.types').IntelligenceRun | null;
+}

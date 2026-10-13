@@ -26,9 +26,7 @@ import {
   statusLabels,
 } from '../types/aiControlCenter.types'
 import type {
-  AIAlert,
   AlertFilters,
-  Severity,
   SuggestedAction,
 } from '../types/aiControlCenter.types'
 
@@ -41,19 +39,6 @@ const defaultFilters: AlertFilters = {
   days: '30',
   groupBy: 'severity',
 }
-const severityOrder: Record<Severity, number> = {
-  critical: 0,
-  high: 1,
-  medium: 2,
-  low: 3,
-  opportunity: 4,
-}
-const normalize = (text: string) =>
-  text
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-
 export function AIControlCenterPage() {
   const [selectedAlertId, setSelectedAlertId] = useState<string | null>(
     null,
@@ -62,12 +47,8 @@ export function AIControlCenterPage() {
   const [page, setPage] = useState(1)
   const { data, isPending, isError, isFetching, refetch, isDemo, alerts: alertQuery, detail, refresh, action } = useAIControlCenter(filters, page, selectedAlertId)
   const [savedView, setSavedView] = useState<AlertFilters | null>(null)
-  const [localChanges, setLocalChanges] = useState<
-    Record<string, Partial<AIAlert>>
-  >({})
   const [reviewAction, setReviewAction] = useState<SuggestedAction | null>(null)
   const [draftIds, setDraftIds] = useState<string[]>([])
-  const [refreshedAt, setRefreshedAt] = useState<string | null>(null)
   const closeDrawer = useCallback(() => setSelectedAlertId(null), [])
 
   if (isPending)
@@ -117,60 +98,10 @@ export function AIControlCenterPage() {
       </main>
     )
 
-  const alerts = (isDemo ? data.alerts : alertQuery.data?.alerts ?? []).map((alert) => ({
-    ...alert,
-    ...localChanges[alert.id],
-  }))
-  const departments = data.health.departments.map(
-    (department) => department.name,
-  )
+  const alerts = alertQuery.data?.alerts ?? []
+  const departments = data.health.departments.map((department) => department.name)
   const visibleAlerts = alerts
-    .filter((alert) => {
-      if (!isDemo) return true
-      const age = Date.parse(data.period.asOf) - Date.parse(alert.detectedAt)
-      return (
-        (filters.department === 'all' ||
-          alert.department === filters.department) &&
-        (filters.severity === 'all' || alert.severity === filters.severity) &&
-        (filters.status === 'all' || alert.status === filters.status) &&
-        (filters.type === 'all' || alert.type === filters.type) &&
-        age >= 0 &&
-        age <= Number(filters.days) * 86400000 &&
-        normalize(
-          `${alert.title} ${alert.scope} ${alert.department} ${alert.metric}`,
-        ).includes(normalize(filters.search.trim()))
-      )
-    })
-    .sort((a, b) =>
-      filters.groupBy === 'date'
-        ? Date.parse(b.detectedAt) - Date.parse(a.detectedAt)
-        : severityOrder[a.severity] - severityOrder[b.severity],
-    )
-  const selectedAlert = !isDemo && detail.data ? detail.data : visibleAlerts.find(
-    (alert) => alert.id === selectedAlertId,
-  )
-  const resolvedLocally = alerts.filter(
-    (alert) =>
-      alert.status === 'resolved' &&
-      data.alerts.find((original) => original.id === alert.id)?.status !==
-        'resolved',
-  )
-  const stats = {
-    ...data.stats,
-    resolved: data.stats.resolved + resolvedLocally.length,
-    critical: Math.max(
-      0,
-      data.stats.critical -
-        resolvedLocally.filter((alert) => alert.severity === 'critical').length,
-    ),
-    warnings: Math.max(
-      0,
-      data.stats.warnings -
-        resolvedLocally.filter(
-          (alert) => alert.severity === 'high' || alert.severity === 'medium',
-        ).length,
-    ),
-  }
+  const selectedAlert = detail.data ?? alerts.find((alert) => alert.id === selectedAlertId)
 
   function changeFilter(key: keyof AlertFilters, value: string) {
     setPage(1)
@@ -186,40 +117,14 @@ export function AIControlCenterPage() {
         ?.scrollIntoView({ block: 'start', behavior: 'smooth' }),
     )
   }
-  function updateSelectedAlert(change: Partial<AIAlert>) {
-    if (!isDemo || !selectedAlert) return
-    setLocalChanges((current) => ({
-      ...current,
-      [selectedAlert.id]: { ...current[selectedAlert.id], ...change },
-    }))
-    toast.success('Alerte mise à jour dans cette session de démonstration.')
-  }
   async function refreshAnalysis() {
-    if (!isDemo) {
-      try {
-        const run = await refresh.mutateAsync()
-        toast[run.status === 'failed' ? 'error' : 'success'](run.status === 'failed' ? (run.errorMessage ?? 'Analyse en échec.') : 'Analyse demandée. Le résultat apparaîtra après son exécution.')
-      } catch { toast.error('Impossible de lancer l’analyse.') }
-      return
-    }
-    const result = await refetch()
-    if (result.isSuccess) {
-      setRefreshedAt(
-        new Date().toLocaleTimeString('fr-FR', {
-          hour: '2-digit',
-          minute: '2-digit',
-        }),
-      )
-      toast.success(
-        isDemo
-          ? 'Instantané de démonstration rechargé.'
-          : 'Analyse actualisée depuis le serveur.',
-      )
-    }
+    try {
+      const run = await refresh.mutateAsync()
+      toast[run.status === 'failed' ? 'error' : 'success'](run.status === 'failed' ? (run.errorMessage ?? 'Analyse en échec.') : 'Analyse demandée. Le résultat apparaîtra après son exécution.')
+    } catch { toast.error('Impossible de lancer l’analyse.') }
   }
   async function applyAlertAction(next: 'acknowledge' | 'resolve' | 'dismiss') {
     if (!selectedAlert) return
-    if (isDemo) { updateSelectedAlert({ status: next === 'acknowledge' ? 'investigating' : next === 'resolve' ? 'resolved' : 'dismissed' }); return }
     try { await action.mutateAsync({ id: selectedAlert.id, action: next }); toast.success('Alerte mise à jour.') }
     catch { toast.error('Action refusée ou indisponible. Les données n’ont pas été modifiées localement.') }
   }
@@ -281,7 +186,7 @@ export function AIControlCenterPage() {
         isFetching={isFetching || refresh.isPending || ['pending', 'running'].includes(data.lastRun?.status ?? '')}
         filters={filters}
         departments={departments}
-        refreshedAt={refreshedAt}
+        refreshedAt={null}
         onFilter={changeFilter}
         onRefresh={refreshAnalysis}
         onExport={exportAlerts}
@@ -293,7 +198,7 @@ export function AIControlCenterPage() {
         {!isDemo && alertQuery.isError && <Alert variant="error">Impossible de charger les alertes.</Alert>}
         {!isDemo && detail.isError && <Alert variant="error">Détail de l’alerte inaccessible.</Alert>}
         <BusinessHealth health={data.health} />
-        <IntelligenceStats stats={stats} />
+        <IntelligenceStats stats={data.stats} />
         <IntelligenceSummary summary={data.summary} period={data.period} />
         <div className={selectedAlert ? 'acc-alert-layout' : 'min-w-0'}>
           <AlertsTable
@@ -323,9 +228,7 @@ export function AIControlCenterPage() {
               isDemo={isDemo}
               asOf={data.period.asOf}
               onClose={closeDrawer}
-              onAssign={(assignee) =>
-                updateSelectedAlert({ assignee, status: 'investigating' })
-              }
+              onAssign={() => undefined}
               onResolve={() => void applyAlertAction('resolve')}
               onAcknowledge={() => void applyAlertAction('acknowledge')}
               onDismiss={() => void applyAlertAction('dismiss')}
@@ -344,7 +247,6 @@ export function AIControlCenterPage() {
           <ForecastRisks forecasts={data.forecasts} />
           <Opportunities
             opportunities={data.opportunities}
-            onReview={setReviewAction}
           />
         </div>
         <RecommendedActions actions={data.actions} onReview={setReviewAction} />
@@ -353,6 +255,7 @@ export function AIControlCenterPage() {
             data={data.anomalyHistory}
             resolutionRate={data.resolutionRate}
             responseMinutes={data.responseMinutes}
+            analysis={data.anomalyAnalysis}
           />
           <RecommendedActions
             actions={data.governance}

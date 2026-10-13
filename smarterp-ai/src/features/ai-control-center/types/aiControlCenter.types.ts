@@ -34,6 +34,7 @@ export interface SuggestedAction {
 }
 
 export interface IntelligenceRun {
+  completedAt?: string | null
   id: number
   status: 'pending' | 'running' | 'completed' | 'failed'
   errorMessage: string | null
@@ -53,6 +54,10 @@ export interface AIAlert {
   impact: string
   confidence: number | null
   detectedAt: string
+  source?: 'RULE_BASED' | 'statistical'
+  method?: string
+  observedValue?: string | null
+  expectedValue?: string | null
   status: AlertStatus
   assignee?: string
   facts: { label: string; value: string; note?: string }[]
@@ -87,6 +92,7 @@ export interface AIControlCenterData {
       trend: number | null
       alerts: number
       status: string
+      reason?: string
       tone: 'positive' | 'critical' | 'warning' | 'indigo'
     }[]
   }
@@ -128,16 +134,25 @@ export interface AIControlCenterData {
     severity: Severity
     source?: string
     assumptions: string
+    generatedAt?: string
+    stale?: boolean
+    result?: {
+      status: 'completed' | 'INSUFFICIENT_DATA'
+      metric: string
+      model: string | null
+      version: string
+      parameters: Record<string, string | number>
+      metrics: { mae: string; rmse: string } | null
+      trainingStart?: string
+      trainingEnd?: string
+      validation?: { start: string; end: string; days: number; trainingEnd: string }
+      candidates: { model: string; mae: string; rmse: string }[]
+      history: { date: string; value: string; activity: boolean }[]
+      forecast: { date: string; value: string; lowerBound: string | null; upperBound: string | null }[]
+      risk?: boolean
+    }
   }[]
-  opportunities: {
-    id: string
-    title: string
-    company: string
-    detail: string
-    potential: string
-    confidence: number | null
-    action: SuggestedAction
-  }[]
+  opportunities: import('../../ai/types/ai.types').AIOpportunity[]
   actions: SuggestedAction[]
   governance: SuggestedAction[]
   anomalyHistory: {
@@ -147,6 +162,7 @@ export interface AIControlCenterData {
     medium: number
     resolved: number
   }[]
+  anomalyAnalysis?: { status: string; observations?: number; minimum?: number } | null
   resolutionRate: number | null
   responseMinutes: number | null
   assignees: string[]
@@ -174,7 +190,7 @@ export const statusLabels: Record<AlertStatus, string> = {
 }
 export const intelligenceLabels: Record<IntelligenceType, string> = {
   fact: 'FACT',
-  analysis: 'AI ANALYSIS',
+  analysis: 'ANALYSE STATISTIQUE',
   forecast: 'FORECAST',
   recommendation: 'RECOMMENDATION',
 }

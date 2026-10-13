@@ -46,10 +46,10 @@ def cleanup(company_id, user_id, identity):
     from apps.companies.models import Company
     from apps.crm.models import Customer
     from apps.sales.models import Invoice
-    from apps.intelligence.models import AIAlert, IntelligenceRun
+    from apps.intelligence.models import AIAlert, IntelligenceRun, ForecastRun
     with transaction.atomic():
         company = Company.objects.get(pk=company_id, name=f"Intelligence smoke {identity}")
-        for model in [AuditLog, IdempotencyKey, AIAlert, IntelligenceRun, Invoice, Customer]:
+        for model in [AuditLog, IdempotencyKey, AIAlert, ForecastRun, IntelligenceRun, Invoice, Customer]:
             model.objects.filter(company=company).delete()
         RolePermission.objects.filter(role__company=company).delete()
         MembershipRole.objects.filter(membership__company=company).delete()

@@ -2,15 +2,13 @@ import { readAIPolicyMock } from '../../settings/data/aiPolicy.mock'
 import { BusinessNotFoundError } from '../../../hooks/useBusinessScope'
 import { formatMoney, sumMoney } from '../../../lib/money'
 import { stockDemoDate } from '../../products/data/products.mock'
-import { catalogSnapshot, inventorySummaryMock, movementSnapshot } from '../../inventory/data/inventory.mock'
+import { inventorySummaryMock } from '../../inventory/data/inventory.mock'
 import { cashFlowMock, cashForecastMock, cashUpcomingMock } from '../../finance/data/finance.mock'
 import { salesSnapshot } from '../../sales/data/sales.mock'
-import { purchaseById } from '../../purchases/data/purchases.mock'
-import { adminUsersSnapshot } from '../../admin/data/admin.mock'
 import type { DocumentSource } from '../../documents/types/documents.types'
-import type { AIMessage, AIOpportunity, ChatEvent, Conversation, ForecastDomain, ForecastDriver, ForecastResult } from '../types/ai.types'
+import type { AIMessage, ChatEvent, Conversation, ForecastDomain, ForecastDriver, ForecastResult } from '../types/ai.types'
 export const workspacePermissions = ['ai.use', 'ai.tools.finance', 'ai.tools.inventory', 'documents.view', 'approvals.view', 'forecast.view', 'forecast.recalculate', 'ai.opportunities.view']
-const conversations = new Map<string, Conversation[]>(), opportunities = new Map<string, AIOpportunity[]>(), generated = new Map<string, string>()
+const conversations = new Map<string, Conversation[]>(), generated = new Map<string, string>()
 const delay = (ms: number, signal?: AbortSignal) => new Promise<void>((resolve, reject) => { if (signal?.aborted) { reject(new DOMException('Annulé', 'AbortError')); return } const timer = setTimeout(() => { signal?.removeEventListener('abort', abort); resolve() }, ms); const abort = () => { clearTimeout(timer); reject(new DOMException('Annulé', 'AbortError')) }; signal?.addEventListener('abort', abort, { once: true }) })
 const source = (id: string, name: string, excerpt: string, path: string): DocumentSource => ({ id, documentId: null, documentName: name, page: null, section: 'Données ERP', excerpt, recordPath: path, period: stockDemoDate, authorized: true })
 function conversationStore(scope: string) { if (!conversations.has(scope)) conversations.set(scope, []); return conversations.get(scope)! }
@@ -48,20 +46,3 @@ export function forecastMock(scope: string, domain: ForecastDomain, horizon: num
 }
 export async function recalculateForecastMock(scope: string, domain: ForecastDomain, horizon: number) { await delay(450); generated.set(`${scope}:${domain}`, new Date().toISOString()); return forecastMock(scope, domain, horizon) }
 export function forecastDriversMock(domain: ForecastDomain): ForecastDriver[] { return domain === 'cash-flow' || domain === 'payments' ? [{ label: 'Échéances ouvertes', explanation: 'Les montants et dates de factures structurent le scénario.', relationship: 'observed' }, { label: 'Règlement intégral', explanation: 'Hypothèse simplifiée de règlement intégral, sans garantie.', relationship: 'assumption' }] : [{ label: 'Historique limité', explanation: 'Les données disponibles ne permettent pas d’établir une saisonnalité ou une causalité.', relationship: 'observed' }] }
-function opportunityStore(scope: string) {
-  if (!opportunities.has(scope)) {
-    const product = catalogSnapshot(scope).find((p) => p.id === 501)!, order = purchaseById(scope, 321), sales = salesSnapshot(scope).filter((s) => !['draft', 'cancelled'].includes(s.orderStatus)), first = sales[0], inventory = inventorySummaryMock(scope), movements = movementSnapshot(scope)
-    opportunities.set(scope, [
-      { id: 1, type: 'inventory', title: 'Examiner le surstock de packaging', potentialValue: Math.max(0, (product.available ?? 0) - product.maximumStock) * product.averageCost, evidence: [source('stock-501', product.name, `${product.available} disponibles pour un maximum de ${product.maximumStock}.`, '/products/501')], recommendation: 'Étudier les besoins avant de réduire ou redéployer le stock.' },
-      { id: 2, type: 'supplier', title: 'Revoir le tarif des emballages Atlas', potentialValue: null, evidence: [source('purchase-321', order.reference, `Prix courant ${order.lines[0].unitPrice} MAD ; prix précédent ${order.lines[0].previousPrice} MAD.`, '/purchases/321')], recommendation: 'Comparer les conditions et volumes avant négociation.' },
-      { id: 3, type: 'margin', title: 'Analyser les articles à faible marge', potentialValue: null, evidence: catalogSnapshot(scope).filter((p) => p.sellingPrice > 0 && (p.sellingPrice - p.purchasePrice) / p.sellingPrice < .15).slice(0, 3).map((p) => source(`margin-${p.id}`, p.name, `Achat ${p.purchasePrice} MAD, vente ${p.sellingPrice} MAD.`, `/products/${p.id}`)), recommendation: 'Vérifier les coûts et remises avant toute modification de prix.' },
-      { id: 4, type: 'upsell', title: first ? `Préparer une revue commerciale · ${first.customerName}` : 'Revue commerciale', potentialValue: null, evidence: first ? [source('sale-review', first.reference, `Commande confirmée de ${formatMoney(first.totalAmount)} TTC.`, `/sales/${first.id}`)] : [], recommendation: 'Valider les besoins avec le client ; aucun revenu additionnel n’est garanti.' },
-      { id: 5, type: 'growth', title: 'Améliorer la disponibilité des produits', potentialValue: null, evidence: [source('inventory-review', 'Premium Cable', `${inventory.outOfStock} produits en rupture globale ; ${movements.length} mouvements documentés dans le périmètre.`, '/products/104')], recommendation: 'Examiner les ruptures et la demande avant d’augmenter les achats.' },
-    ].map((o) => ({ ...o, type: o.type as AIOpportunity['type'], confidence: null, confidenceLevel: null, status: 'open', assignedTo: null, canAssign: true, source: 'Suggestion de démonstration dérivée des faits ERP. Valeur potentielle indicative, aucune probabilité de gain.' })))
-  }
-  return opportunities.get(scope)!
-}
-export const opportunitiesMock = (scope: string) => readAIPolicyMock(scope).allowRecommendations ? structuredClone(opportunityStore(scope)) : []
-export const opportunityAssigneesMock = (scope: string) => adminUsersSnapshot(scope).filter((u) => u.status === 'active' && ['Commercial', 'Direction'].includes(u.department)).map((u) => ({ id: u.id, name: u.name, role: u.roleName }))
-export function opportunityByIdMock(scope: string, id: number) { const o = opportunityStore(scope).find((o) => o.id === id); if (!o) throw new BusinessNotFoundError(); return structuredClone(o) }
-export async function assignOpportunityMock(scope: string, id: number, userId: number) { await delay(250); const o = opportunityStore(scope).find((o) => o.id === id), assignee = opportunityAssigneesMock(scope).find((u) => u.id === userId); if (!o?.canAssign || !assignee) throw new Error('Affectation non autorisée.'); o.assignedTo = { id: assignee.id, name: assignee.name }; o.status = 'assigned'; return structuredClone(o) }

@@ -6,15 +6,15 @@ from django.db.models import Count, F, Max, OuterRef, Q, Subquery, Sum
 from django.db.models.functions import TruncDate, TruncMonth
 from django.utils import timezone
 from apps.crm.models import Customer
-from apps.sales.models import CreditNote, CreditNoteLine, InvoiceLine, SalesOrder
+from apps.sales.models import CreditNoteLine, InvoiceLine, SalesOrder
 from apps.inventory.models import Product, StockLevel, StockMovement
-from apps.finance.summary_selectors import ZERO, amount, eligible_invoices, balance_summary, aging_buckets, get_expenses_summary, get_cash_flow_summary, get_cash_flow_series
+from apps.finance.summary_selectors import ZERO, amount, eligible_invoices, balance_summary, aging_buckets, get_expenses_summary, get_cash_flow_summary, get_cash_flow_series, posted_credits, get_revenue_summary
 from common.dates import company_today
 from .analytics import summed_subquery
 
 
 def credits(company):
-    return CreditNote.objects.filter(company=company, status="posted", currency=company.currency, customer__company=company, original_invoice__company=company)
+    return posted_credits(company)
 
 
 def monthly(query, field, start, end, measure):
@@ -27,7 +27,7 @@ def sales_kpis(company, start, end, permissions):
     invoice_query = eligible_invoices(company)
     credit_query = credits(company)
     totals = invoice_query.filter(issue_date__range=(start, end)).aggregate(amount=Sum("subtotal", default=ZERO), count=Count("pk"))
-    net = totals["amount"]-amount(credit_query.filter(date__range=(start, end)), "subtotal")
+    net = get_revenue_summary(company, start, end)
     previous_end = date(end.year-1, end.month, min(end.day, monthrange(end.year-1, end.month)[1]))
     orders = SalesOrder.objects.filter(company=company, customer__company=company, currency=company.currency, status__in=["confirmed", "processing", "completed"]).annotate(day=TruncDate("confirmed_at", tzinfo=ZoneInfo(company.timezone)))
     data = []

@@ -11,7 +11,7 @@ from django.db.models.functions import Cast, Coalesce, TruncDate, TruncDay, Trun
 from rest_framework import serializers
 from rest_framework.exceptions import NotFound, PermissionDenied
 from apps.companies.serializers import StrictSerializer
-from apps.finance.summary_selectors import completed_payments, eligible_invoices
+from apps.finance.summary_selectors import completed_payments, eligible_invoices, approved_expenses
 from common.dates import company_today
 
 MONEY = DecimalField(max_digits=30, decimal_places=6)
@@ -74,7 +74,6 @@ def summed_subquery(query, parent, field):
 def base_dataset(company, kind, permissions):
     from apps.sales.models import SalesOrder, SalesOrderLine
     from apps.purchasing.models import PurchaseOrder, PurchaseOrderLine, Supplier
-    from apps.finance.models import Expense
     from apps.inventory.models import Product, StockLevel
     today = company_today(company)
     fields = {key: Value("", output_field=CharField()) for key in ["reference", "name", "group", "owner", "partner", "category", "warehouse"]}
@@ -96,7 +95,7 @@ def base_dataset(company, kind, permissions):
         fields.update(reference=F("number"), name=Coalesce("customer__name", "supplier__name"), date=F("date"), amount=Case(When(direction="incoming", then=F("amount")), default=-F("amount"), output_field=MONEY), group=F("direction"), partner=Coalesce("customer__name", "supplier__name"), category=F("method"))
         source = "Paiements confirmés : encaissements positifs, décaissements négatifs. Les annulations sont exclues. Sans solde bancaire initial ni prévision."
     elif kind == "expenses":
-        query = Expense.objects.filter(company=company, currency=company.currency, status__in=["approved", "paid"])
+        query = approved_expenses(company)
         fields.update(reference=F("number"), name=F("description"), date=F("date"), amount=F("total"), group=F("category"), category=F("category"), owner=F("employee"))
         source = "Dépenses approuvées ou payées, TTC, selon leur date. Ces charges ne prouvent pas un décaissement bancaire."
     elif kind == "inventory":

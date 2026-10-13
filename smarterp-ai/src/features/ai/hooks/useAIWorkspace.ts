@@ -1,9 +1,10 @@
+import { refreshIntelligence } from '../../ai-control-center/api/aiControlCenter.api'
 import { useEffect, useRef, useState } from 'react'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { env } from '../../../config/env'
 import { businessQueryOptions as options, useBusinessScope } from '../../../hooks/useBusinessScope'
 import * as api from '../api/ai.api'
-import type { AIResponseBlock, ForecastDomain } from '../types/ai.types'
+import type { AIResponseBlock, ForecastDomain, OpportunityFilters, OpportunityAction } from '../types/ai.types'
 export function useAIAssistant() {
   const { scope, key, invalidate } = useBusinessScope(), controller = useRef<AbortController | null>(null), [stream, setStream] = useState<{ conversationId: string; blocks: AIResponseBlock[]; status: 'streaming' | 'tool_running'; tool: string | null } | null>(null)
   useEffect(() => () => controller.current?.abort(), [])
@@ -24,10 +25,23 @@ export function useForecasting(domain: ForecastDomain, horizon: number) {
   const recalculate = useMutation({ ...options, mutationFn: () => api.recalculateForecast(scope, domain, horizon), onSuccess: () => invalidate(['forecast', 'forecast-drivers']) })
   return { ...query, drivers, recalculate, isDemo: env.aiWorkspaceUseMock }
 }
-export function useAIOpportunities() {
+export function useAIOpportunities(filters: OpportunityFilters, selectedId: number | null) {
   const { scope, key, invalidate } = useBusinessScope()
-  const query = useQuery({ ...options, queryKey: [...key('ai-opportunities'), env.aiWorkspaceUseMock], queryFn: ({ signal }) => api.getAIOpportunities(scope, signal) })
-  const detail = useMutation({ ...options, mutationFn: (id: number) => api.getAIOpportunityById(scope, id) })
-  const assign = useMutation({ ...options, mutationFn: ({ id, userId }: { id: number; userId: number }) => api.assignAIOpportunity(scope, id, userId), onSuccess: () => invalidate(['ai-opportunities']) })
-  return { ...query, detail, assign, isDemo: env.aiWorkspaceUseMock }
+  const cache = useQueryClient()
+  const [userId, companyId] = key('ai-opportunities').slice(1)
+  const query = useQuery({ ...options, queryKey: [...key('ai-opportunities'), filters], queryFn: ({ signal }) => api.getAIOpportunities(filters, signal),
+    placeholderData: (previous, query) => query?.queryKey[1] === userId && query?.queryKey[2] === companyId ? previous : undefined,
+    refetchInterval: (query) => ['pending', 'running'].includes(query.state.data?.lastRun?.status ?? '') ? 2500 : false })
+  const detail = useQuery({ ...options, queryKey: [...key('ai-opportunity-detail'), selectedId], enabled: selectedId !== null, queryFn: ({ signal }) => api.getAIOpportunityById(selectedId!, signal) })
+  const update = () => invalidate(['ai-opportunities', 'ai-opportunity-detail', 'ai-control-center'])
+  const action = useMutation({ ...options, mutationFn: ({ id, action }: { id: number; action: OpportunityAction }) => api.changeAIOpportunity(scope, id, action), onSuccess: update })
+  const refresh = useMutation({ ...options, mutationFn: () => refreshIntelligence(scope), onSuccess: update })
+  const runId = query.data?.lastRun?.id, runStatus = query.data?.lastRun?.status
+  useEffect(() => {
+    if (runStatus === 'completed') {
+      void cache.invalidateQueries({ queryKey: ['ai-opportunity-detail', userId, companyId] })
+      void cache.invalidateQueries({ queryKey: ['ai-control-center', userId, companyId] })
+    }
+  }, [cache, userId, companyId, runId, runStatus])
+  return { ...query, detail, action, refresh }
 }

@@ -108,6 +108,8 @@ export function BusinessHealth({
               />
             </div>
             <div>
+              {department.reason && <p className="text-[9px] leading-4 text-slate-500">{department.reason}</p>}
+              {!department.reason && <>
               <p className="text-xl font-semibold leading-none text-navy-950">
                 {department.score ?? '—'}
                 <span className="text-[9px] font-normal text-slate-400">
@@ -123,6 +125,7 @@ export function BusinessHealth({
                 {department.trend === null ? 'Observé' : `${department.trend} pts`} · {department.alerts} alerte
                 {department.alerts !== 1 ? 's' : ''}
               </p>
+              </>}
             </div>
             <Badge tone={department.tone} className="w-fit text-[8px]">
               {department.status}

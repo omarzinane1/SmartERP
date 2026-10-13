@@ -7,7 +7,7 @@ from apps.sales.models import Invoice, CreditNote
 from apps.purchasing.models import SupplierInvoice
 from apps.inventory.models import StockLevel
 from apps.inventory.valuation import assert_supported_valuation
-from .models import Payment, Expense
+from .models import Payment
 
 ZERO = Decimal("0.00")
 
@@ -87,18 +87,32 @@ def aging_buckets(company, supplier=False):
 
 def get_expenses_summary(company, from_date, to_date):
     # Accrual expenditure; never added to the payment cash ledger.
-    return Expense.objects.filter(company=company, status__in=["approved", "paid"], date__range=(from_date, to_date)).aggregate(
+    return approved_expenses(company).filter(date__range=(from_date, to_date)).aggregate(
         total=Sum("total", default=ZERO), subtotal=Sum("amount_ht", default=ZERO), count=Count("pk"))
 
 
+def approved_expenses(company):
+    from .expense_selectors import expense_queryset
+    return expense_queryset(company).filter(currency=company.currency, status__in=["approved", "paid"]).filter(
+        Q(category_record__isnull=True) | Q(category_record__company=company))
+
+
+def posted_credits(company):
+    return CreditNote.objects.filter(company=company, status="posted", currency=company.currency,
+        customer__company=company, original_invoice__company=company, original_invoice__customer__company=company)
+
+
+def get_revenue_summary(company, from_date, to_date):
+    return amount(eligible_invoices(company).filter(issue_date__range=(from_date, to_date)), "subtotal") - amount(
+        posted_credits(company).filter(date__range=(from_date, to_date)), "subtotal")
+
+
 def get_finance_kpis(company, from_date, to_date, permissions):
-    invoices = eligible_invoices(company).filter(issue_date__range=(from_date, to_date))
-    credits = CreditNote.objects.filter(company=company, status="posted", customer__company=company, original_invoice__company=company, date__range=(from_date, to_date))
     inventory = None
     if "inventory.view" in permissions:
         assert_supported_valuation(company)
         inventory = amount(StockLevel.objects.filter(company=company, product__company=company, warehouse__company=company), "total_value")
-    return dict(revenue=amount(invoices, "subtotal")-amount(credits, "subtotal"), receivables=balance_summary(company),
+    return dict(revenue=get_revenue_summary(company, from_date, to_date), receivables=balance_summary(company),
         payables=balance_summary(company, True), expenses=get_expenses_summary(company, from_date, to_date),
         cashFlow=get_cash_flow_summary(company, from_date, to_date), inventoryValue=inventory, grossMargin=None,
         balanceAsOf=company_today(company).isoformat(), fromDate=from_date.isoformat(), toDate=to_date.isoformat(),

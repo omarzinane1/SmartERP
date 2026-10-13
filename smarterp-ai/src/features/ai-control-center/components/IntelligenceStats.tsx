@@ -20,8 +20,8 @@ const cards = [
   },
   {
     key: 'forecasts',
-    title: 'Risques observés',
-    caption: 'Observations de moins de 24 h',
+    title: 'Prévisions disponibles',
+    caption: 'Calculs réussis de moins de 24 h',
     icon: TrendingUp,
     style: 'border-ai-border text-ai-text',
     iconStyle: 'bg-ai-soft',
@@ -29,7 +29,7 @@ const cards = [
   {
     key: 'opportunities',
     title: 'Opportunités',
-    caption: 'Moteur non disponible',
+    caption: 'Pistes ouvertes et à jour',
     icon: Rocket,
     style: 'border-success-border text-success-text',
     iconStyle: 'bg-success-bg',

@@ -1,5 +1,7 @@
 # AI Control Center : exploitation et contrats
 
+> Document du jalon initial du 2026-10-11. Les évolutions statistiques, prévisions et suppression du mock sont décrites dans [INTELLIGENCE_MILESTONE_REPORT.md](INTELLIGENCE_MILESTONE_REPORT.md), qui fait référence pour le périmètre actuel.
+
 La page existante est `/ai/control-center`, dans `smarterp-ai/`. Le backend lit les données ERP et écrit uniquement des alertes, analyses, notifications internes et audits. Aucun LLM, SQL libre, modèle ML ou outil d'écriture ERP n'est appelé.
 
 ## Accès et démarrage

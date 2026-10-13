@@ -1,6 +1,7 @@
 """Detection writes only supervision records, never ERP financial or stock ledgers."""
-from datetime import timedelta
+from datetime import date, timedelta
 import logging
+from time import monotonic
 from uuid import uuid4
 from django.db import transaction
 from django.utils import timezone
@@ -12,9 +13,14 @@ from apps.companies.models import Company
 from common.dispatch import enqueue_after_commit
 from common.exceptions import BusinessConflict
 from common.idempotency import request_identity
-from .constants import ACTIVE, RULE_PERMISSIONS, RUN_LEASE, allowed_rules
+from .constants import ACTIVE, RULE_PERMISSIONS, RUN_LEASE, allowed_rules, ANALYTICS_VERSION, MAX_SIGNALS
 from .detection import collect_signals
-from .models import AIAlert, IntelligenceRun
+from .models import AIAlert, IntelligenceRun, ForecastRun
+from .anomalies import expense_spike
+from .forecasting import generate_forecast
+from .opportunity_detectors import detect_company_opportunities
+from .opportunity_services import publish_opportunities
+from common.dates import company_today
 from .selectors import context, alert_queryset
 
 logger = logging.getLogger(__name__)
@@ -30,7 +36,7 @@ def run_actor(run):
 
 def audit_run(run, action, actor=None):
     record_audit_event(company=run.company, actor=actor, action=f"intelligence.{action}", entity=run,
-        metadata=dict(run_id=run.pk, status=run.status, error_code=run.error_code))
+        metadata=dict(run_id=run.pk, status=run.status, error_code=run.error_code, version=ANALYTICS_VERSION))
 
 
 @transaction.atomic
@@ -58,13 +64,15 @@ def expire_runs(query=None):
 
 
 @transaction.atomic
-def request_refresh(*, company, membership, key):
+def request_refresh(*, company, membership, key, horizon=7, granularity="day"):
+    if type(horizon) is not int or horizon not in {7, 30} or granularity != "day":
+        raise ValidationError("Horizons autorisés : 7 ou 30 jours.")
     Company.objects.select_for_update().get(pk=company.pk)
     member, codes = context(company, membership)
     rules = allowed_rules(codes)
     if not rules:
         raise PermissionDenied("Aucune source ERP autorisée pour cette analyse.")
-    key, fingerprint = request_identity(key, dict(actor=member.user_id, rules=rules))
+    key, fingerprint = request_identity(key, dict(actor=member.user_id, rules=rules, horizon=horizon, granularity=granularity))
     receipt = IdempotencyKey.objects.filter(company=company, operation="intelligence_refresh", key=key).first()
     if receipt:
         if receipt.actor_id != member.user_id or receipt.request_hash != fingerprint:
@@ -74,9 +82,9 @@ def request_refresh(*, company, membership, key):
     running = IntelligenceRun.objects.filter(company=company, status__in=["pending", "running"]).first()
     if running and running.requested_by_id != member.user_id:
         raise BusinessConflict("Une analyse est déjà en cours pour cette société.")
-    if running and running.rules != rules:
+    if running and (running.rules != rules or running.horizon != horizon or running.granularity != granularity):
         raise BusinessConflict("Une analyse avec un autre périmètre est en cours.")
-    run = running or IntelligenceRun.objects.create(company=company, requested_by_id=member.user_id, rules=rules, lease_expires_at=timezone.now()+timedelta(days=1))
+    run = running or IntelligenceRun.objects.create(company=company, requested_by_id=member.user_id, rules=rules, horizon=horizon, granularity=granularity, lease_expires_at=timezone.now()+timedelta(days=1))
     IdempotencyKey.objects.create(company=company, actor_id=member.user_id, operation="intelligence_refresh", key=key, request_hash=fingerprint,
         response_code=202, response_body=dict(run_id=run.pk), expires_at=timezone.now()+timedelta(days=30))
     if running is None:
@@ -124,14 +132,18 @@ def notify_critical(alert):
 
 
 @transaction.atomic
-def publish_signals(run, signals):
+def publish_signals(run, signals, analytics=None):
     Company.objects.select_for_update().get(pk=run.company_id)
     current = IntelligenceRun.objects.select_for_update().get(pk=run.pk)
     if current.status != "running" or current.claim_token != run.claim_token or current.lease_expires_at < timezone.now():
         raise BusinessConflict("Analyse expirée.")
     member = run_actor(current)
     now, created, updated = timezone.now(), 0, 0
-    existing = {obj.fingerprint: obj for obj in AIAlert.objects.filter(company=run.company, condition_active=True, alert_type__in=run.rules)}
+    from django.db.models import Q
+    period = (analytics or {}).get("anomalies", {}).get("period")
+    scan_day = date.fromisoformat(period) if period else company_today(run.company)-timedelta(days=1)
+    existing = {obj.fingerprint: obj for obj in AIAlert.objects.filter(company=run.company, alert_type__in=run.rules).filter(
+        (Q(condition_active=True) & ~Q(source="statistical")) | Q(source="statistical", period_date=scan_day))}
     for data in signals:
         obj = existing.pop(data["fingerprint"], None)
         new = obj is None
@@ -140,6 +152,7 @@ def publish_signals(run, signals):
             obj = AIAlert(company=run.company)
         for field, value in data.items():
             setattr(obj, field, value)
+        obj.condition_active = True
         obj.last_seen_at = now
         obj.save()
         created += int(new)
@@ -148,6 +161,9 @@ def publish_signals(run, signals):
             notify_critical(obj)
     closed = 0
     for obj in existing.values():
+        # Historical observations do not disappear just because the scan advances.
+        if obj.source == "statistical" and obj.period_date != scan_day:
+            continue
         obj.condition_active = False
         if obj.status in ACTIVE:
             obj.status, obj.resolved_at = "resolved", now
@@ -156,6 +172,19 @@ def publish_signals(run, signals):
         obj.save(update_fields=["condition_active", "status", "resolved_at", "updated_at"])
     current.status, current.completed_at, current.claim_token = "completed", now, None
     current.summary = dict(detected=len(signals), created=created, updated=updated, autoResolved=closed)
+    if analytics is not None:
+        for result in analytics["forecasts"]:
+            metrics = result["metrics"] or {}
+            ForecastRun.objects.create(company=run.company, intelligence_run=current, metric=result["metric"], status=result["status"],
+                model_name=result["model"] or "", version=result["version"], granularity=result["granularity"], horizon=result["horizon"],
+                training_start=result.get("trainingStart"), training_end=result.get("trainingEnd"), mae=metrics.get("mae"), rmse=metrics.get("rmse"), result=result)
+        current.summary.update(version=ANALYTICS_VERSION, health=analytics["health"], anomalies=analytics["anomalies"],
+            forecasts=[dict(metric=r["metric"], status=r["status"], model=r["model"]) for r in analytics["forecasts"]])
+        if "expense_spike" in run.rules:
+            audit_run(current, "anomalies_executed", member)
+    if analytics is not None and "opportunities" in analytics:
+        kinds = [rule.split(":", 1)[1] for rule in run.rules if rule.startswith("opportunity:")]
+        current.summary["opportunities"] = publish_opportunities(current, analytics["opportunities"], kinds)
     current.save(update_fields=["status", "completed_at", "claim_token", "summary"])
     audit_run(current, "completed", member)
     return dict(id=current.pk, status=current.status)
@@ -167,13 +196,38 @@ def execute_run(run_id):
     run, result = claim_run(run_id)
     if run is None:
         return result
+    stage, started = "rules", monotonic()
     try:
         signals = collect_signals(run.company, run.rules)
-        return publish_signals(run, signals)
+        day = company_today(run.company)-timedelta(days=1)
+        from .health import business_health
+        health_codes = {"ai.use"}.union(*(RULE_PERMISSIONS[rule] for rule in run.rules if rule in RULE_PERMISSIONS))
+        analytics = dict(health=dict(status=business_health(run.company, health_codes)["status"]), anomalies=dict(status="not_authorized"), forecasts=[])
+        if "expense_spike" in run.rules:
+            stage = "anomalies"
+            detected, analytics["anomalies"] = expense_spike(run.company, day)
+            signals.extend(detected)
+            if len(signals) > MAX_SIGNALS:
+                raise ValidationError("Limite de détection dépassée ; aucun résultat partiel publié.")
+            logger.info("intelligence_anomalies company_id=%s run_id=%s detector=activity_day_iqr observations=%s results=%s status=%s", run.company_id, run.pk, analytics["anomalies"]["observations"], len(detected), analytics["anomalies"]["status"])
+        stage = "forecasts"
+        for rule in run.rules:
+            if rule.startswith("forecast:"):
+                result = generate_forecast(run.company, rule.split(":", 1)[1], day, run.horizon, run.granularity)
+                analytics["forecasts"].append(result)
+                logger.info("intelligence_forecast company_id=%s run_id=%s metric=%s model=%s status=%s history_days=%s", run.company_id, run.pk, result["metric"], result["model"], result["status"], result["historyDays"])
+        stage = "opportunities"
+        kinds = [rule.split(":", 1)[1] for rule in run.rules if rule.startswith("opportunity:")]
+        if kinds:
+            analytics["opportunities"] = detect_company_opportunities(company=run.company, kinds=kinds, as_of=day+timedelta(days=1))
+        stage = "publish"
+        published = publish_signals(run, signals, analytics)
+        logger.info("intelligence_completed company_id=%s run_id=%s duration_ms=%s signals=%s forecasts=%s version=%s", run.company_id, run.pk, round((monotonic()-started)*1000), len(signals), len(analytics["forecasts"]), ANALYTICS_VERSION)
+        return published
     except Exception as error:
-        code = "access_revoked" if isinstance(error, PermissionDenied) else "detection_limit" if isinstance(error, ValidationError) else "analysis_failed"
+        code = "access_revoked" if isinstance(error, PermissionDenied) else "detection_limit" if isinstance(error, ValidationError) else "forecast_failed" if stage == "forecasts" else "analysis_failed"
         fail_run(run.pk, code, token=run.claim_token)
-        logger.error("intelligence_failed company_id=%s run_id=%s error_type=%s", run.company_id, run.pk, type(error).__name__)
+        logger.error("intelligence_failed company_id=%s run_id=%s stage=%s error_type=%s", run.company_id, run.pk, stage, type(error).__name__)
         return dict(id=run.pk, status="failed")
 
 

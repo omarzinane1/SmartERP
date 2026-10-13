@@ -17,15 +17,15 @@ export function ForecastRisks({
         className="dashboard-title flex items-center gap-2"
       >
         <TrendingUp className="size-3.5 text-ai-text" />
-        Indicateurs de risque
+        Prévisions et risques
         <Badge tone="info" className="ml-auto text-[8px]">
-          Situation observée
+          Statistiques
         </Badge>
       </h2>
       <p className="dashboard-caption">
-        Règles ERP · aucune prévision ML disponible.
+        Modèles comparés sur une période de validation distincte.
       </p>
-      {forecasts.length === 0 && <p className="dashboard-caption mt-4">Aucun risque observé disponible.</p>}
+      {forecasts.length === 0 && <p className="dashboard-caption mt-4">Aucune prévision accessible. Lancez une analyse avec les droits de prévision et de recalcul.</p>}
       <div className="mt-4 space-y-2">
         {forecasts.map((forecast) => (
           <article
@@ -45,16 +45,26 @@ export function ForecastRisks({
                 tone={severityTones[forecast.severity]}
                 className="shrink-0 text-[8px]"
               >
-                {forecast.confidence === null ? 'Observé' : `${forecast.confidence} %`}
+                {forecast.stale ? 'À actualiser' : forecast.result?.status === 'INSUFFICIENT_DATA' ? 'Historique insuffisant' : forecast.result?.risk ? 'Flux prévu négatif' : 'Prévision'}
               </Badge>
             </div>
             <p className="mt-1 text-[7px] font-medium tracking-wide text-ai-text">
-              {forecast.source === 'RULE_BASED' ? 'RULE_BASED' : 'FORECAST'}
+              {forecast.source} {forecast.generatedAt ? `· ${new Date(forecast.generatedAt).toLocaleString('fr-FR')}` : ''}
             </p>
             {expanded && (
-              <p className="mt-2 border-t border-slate-200 pt-2 text-[9px] leading-4 text-slate-500">
+              <div className="mt-2 border-t border-slate-200 pt-2 text-[9px] leading-4 text-slate-500">
                 Source : {forecast.assumptions}
-              </p>
+                {forecast.result && <>
+                  <p>Modèle : {forecast.result.model ?? 'Non calculé'} · version {forecast.result.version}</p>
+                  {forecast.result.trainingStart && <p>Historique : {forecast.result.trainingStart} → {forecast.result.trainingEnd}</p>}
+                  {forecast.result.validation && <p>Validation : {forecast.result.validation.start} → {forecast.result.validation.end}</p>}
+                  {forecast.result.metrics && <p>MAE : {forecast.result.metrics.mae} · RMSE : {forecast.result.metrics.rmse}</p>}
+                  {forecast.result.candidates.map((candidate) => <p key={candidate.model}>{candidate.model} : MAE {candidate.mae}, RMSE {candidate.rmse}</p>)}
+                  <p>Intervalle de confiance : non disponible.</p>
+                  <details><summary>Historique ({forecast.result.history.length} jours)</summary><table className="w-full text-left"><thead><tr><th>Date</th><th>Valeur</th></tr></thead><tbody>{forecast.result.history.map((point) => <tr key={point.date}><td>{point.date}</td><td>{point.value}</td></tr>)}</tbody></table></details>
+                  {forecast.result.forecast.length > 0 && <details><summary>Valeurs prévues ({forecast.result.forecast.length} jours)</summary><table className="w-full text-left"><thead><tr><th>Date</th><th>Prévision</th></tr></thead><tbody>{forecast.result.forecast.map((point) => <tr key={point.date}><td>{point.date}</td><td>{point.value}</td></tr>)}</tbody></table></details>}
+                </>}
+              </div>
             )}
           </article>
         ))}

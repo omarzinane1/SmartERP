@@ -1,6 +1,4 @@
-import { env } from '../../../config/env'
 import { apiClient } from '../../../lib/axios'
-import { aiControlCenterMock } from '../data/aiControlCenter.mock'
 import { postIdempotent } from '../../../lib/idempotentApi'
 import type { AIControlCenterData, AIAlert, AlertFilters, IntelligenceRun } from '../types/aiControlCenter.types'
 
@@ -9,8 +7,6 @@ export const AI_CONTROL_CENTER_ENDPOINT = '/ai/control-center/'
 export async function getAIControlCenter(
   signal?: AbortSignal,
 ): Promise<AIControlCenterData> {
-  if (env.aiControlCenterUseMock) return aiControlCenterMock
-
   const { data } = await apiClient.get<AIControlCenterData>(
     AI_CONTROL_CENTER_ENDPOINT,
     { signal },

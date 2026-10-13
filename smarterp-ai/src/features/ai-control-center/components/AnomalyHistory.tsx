@@ -19,10 +19,12 @@ export function AnomalyHistory({
   data,
   resolutionRate,
   responseMinutes,
+  analysis,
 }: {
   data: AIControlCenterData['anomalyHistory']
   resolutionRate: number | null
   responseMinutes: number | null
+  analysis?: AIControlCenterData['anomalyAnalysis']
 }) {
   return (
     <section
@@ -35,8 +37,9 @@ export function AnomalyHistory({
             Historique des signaux détectés (30 derniers jours)
           </h2>
           <p className="dashboard-caption">
-            Détections par règles ERP et résolutions enregistrées chaque jour.
+            Règles ERP, anomalies statistiques et résolutions enregistrées chaque jour.
           </p>
+          {analysis?.status === 'INSUFFICIENT_DATA' && <p className="dashboard-caption">Pics de dépenses : historique insuffisant ({analysis.observations} journées actives ; minimum {analysis.minimum} sur au moins 28 jours).</p>}
         </div>
         <div className="flex items-start gap-3 text-[8px] text-slate-500">
           {series.map((item) => (

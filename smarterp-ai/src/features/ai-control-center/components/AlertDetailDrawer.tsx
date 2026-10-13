@@ -152,7 +152,7 @@ export function AlertDetailDrawer({
           {alert.title}
         </h2>
         <div className="mt-2 flex flex-wrap gap-2 text-[9px] text-slate-400">
-          <span>{alert.confidence === null ? 'Règle déterministe' : `Confiance ${alert.confidence} %`}</span>
+          <span>{alert.confidence === null ? (alert.source === 'statistical' ? `Statistique · ${alert.method ?? 'méthode documentée'}` : 'Règle déterministe') : `Confiance ${alert.confidence} %`}</span>
           <time dateTime={alert.detectedAt} title={alert.detectedAt}>
             Détectée il y a {detectedAgo} ·{' '}
             {new Date(alert.detectedAt).toLocaleString('fr-FR', {
@@ -275,13 +275,13 @@ export function AlertDetailDrawer({
       >
         <h3 className="acc-section-label flex items-center gap-1 text-ai-text">
           <BrainCircuit className="size-3" />
-          {isDemo ? 'AI ANALYSIS · Diagnostic' : 'RULE_BASED · Explication'}
+          {alert.source === 'statistical' ? 'STATISTICAL · Explication' : 'RULE_BASED · Explication'}
         </h3>
         <p className="mt-2 text-[10px] leading-[1.7] text-slate-600">
           {alert.analysis}
         </p>
         <p className="mt-2 text-[9px] font-medium text-ai-text">
-          {alert.confidence === null ? 'Règle déterministe' : `Confiance ${alert.confidence} %`} · Observation ERP
+          {alert.confidence === null ? (alert.source === 'statistical' ? `Statistique · ${alert.method ?? 'méthode documentée'}` : 'Règle déterministe') : `Confiance ${alert.confidence} %`} · Observation ERP
         </p>
       </div>
 

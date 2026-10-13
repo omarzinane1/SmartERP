@@ -1,6 +1,6 @@
 from django.apps import apps
-from django.db.models import Q
-from apps.accounts.models import Membership
+from django.db.models import Q, Exists, OuterRef
+from apps.accounts.models import Membership, MembershipRole
 from apps.accounts.selectors import get_effective_permission_codes
 from .models import Notification
 
@@ -30,10 +30,13 @@ def entity_queryset(kind, company_id, recipient_id):
 
 def recipient_memberships(company, permissions):
     query = Membership.objects.filter(company=company, company__is_active=True, status="active", user__is_active=True)
-    for code in permissions:
-        query = query.filter(membership_roles__role__company=company, membership_roles__role__is_active=True,
-            membership_roles__role__role_permissions__permission__code=code, membership_roles__role__role_permissions__permission__is_active=True)
-    return query.select_related("user", "company").distinct()
+    # Independent existence checks avoid a multiplicative join across every
+    # role/permission for each requested code (notably approval notifications).
+    for code in sorted(set(permissions)):
+        grants = MembershipRole.objects.filter(membership_id=OuterRef("pk"), role__company=company, role__is_active=True,
+            role__role_permissions__permission__code=code, role__role_permissions__permission__is_active=True)
+        query = query.filter(Exists(grants))
+    return query.select_related("user", "company")
 
 
 def entity_exists(notification):

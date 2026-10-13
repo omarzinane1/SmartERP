@@ -71,7 +71,7 @@ class ControlCenterTests(AsyncDataMixin, TestCase):
         self.assertEqual(data["health"]["metrics"]["cashFlow"]["netCashFlow"], Decimal("-300.00"))
         self.assertEqual(data["stats"]["critical"], 1)
         self.assertEqual(data["stats"]["warnings"], 2)
-        self.assertEqual(data["stats"]["forecasts"], 3)
+        self.assertEqual(data["stats"]["forecasts"], 0)  # Observations are not predictions.
         self.assertEqual(before, (list(Invoice.objects.values()), Payment.objects.count(), StockMovement.objects.count(), StockLevel.objects.count()))
         stock = AIAlert.objects.get(alert_type="low_stock")
         self.assertEqual(stock.entity_id, product["id"])
@@ -217,7 +217,7 @@ class ControlCenterTests(AsyncDataMixin, TestCase):
         self.assertEqual(run.status, "completed")
         self.assertEqual(run_company_intelligence.run(run.pk)["status"], "completed")
         self.assertEqual(AIAlert.objects.count(), 1)
-        self.assertEqual(set(AuditLog.objects.filter(action__startswith="intelligence.").values_list("action", flat=True)), {"intelligence.refresh_requested", "intelligence.started", "intelligence.completed"})
+        self.assertEqual(set(AuditLog.objects.filter(action__startswith="intelligence.").values_list("action", flat=True)), {"intelligence.refresh_requested", "intelligence.started", "intelligence.completed", "intelligence.anomalies_executed"})
 
     def test_rollback_and_strict_input(self):
         with self.captureOnCommitCallbacks(execute=True), patch.object(run_company_intelligence, "apply_async") as publish:

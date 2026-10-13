@@ -1,5 +1,7 @@
 # SmartERP AI — rapport AI Control Center
 
+> Document du jalon initial du 2026-10-11. Les évolutions statistiques, prévisions et suppression du mock sont décrites dans [INTELLIGENCE_MILESTONE_REPORT.md](INTELLIGENCE_MILESTONE_REPORT.md), qui fait référence pour le périmètre actuel.
+
 11 octobre 2026. Base `4eb6cf0`. [Audit préalable](AI_CONTROL_CENTER_AUDIT.md) · [Contrats, formules et guide manuel](AI_CONTROL_CENTER.md).
 
 ## 1 — Status
@@ -137,7 +139,7 @@ Le harness PostgreSQL isolé exécute `manage.py test ... --settings=config.sett
 
 Les erreurs initiales backend venaient des fixtures : solde/affectation, créateur de paiement, ordre des dates et portée du mock de broker. Les tests navigateur utilisaient initialement le mauvais code de module dans leur session ; correction vers ai_control_center. Les échecs ont été corrigés, pas ignorés. Le navigateur utilisé est Chrome installé, avec API interceptée dans les deux scénarios UI ; la preuve du worker réel est distincte.
 
-Validation finale du tri/pagination et tests ciblés après suite complète : **à consigner**.
+La nouvelle validation de ce comportement est consignée dans le rapport Intelligence milestone lié ci-dessus ; le résultat de la relance finale de ce jalon initial n’a pas été conservé.
 
 ## 14 — Frontend
 
