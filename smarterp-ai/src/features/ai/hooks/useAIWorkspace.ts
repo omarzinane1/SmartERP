@@ -6,17 +6,17 @@ import { businessQueryOptions as options, useBusinessScope } from '../../../hook
 import * as api from '../api/ai.api'
 import type { AIResponseBlock, ForecastDomain, OpportunityFilters, OpportunityAction } from '../types/ai.types'
 export function useAIAssistant() {
-  const { scope, key, invalidate } = useBusinessScope(), controller = useRef<AbortController | null>(null), [stream, setStream] = useState<{ conversationId: string; blocks: AIResponseBlock[]; status: 'streaming' | 'tool_running'; tool: string | null } | null>(null)
-  useEffect(() => () => controller.current?.abort(), [])
-  const query = useQuery({ ...options, queryKey: [...key('ai-conversations'), env.aiWorkspaceUseMock], queryFn: ({ signal }) => api.getConversations(scope, signal) })
-  const create = useMutation({ ...options, mutationFn: () => api.createConversation(scope), onSuccess: () => invalidate(['ai-conversations']) })
+  const { scope, key, invalidate } = useBusinessScope(), controller = useRef<AbortController | null>(null), [stream, setStream] = useState<{ scope: string; conversationId: string; blocks: AIResponseBlock[]; status: 'streaming' | 'tool_running'; tool: string | null } | null>(null)
+  useEffect(() => () => controller.current?.abort(), [scope])
+  const query = useQuery({ ...options, queryKey: key('ai-conversations'), queryFn: ({ signal }) => api.getConversations(signal) })
+  const create = useMutation({ ...options, mutationFn: () => api.createConversation(), onSuccess: () => invalidate(['ai-conversations']) })
   const send = useMutation({ ...options, mutationFn: async ({ conversationId, question }: { conversationId: string; question: string }) => {
-    controller.current?.abort(); const abort = new AbortController(); controller.current = abort; setStream({ conversationId, blocks: [], status: 'streaming', tool: null })
-    try { return await api.streamAIChat(scope, conversationId, question, (event) => { if (abort.signal.aborted) return; if (event.type === 'status') setStream((s) => s?.conversationId === conversationId ? { ...s, status: event.status, tool: event.tool ?? s.tool } : s); if (event.type === 'block') setStream((s) => s?.conversationId === conversationId ? { ...s, blocks: [...s.blocks, event.block] } : s) }, abort.signal) } finally { if (controller.current === abort) controller.current = null }
+    controller.current?.abort(); const abort = new AbortController(); controller.current = abort; setStream({ scope, conversationId, blocks: [], status: 'streaming', tool: null })
+    try { return await api.streamAIChat(conversationId, question, (event) => { if (abort.signal.aborted) return; if (event.type === 'status') setStream((s) => s?.scope === scope && s.conversationId === conversationId ? { ...s, status: event.status, tool: event.tool ?? s.tool } : s); if (event.type === 'block') setStream((s) => s?.scope === scope && s.conversationId === conversationId ? { ...s, blocks: [...s.blocks, event.block] } : s) }, abort.signal) } finally { if (controller.current === abort) controller.current = null }
   }, onSuccess: async () => { await invalidate(['ai-conversations']); setStream(null) } })
-  const sources = useMutation({ ...options, mutationFn: (id: string) => api.getMessageSources(scope, id) })
+  const sources = useMutation({ ...options, mutationFn: (id: string) => api.getMessageSources(id) })
   const stop = () => { controller.current?.abort(); controller.current = null; setStream(null) }
-  return { ...query, create, send, sources, stream, stop, isDemo: env.aiWorkspaceUseMock }
+  return { ...query, create, send, sources, stream: stream?.scope === scope ? stream : null, stop, isDemo: false }
 }
 export function useForecasting(domain: ForecastDomain, horizon: number) {
   const { scope, key, invalidate } = useBusinessScope()

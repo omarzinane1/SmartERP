@@ -8,6 +8,10 @@ EMAIL_ALLOW_CONSOLE = True
 
 DEBUG = True
 
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL") or "http://localhost:11434"
+OLLAMA_CHAT_MODEL = os.getenv("OLLAMA_CHAT_MODEL") or "qwen3:14b"
+OLLAMA_EMBEDDING_MODEL = os.getenv("OLLAMA_EMBEDDING_MODEL") or "embeddinggemma:300m"
+
 
 ALLOWED_HOSTS = [
     "localhost",

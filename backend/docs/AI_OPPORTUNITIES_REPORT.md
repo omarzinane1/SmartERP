@@ -113,7 +113,7 @@ Refresh manuel : intelligence.refresh_requested (run_id, status, version). Exéc
 
 ## 14 — Tests
 
-VALIDATION_PENDING
+Validation finale : suite PostgreSQL complète, 353 tests réussis (225,386 s), puis 167 tests ciblés Intelligence/Finance/Reporting/Notifications réussis (177,910 s), zéro échec ou erreur. Check, makemigrations --check et migrate réussis ; build et lint frontend réussis. Playwright : 13 tests Opportunités/Control Center réussis en 39,0 s. Fixture de date stabilisée au midi du fuseau de la société pour les exécutions nocturnes.
 
 Les tests navigateur interceptent des contrats API et vérifient les composants réels ; ils ne constituent pas un parcours contre la base de développement. Les tests Django exécutent les vrais modèles/services et migrations sur PostgreSQL isolé, avec Celery eager ; aucune réinitialisation de la base applicative.
 

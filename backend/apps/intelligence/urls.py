@@ -2,8 +2,14 @@ from django.urls import path
 from .views import ControlCenterView, AlertListView, AlertDetailView, AlertActionView, RefreshView, RunDetailView, ForecastListView, ForecastDetailView
 
 from .views import OpportunityListView, OpportunityDetailView, OpportunityActionView
+from .assistant_views import ConversationListView, ConversationDetailView, ChatView, MessageSourcesView
 
 urlpatterns = [
+    path("ai/conversations/", ConversationListView.as_view()),
+    path("ai/conversations/<int:conversation_id>/", ConversationDetailView.as_view()),
+    path("ai/chat/stream/", ChatView.as_view(streaming=True)),
+    path("ai/assistant/chat/", ChatView.as_view()),
+    path("ai/messages/<int:message_id>/sources/", MessageSourcesView.as_view()),
     path("ai/opportunities/", OpportunityListView.as_view()),
     path("ai/opportunities/<int:opportunity_id>/", OpportunityDetailView.as_view()),
     path("ai/opportunities/<int:opportunity_id>/<str:action>/", OpportunityActionView.as_view()),

@@ -28,11 +28,19 @@ def link_payload(link):
 
 
 def document_payload(obj, permissions, request):
+    from django.conf import settings
+    from django.utils import timezone
+    from apps.intelligence.policy import enabled
+    expired = obj.rag_status in {"pending", "processing"} and obj.rag_lease_until and obj.rag_lease_until < timezone.now()
+    incompatible = obj.rag_status == "indexed" and obj.embedding_model != settings.OLLAMA_EMBEDDING_MODEL
+    status = "index_error" if expired or incompatible else {"indexed": "indexed", "pending": "processing", "processing": "processing", "failed": "index_error"}.get(obj.rag_status, "uploaded")
     return dict(id=obj.pk, name=obj.name, mime=obj.mime_type, category=obj.category, department=obj.department,
-        author=obj.uploaded_by.get_full_name() or obj.uploaded_by.email, size=obj.size, createdAt=obj.created_at.isoformat(), status="uploaded",
+        author=obj.uploaded_by.get_full_name() or obj.uploaded_by.email, size=obj.size, createdAt=obj.created_at.isoformat(), status=status,
         visibility="Privé" if obj.visibility == "private" else "Public entreprise", pageCount=obj.page_count, canView=True,
         url=request.build_absolute_uri(f"/api/documents/{obj.pk}/download/"), previewUrl=request.build_absolute_uri(f"/api/documents/{obj.pk}/preview/"),
-        links=[link_payload(link) for link in obj.links.all()], capabilities=dict(canDelete="documents.delete" in permissions, canIndex=False, canDownload=True, canAnalyze=False), indexError=None)
+        links=[link_payload(link) for link in obj.links.all()], capabilities=dict(canDelete="documents.delete" in permissions,
+            canIndex=enabled() and {"ai.use", "documents.view", "documents.upload", "documents.ai_analyze"}.issubset(permissions) and obj.mime_type in {"application/pdf", "text/plain"},
+            canDownload=True, canAnalyze=False), indexError="Réindexation nécessaire." if expired or incompatible else "Indexation indisponible : "+obj.rag_error if obj.rag_error else None)
 
 
 def entity_documents(company, membership, permissions, kind, pk):

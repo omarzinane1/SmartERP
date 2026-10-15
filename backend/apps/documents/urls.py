@@ -1,7 +1,8 @@
 from django.urls import path
-from .views import DocumentListView, DocumentDetailView, DocumentDownloadView, DocumentPagesView, DocumentLinkView
+from .views import DocumentListView, DocumentDetailView, DocumentDownloadView, DocumentPagesView, DocumentLinkView, DocumentIndexView
 
 urlpatterns = [
+    path("documents/<int:document_id>/index/", DocumentIndexView.as_view()),
     path("documents/", DocumentListView.as_view()),
     path("documents/<int:document_id>/", DocumentDetailView.as_view()),
     path("documents/<int:document_id>/download/", DocumentDownloadView.as_view()),

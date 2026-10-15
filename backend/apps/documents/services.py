@@ -39,6 +39,11 @@ def upload_document(*, company, membership, data):
             obj.save()
             if kind:
                 DocumentLink.objects.create(company=company, document=obj, entity_type=kind, entity_id=pk, created_by_id=membership.user_id)
+            from apps.intelligence.policy import enabled
+            if enabled() and {"ai.use", "documents.view", "documents.upload", "documents.ai_analyze"}.issubset(get_effective_permission_codes(membership=membership)):
+                from .rag.indexer import request_index
+                request_index(company=company, membership=membership, document_id=obj.pk)
+                obj.refresh_from_db()
     except Exception:
         if obj.file.name:
             obj.file.storage.delete(obj.file.name)
@@ -91,4 +96,6 @@ def delete_document(*, company, membership, document_id):
     obj.deleted_at, obj.deleted_by_id = timezone.now(), membership.user_id
     obj.save(update_fields=["deleted_at", "deleted_by", "updated_at"])
     obj.links.all().delete()
+    obj.chunks.all().delete()
+    Document.objects.filter(pk=obj.pk).update(rag_claim_token=None, rag_status="not_indexed", rag_lease_until=None)
     transaction.on_commit(lambda: cleanup_document_file(obj.pk))

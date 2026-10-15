@@ -209,3 +209,10 @@ if os.getenv("CELERY_BEAT_ENABLED", "false").lower() == "true":
         "idempotency-nightly": {"task": "apps.audit.tasks.cleanup_expired_idempotency_keys", "schedule": crontab(hour=2, minute=0)},
         "interrupted-tasks-hourly": {"task": "apps.reporting.tasks.expire_stalled_jobs", "schedule": crontab(minute=15)},
     }
+# Local AI is opt-in outside development. Never download models from application code.
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "")
+OLLAMA_CHAT_MODEL = os.getenv("OLLAMA_CHAT_MODEL", "")
+OLLAMA_EMBEDDING_MODEL = os.getenv("OLLAMA_EMBEDDING_MODEL", "")
+OLLAMA_TIMEOUT = float(os.getenv("OLLAMA_TIMEOUT", "45"))
+OLLAMA_CONNECT_TIMEOUT = float(os.getenv("OLLAMA_CONNECT_TIMEOUT", "3"))
+RAG_MAX_COSINE_DISTANCE = float(os.getenv("RAG_MAX_COSINE_DISTANCE", "0.65"))

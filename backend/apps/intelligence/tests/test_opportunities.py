@@ -1,4 +1,5 @@
-from datetime import timedelta
+from datetime import datetime, time, timedelta
+from zoneinfo import ZoneInfo
 from decimal import Decimal
 from uuid import uuid4
 from unittest.mock import patch
@@ -27,7 +28,7 @@ class OpportunityTests(AsyncDataMixin, TestCase):
 
     def order(self, age=100, customer=None, **kwargs):
         return SalesOrder.objects.create(company=self.company, customer=customer or self.customer, salesperson=self.membership,
-            number=str(uuid4()), status="confirmed", confirmed_at=timezone.now()-timedelta(days=age), subtotal="125.25", total="125.25", **kwargs)
+            number=str(uuid4()), status="confirmed", confirmed_at=datetime.combine(company_today(self.company)-timedelta(days=age), time(12), tzinfo=ZoneInfo(self.company.timezone)), subtotal="125.25", total="125.25", **kwargs)
 
     def historic(self):
         for age in [120, 110, 90]:
@@ -46,10 +47,7 @@ class OpportunityTests(AsyncDataMixin, TestCase):
 
     def opportunity(self):
         self.historic()
-        from django.db.models.functions import TruncDate
-        from zoneinfo import ZoneInfo
-        self.assertEqual(len(self.detect("customer_reactivation")), 1, dict(today=company_today(self.company), zone=self.company.timezone,
-            rows=list(SalesOrder.objects.annotate(local_day=TruncDate("confirmed_at", tzinfo=ZoneInfo(self.company.timezone))).values("confirmed_at", "local_day", "customer_id", "salesperson_id", "company_id"))))
+        self.assertEqual(len(self.detect("customer_reactivation")), 1)
         run = self.scan()
         self.assertIn("opportunity:customer_reactivation", run.rules)
         self.assertTrue(AIOpportunity.objects.filter(opportunity_type="customer_reactivation").exists(), run.summary)
@@ -93,6 +91,16 @@ class OpportunityTests(AsyncDataMixin, TestCase):
         from datetime import date
         # Local July 14 is only 89 days before October 11, not 90.
         self.assertEqual(DETECTORS["customer_reactivation"](self.company, date(2026, 10, 11)), [])
+
+    def test_inactivity_boundary_across_utc_midnight(self):
+        from datetime import timezone as utc
+        for moment in [datetime(2026, 10, 12, 22, 30, tzinfo=utc.utc), datetime(2026, 10, 12, 23, 30, tzinfo=utc.utc)]:
+            with self.subTest(moment=moment), patch("django.utils.timezone.now", return_value=moment):
+                self.historic()
+                rows = self.detect("customer_reactivation")
+                self.assertEqual(len(rows), 1)
+                self.assertEqual(rows[0]["metadata"]["metrics"]["days_inactive"], 90)
+                SalesOrder.objects.all().delete()
 
     def test_receivables_grouping_exact_value_and_payment_recovery(self):
         a = self.aged_invoice(price="125.25", quantity="1.000")

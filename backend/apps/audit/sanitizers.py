@@ -7,6 +7,7 @@ FIELDS = {"status", "total", "subtotal", "balance_due", "amount", "currency", "d
 
 FIELDS.update({"email_id", "email_type", "backend", "error_code"})
 FIELDS.update({"run_id"})
+FIELDS.update({"trace_id", "conversation_id", "tool", "route", "duration_ms", "chunk_count"})
 
 
 def safe_value(value):

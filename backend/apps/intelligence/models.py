@@ -3,6 +3,36 @@ from django.db import models
 from .constants import STATUSES, SEVERITIES
 
 
+class AIConversation(models.Model):
+    company = models.ForeignKey("companies.Company", on_delete=models.PROTECT)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    title = models.CharField(max_length=100, default="Nouvelle conversation")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    claim_token = models.UUIDField(null=True)
+    lease_until = models.DateTimeField(null=True)
+
+    class Meta:
+        ordering = ["-updated_at", "-pk"]
+        indexes = [models.Index(fields=["company", "user", "updated_at"], name="conversation_company_user")]
+
+
+class AIMessage(models.Model):
+    conversation = models.ForeignKey(AIConversation, on_delete=models.CASCADE, related_name="messages")
+    role = models.CharField(max_length=12, choices=[("user", "user"), ("assistant", "assistant")])
+    content = models.TextField()
+    payload = models.JSONField(default=dict)
+    required_permissions = models.JSONField(default=list)
+    chunk_ids = models.JSONField(default=list)
+    request_id = models.UUIDField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at", "pk"]
+        constraints = [models.UniqueConstraint(fields=["conversation", "role", "request_id"], name="ai_message_request_role"),
+            models.CheckConstraint(condition=models.Q(role__in=["user", "assistant"]), name="ai_message_role_valid")]
+
+
 class IntelligenceRun(models.Model):
     company = models.ForeignKey("companies.Company", on_delete=models.PROTECT)
     requested_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)

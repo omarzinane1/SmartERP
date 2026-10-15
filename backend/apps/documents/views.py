@@ -10,6 +10,18 @@ from .validators import MAX_BYTES, TYPES
 from .registry import ENTITIES
 
 
+class DocumentIndexView(CompanyAPIView):
+    required_permission = "documents.upload"
+
+    def post(self, request, document_id):
+        from apps.intelligence.assistant_views import EmptyInput
+        from .rag.indexer import request_index
+        self.validated(EmptyInput)
+        obj = request_index(company=request.company, membership=request.membership, document_id=document_id)
+        obj.refresh_from_db()
+        return Response(read.document_payload(obj, self.codes(), request), status=202)
+
+
 class DocumentListView(CompanyAPIView):
     parser_classes = [MultiPartParser, FormParser]
 

@@ -5,7 +5,7 @@ import * as api from '../api/documents.api'
 import type { DocumentAction, DocumentMetadata } from '../types/documents.types'
 export function useDocuments() {
   const { scope, key, invalidate } = useBusinessScope(), refresh = () => invalidate(['documents', 'document', 'document-pages'])
-  const query = useQuery({ ...options, queryKey: [...key('documents'), env.documentsUseMock], queryFn: ({ signal }) => api.getDocuments(scope, signal) })
+  const query = useQuery({ ...options, queryKey: [...key('documents'), env.documentsUseMock], queryFn: ({ signal }) => api.getDocuments(scope, signal), refetchInterval: (q) => !env.documentsUseMock && q.state.data?.documents.some((d) => d.status === 'processing') ? 2500 : false })
   const upload = useMutation({ ...options, mutationFn: ({ file, metadata, progress }: { file: File; metadata: DocumentMetadata; progress: (v: number) => void }) => api.uploadDocument(scope, file, metadata, progress), onSuccess: refresh })
   const remove = useMutation({ ...options, mutationFn: (id: number) => api.deleteDocument(scope, id), onSuccess: refresh })
   const index = useMutation({ ...options, mutationFn: (id: number) => api.indexDocument(scope, id), onSuccess: refresh })
@@ -13,7 +13,7 @@ export function useDocuments() {
 }
 export function useDocumentDetail(id: number, valid: boolean) {
   const { scope, key, invalidate } = useBusinessScope()
-  const detail = useQuery({ ...options, queryKey: [...key('document'), env.documentsUseMock, id], enabled: valid, queryFn: ({ signal }) => api.getDocumentById(scope, id, signal) })
+  const detail = useQuery({ ...options, queryKey: [...key('document'), env.documentsUseMock, id], enabled: valid, queryFn: ({ signal }) => api.getDocumentById(scope, id, signal), refetchInterval: (q) => !env.documentsUseMock && q.state.data?.status === 'processing' ? 2500 : false })
   const can = (p: string) => detail.data?.canView === true && detail.data.permissions.includes(p)
   const pages = useQuery({ ...options, queryKey: [...key('document-pages'), env.documentsUseMock, id], enabled: can('documents.view'), queryFn: ({ signal }) => api.getDocumentPages(scope, id, signal) })
   const analyze = useMutation({ ...options, mutationFn: (action: DocumentAction) => api.analyzeDocument(scope, id, action) })

@@ -1,40 +1,13 @@
 import { readAIPolicyMock } from '../../settings/data/aiPolicy.mock'
-import { BusinessNotFoundError } from '../../../hooks/useBusinessScope'
-import { formatMoney, sumMoney } from '../../../lib/money'
+import { sumMoney } from '../../../lib/money'
 import { stockDemoDate } from '../../products/data/products.mock'
 import { inventorySummaryMock } from '../../inventory/data/inventory.mock'
 import { cashFlowMock, cashForecastMock, cashUpcomingMock } from '../../finance/data/finance.mock'
 import { salesSnapshot } from '../../sales/data/sales.mock'
-import type { DocumentSource } from '../../documents/types/documents.types'
-import type { AIMessage, ChatEvent, Conversation, ForecastDomain, ForecastDriver, ForecastResult } from '../types/ai.types'
+import type { ForecastDomain, ForecastDriver, ForecastResult } from '../types/ai.types'
 export const workspacePermissions = ['ai.use', 'ai.tools.finance', 'ai.tools.inventory', 'documents.view', 'approvals.view', 'forecast.view', 'forecast.recalculate', 'ai.opportunities.view']
-const conversations = new Map<string, Conversation[]>(), generated = new Map<string, string>()
+const generated = new Map<string, string>()
 const delay = (ms: number, signal?: AbortSignal) => new Promise<void>((resolve, reject) => { if (signal?.aborted) { reject(new DOMException('Annulé', 'AbortError')); return } const timer = setTimeout(() => { signal?.removeEventListener('abort', abort); resolve() }, ms); const abort = () => { clearTimeout(timer); reject(new DOMException('Annulé', 'AbortError')) }; signal?.addEventListener('abort', abort, { once: true }) })
-const source = (id: string, name: string, excerpt: string, path: string): DocumentSource => ({ id, documentId: null, documentName: name, page: null, section: 'Données ERP', excerpt, recordPath: path, period: stockDemoDate, authorized: true })
-function conversationStore(scope: string) { if (!conversations.has(scope)) conversations.set(scope, []); return conversations.get(scope)! }
-export const conversationsMock = (scope: string) => structuredClone(conversationStore(scope))
-export async function createConversationMock(scope: string) { await delay(150); const conversation: Conversation = { id: crypto.randomUUID(), title: 'Nouvelle conversation', createdAt: new Date().toISOString(), messages: [] }; conversationStore(scope).unshift(conversation); return structuredClone(conversation) }
-export async function streamChatMock(scope: string, conversationId: string, question: string, emit: (event: ChatEvent) => void, signal?: AbortSignal): Promise<AIMessage> {
-  if (!readAIPolicyMock(scope).allowAnalysis) throw new Error('Analyse désactivée par la politique société.')
-  const conversation = conversationStore(scope).find((c) => c.id === conversationId); if (!conversation) throw new BusinessNotFoundError(); if (!question.trim() || question.length > 4000) throw new Error('Question invalide.')
-  const inventory = /stock|produit|rupture/i.test(question), tool = inventory ? 'inventory' : 'finance'
-  emit({ type: 'status', status: 'tool_running', tool }); await delay(350, signal)
-  const cash = cashFlowMock(scope), stock = inventorySummaryMock(scope), upcoming = cashUpcomingMock(scope), message: AIMessage = { id: crypto.randomUUID(), role: 'assistant', text: '', blocks: [], sources: [], createdAt: new Date().toISOString(), tools: [tool], period: stockDemoDate, simulated: true }
-  if (inventory) {
-    const critical = stock.products.filter((p) => ['low_stock', 'out_of_stock'].includes(p.stockHealth)).slice(0, 5)
-    message.blocks = [{ id: 'stock-kpi', category: 'FACT', type: 'kpi', items: [{ label: 'Disponible global', value: stock.available, unit: 'number' }, { label: 'Valeur stock', value: stock.value, unit: 'money' }] }, { id: 'stock-table', category: 'FACT', type: 'table', columns: ['Produit', 'Disponible', 'Minimum'], rows: critical.map((p) => [p.name, p.available ?? 0, p.minimumStock]) }, { id: 'stock-analysis', category: 'AI ANALYSIS', type: 'text', text: 'Les produits listés franchissent leurs seuils configurés. Cette règle déterministe ne prévoit pas la demande.' }, { id: 'stock-chart', category: 'FACT', type: 'chart', title: 'Valeur par dépôt', data: stock.warehouses.map((w) => ({ name: w.name, value: w.stockValue ?? 0 })) }, { id: 'stock-action', category: 'RECOMMENDATION', type: 'list', items: ['Vérifier les besoins et les quantités disponibles par dépôt avant de commander.'] }]
-    message.sources = critical.map((p) => source(String(p.id), p.name, `Disponible ${p.available}, minimum ${p.minimumStock}.`, `/products/${p.id}`))
-  } else {
-    const projection = cashForecastMock(scope, 30), top = [...upcoming.customers].sort((a, b) => b.amount - a.amount).slice(0, 3)
-    message.blocks = [{ id: 'cash-kpi', category: 'FACT', type: 'kpi', items: [{ label: 'Cash simulé', value: cash.cash ?? 0, unit: 'money' }, { label: 'Créances ouvertes', value: cash.receivable, unit: 'money' }, { label: 'Dettes ouvertes', value: cash.payable, unit: 'money' }] }, { id: 'cash-table', category: 'FACT', type: 'table', columns: ['Facture', 'Client', 'Solde MAD'], rows: top.map((i) => [i.reference, i.partnerName, i.amount]) }, { id: 'cash-analysis', category: 'AI ANALYSIS', type: 'text', text: 'Les créances listées concentrent les soldes ouverts les plus élevés. Confirmer leurs dates de règlement permettrait de réduire l’incertitude.' }, { id: 'cash-forecast', category: 'FORECAST', type: 'text', text: `${formatMoney(projection.projected ?? 0)} à 30 jours dans le scénario simplifié. ${projection.assumptions}` }, { id: 'cash-risk', category: 'AI ANALYSIS', type: 'risk', text: 'Prévision à faible confiance, sans probabilité calibrée. Aucun solde bancaire réel connecté.' }, { id: 'cash-action', category: 'RECOMMENDATION', type: 'action', title: 'Revoir le plan de relance', impact: 'Soumettre la demande existante APR-AI-901 à une décision humaine. Aucune relance ne sera envoyée depuis la conversation.', dataUsed: top.map((i) => i.reference), approvalId: 901, status: 'awaiting_approval', canOpenApproval: true }]
-    message.sources = top.map((i) => source(String(i.id), i.reference, `${i.partnerName} · solde ouvert ${formatMoney(i.amount)}.`, `/invoices/${i.id}`))
-  }
-  emit({ type: 'status', status: 'streaming' })
-  for (const block of message.blocks) { await delay(100, signal); emit({ type: 'block', block: structuredClone(block) }) }
-  conversation.messages.push({ id: crypto.randomUUID(), role: 'user', text: question.trim(), blocks: [], sources: [], createdAt: message.createdAt, tools: [], period: null, simulated: true }, message); conversation.title = question.trim().slice(0, 70)
-  emit({ type: 'done', message: structuredClone(message) }); return structuredClone(message)
-}
-export function messageSourcesMock(scope: string, id: string) { const message = conversationStore(scope).flatMap((c) => c.messages).find((m) => m.id === id); if (!message) throw new BusinessNotFoundError(); return structuredClone(message.sources.filter((s) => s.authorized)) }
 export function forecastMock(scope: string, domain: ForecastDomain, horizon: number): ForecastResult {
   const key = `${scope}:${domain}`, date = generated.get(key) ?? stockDemoDate, series: ForecastResult['series'] = [], cash = cashFlowMock(scope), forecast = cashForecastMock(scope, horizon)
   if (domain === 'cash-flow') { const points = new Map<string, ForecastResult['series'][number]>(); for (const p of cash.history) points.set(p.date, { date: p.date, historical: p.actual, forecast: null, lower: null, upper: null }); for (const p of forecast.series) points.set(p.date, { date: p.date, historical: points.get(p.date)?.historical ?? null, forecast: p.forecast, lower: null, upper: null }); series.push(...[...points.values()].sort((a, b) => a.date.localeCompare(b.date))) }

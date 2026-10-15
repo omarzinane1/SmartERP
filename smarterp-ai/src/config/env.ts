@@ -4,7 +4,7 @@ export const env = {
   modulesUseMock: import.meta.env.VITE_MODULES_USE_MOCK !== 'false',
   settingsUseMock: import.meta.env.VITE_SETTINGS_USE_MOCK !== 'false',
   profileUseMock: import.meta.env.VITE_PROFILE_USE_MOCK === 'true',
-  documentsUseMock: import.meta.env.VITE_DOCUMENTS_USE_MOCK !== 'false',
+  documentsUseMock: import.meta.env.VITE_DOCUMENTS_USE_MOCK === 'true',
   aiWorkspaceUseMock: import.meta.env.VITE_AI_WORKSPACE_USE_MOCK !== 'false',
   approvalsUseMock: import.meta.env.VITE_APPROVALS_USE_MOCK !== 'false',
   adminUseMock: import.meta.env.VITE_ADMIN_USE_MOCK !== 'false',

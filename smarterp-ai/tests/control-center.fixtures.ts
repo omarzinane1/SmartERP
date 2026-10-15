@@ -2,10 +2,10 @@ import { expect, type Page } from './fixtures'
 import type { AIAlert, AIControlCenterData, IntelligenceRun } from '../src/features/ai-control-center/types/aiControlCenter.types'
 
 const defaultPermissions = ['ai.use', 'invoices.view']
-export async function session(page: Page, permissions = defaultPermissions, target = '/ai/control-center') {
+export async function session(page: Page, permissions = defaultPermissions, target = '/ai/control-center', modules = ['ai_control_center', 'invoices']) {
   await page.route('**/api/auth/session/', (route) => route.fulfill({ json: {
     user: { id: 41, name: 'Intelligence Tester', email: 'intelligence@example.test', role: 'ERP', permissions },
-    company: { id: 11, name: 'Company A', onboarding_completed: true, enabled_modules: ['ai_control_center', 'invoices'] },
+    company: { id: 11, name: 'Company A', onboarding_completed: true, enabled_modules: modules },
   } }))
   await page.goto('/dashboard')
   await expect(page.getByRole('button', { name: 'Profil de Intelligence Tester' })).toBeVisible()
