@@ -9,6 +9,7 @@ from . import policy
 from .assistant import make_context, conversations, create_conversation, conversation_payload, message_payload, chat
 from .models import AIMessage
 from .tools.registry import available_tools
+from rest_framework.renderers import BaseRenderer
 
 
 class EmptyInput(StrictSerializer):
@@ -54,20 +55,74 @@ class ConversationDetailView(AssistantView):
             raise NotFound()
         return Response(conversation_payload(ctx, obj))
 
+# update 10/15/2026
+class EventStreamRenderer(BaseRenderer):
+    media_type = "text/event-stream"
+    format = "event-stream"
+    charset = None
+
+    def render(self, data, accepted_media_type=None, renderer_context=None):
+        if data is None:
+            return b""
+
+        if isinstance(data, bytes):
+            return data
+
+        if isinstance(data, str):
+            return data.encode("utf-8")
+
+        return (
+            "data: "
+            + json.dumps(data, ensure_ascii=False)
+            + "\n\n"
+        ).encode("utf-8")
+
 
 class ChatView(AssistantView):
     streaming = False
 
+    def get_renderers(self):
+        if self.streaming:
+            return [EventStreamRenderer()]
+        return super().get_renderers()
+
     def post(self, request):
         data = self.validated(ChatInput)
-        result = chat(self.ctx(), data["conversation_id"], data["message"], data.get("request_id"))
+
+        result = chat(
+            self.ctx(),
+            data["conversation_id"],
+            data["message"],
+            data.get("request_id"),
+        )
+
         if not self.streaming:
             return Response(result)
-        # Buffer until all citations and permissions pass. Never stream unchecked model tokens.
-        events = [dict(type="status", status="streaming"), *[dict(type="block", block=b) for b in result["blocks"]], dict(type="done", message=result)]
-        response = StreamingHttpResponse(("data: "+json.dumps(e, ensure_ascii=False)+"\n\n" for e in events), content_type="text/event-stream")
+
+        # Buffer until all citations and permissions pass.
+        # Never stream unchecked model tokens.
+        events = [
+            dict(type="status", status="streaming"),
+            *[
+                dict(type="block", block=b)
+                for b in result["blocks"]
+            ],
+            dict(type="done", message=result),
+        ]
+
+        response = StreamingHttpResponse(
+            (
+                "data: "
+                + json.dumps(event, ensure_ascii=False)
+                + "\n\n"
+                for event in events
+            ),
+            content_type="text/event-stream",
+        )
+
         response["Cache-Control"] = "no-store"
         response["X-Accel-Buffering"] = "no"
+
         return response
 
 

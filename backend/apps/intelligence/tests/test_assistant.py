@@ -230,3 +230,50 @@ class AssistantTests(RAGDataMixin, TestCase):
             result = chat(self.ctx(), obj.pk, "Bonjour")
         self.assertEqual(result["status"], "completed")
         self.assertLessEqual(len(llm.call_args_list[0].args[0]), 14)
+
+    def test_api_sse_contract_and_strict_context(self):
+        response = self.client.post(
+            "/api/ai/conversations/",
+            {},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 201, response.data)
+        identifier = response.data["id"]
+
+        with self.answer(dict(route="DIRECT")):
+            response = self.client.post(
+                "/api/ai/chat/stream/",
+                dict(
+                    conversation_id=identifier,
+                    message="Bonjour",
+                ),
+                format="json",
+                HTTP_ACCEPT="text/event-stream",
+            )
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(
+            response["Content-Type"],
+            "text/event-stream",
+        )
+
+        data = b"".join(
+            response.streaming_content
+        ).decode()
+
+        self.assertIn('"type": "done"', data)
+        self.assertIn('"simulated": false', data)
+
+        response = self.client.post(
+            "/api/ai/assistant/chat/",
+            dict(
+                conversation_id=identifier,
+                message="Bonjour",
+                company_id=self.other_company.pk,
+            ),
+            format="json",
+        )
+
+        self.assertIn(response.status_code, [400, 403])
