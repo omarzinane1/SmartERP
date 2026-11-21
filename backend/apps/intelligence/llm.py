@@ -79,8 +79,67 @@ class OllamaProvider:
             return text
         try:
             return schema.model_validate_json(text)
+
         except ValueError:
-            raise AIError("invalid_structured_output") from None
+            # Un retry uniquement pour les erreurs de routing.
+            if schema.__name__ != "RoutePlan":
+                raise AIError("invalid_structured_output") from None
+
+            correction = (
+                "Your previous JSON failed validation. "
+                "Correct your routing response using these mandatory rules: "
+                "DIRECT: calls=[] and document_id=null. "
+                "RAG: calls=[] without exception. "
+                "TOOL: calls must contain an authorized tool and document_id=null. "
+                "HYBRID: calls must contain an authorized tool. "
+                "For a question about a contract or PDF content, choose RAG "
+                "without any tool calls. "
+                "Never invent tool names, entity IDs, or document IDs. "
+                "Return ONLY corrected JSON with route, calls, document_id."
+            )
+
+            retry_messages = [
+                *messages,
+                {"role": "assistant", "content": text},
+                {"role": "user", "content": correction},
+            ]
+
+            if (
+                len(json.dumps(retry_messages, ensure_ascii=False).encode("utf-8"))
+                > policy.MAX_CONTEXT_BYTES
+            ):
+                raise AIError("context_limit")
+
+            retry_body = {
+                **body,
+                "messages": retry_messages,
+            }
+
+            retry_result = self.request(
+                "/api/chat",
+                retry_body,
+                deadline=deadline,
+            )
+
+            retry_message = retry_result.get("message")
+            retry_text = (
+                retry_message.get("content")
+                if isinstance(retry_message, dict)
+                else None
+            )
+
+            if (
+                not isinstance(retry_text, str)
+                or not retry_text.strip()
+                or len(retry_text.encode("utf-8")) > policy.MAX_OUTPUT_BYTES
+            ):
+                raise AIError("invalid_provider_response")
+
+            try:
+                return schema.model_validate_json(retry_text)
+
+            except ValueError:
+                raise AIError("invalid_structured_output") from None
 
     def generate(self, prompt, *, schema=None, deadline=None):
         return self.chat([dict(role="user", content=prompt)], schema=schema, deadline=deadline)
